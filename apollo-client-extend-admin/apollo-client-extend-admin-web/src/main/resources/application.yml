@@ -1,0 +1,6 @@
+
+## swagger 登录认证
+knife4j.basic:
+  enable: false
+  username: admin
+  password: adminweb@1qazxsw2

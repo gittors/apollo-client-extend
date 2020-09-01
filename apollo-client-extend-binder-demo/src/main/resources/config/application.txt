@@ -1,0 +1,10 @@
+apollo.extend.namespace = application-test
+
+## test configuration
+my.map.name1 = value1,value11
+
+## 配置当前命名空间所管理命名空间的监听key - 新增，多个按","号分隔
+listen.key.addMap.application-test = my.map
+
+## 配置当前命名空间所管理命名空间的监听key - 删除，多个按","号分隔
+listen.key.delMap.application-test = my.map

@@ -1,0 +1,26 @@
+# Compiled class file
+*.class
+.classpath
+.springBeans
+.factorypath
+
+*.class
+*.classpath
+*.project
+bin/
+log/
+test-output/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.log
+# nodejs local modules
+.idea/
+*.iml
+.settings/
+target/

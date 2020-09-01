@@ -1,0 +1,8 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.gittors.apollo.extend.config.ApolloExtendConfiguration
+
+org.springframework.context.ApplicationContextInitializer=\
+  com.gittors.apollo.extend.spring.ApolloExtendApplicationContextInitializer
+
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  com.gittors.apollo.extend.spring.ApolloExtendApplicationContextInitializer

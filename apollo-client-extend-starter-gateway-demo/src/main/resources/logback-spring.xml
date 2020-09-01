@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+	<include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+	<jmxConfigurator/>
+	<springProperty scope="context" name="logPath" source="log.path" defaultValue="/opt/log"/>
+	<springProperty scope="context" name="appName" source="spring.application.name" defaultValue="apollo-client-extend-starter-gateway-demo"/>
+
+	<!-- %m输出的信息,%p日志级别,%t线程名,%d日期,%c类的全名 -->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>%d %p ${appName} (%file:%line\) %m%n</pattern>
+		</encoder>
+	</appender>
+
+	<springProfile name="dev,test">
+<!--		<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--				<FileNamePattern>${logPath}/${appName}-%d{yyyy-MM-dd}.log</FileNamePattern>-->
+<!--				<maxHistory>30</maxHistory>-->
+<!--			</rollingPolicy>-->
+<!--			<encoder>-->
+<!--				<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg %n</Pattern>-->
+<!--			</encoder>-->
+<!--		</appender>-->
+		<logger name="com.gittors" level="DEBUG" />
+		<root level="INFO">
+			<appender-ref ref="STDOUT"/>
+<!--			<appender-ref ref="FILE"/>-->
+		</root>
+	</springProfile>
+
+	<springProfile name="uat,prod,k8s">
+		<logger name="com.gittors.apollo.extend.gateway" level="INFO" additivity="false">
+			<appender-ref ref="STDOUT"/>
+		</logger>
+		<logger name="org.springframework" level="INFO" additivity="false">
+			<appender-ref ref="STDOUT"/>
+		</logger>
+		<root level="INFO">
+			<appender-ref ref="STDOUT"/>
+		</root>
+	</springProfile>
+</configuration>

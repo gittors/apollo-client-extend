@@ -1,0 +1,5 @@
+
+## test configuration
+my.map.name2 = value2
+
+my1.map.name2 = value2
