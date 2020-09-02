@@ -26,7 +26,8 @@
 
     <packaging>pom</packaging>
     <name>apollo-client-extend-parent</name>
-    <description>apollo-client-extend-parent</description>
+    <description>apollo-client-extend</description>
+    <url>https://github.com/gittors/apollo-client-extend</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -320,8 +321,8 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/gittors/apollo-client-extend</connection>
-        <developerConnection>scm:git:ssh://git@github.com/gittors/apollo-client-extend.git</developerConnection>
+        <connection>scm:git:https://github.com/gittors/apollo-client-extend.git</connection>
+        <developerConnection>scm:git:https://github.com/gittors/apollo-client-extend.git</developerConnection>
         <url>https://github.com/gittors/apollo-client-extend</url>
     </scm>
 
