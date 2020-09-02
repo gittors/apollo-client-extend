@@ -1,6 +1,5 @@
 package com.gittors.apollo.extend.context;
 
-import com.ctrip.framework.apollo.spring.property.SpringValue;
 import com.gittors.apollo.extend.callback.ApolloExtendCallback;
 import com.google.common.collect.Maps;
 
@@ -16,22 +15,9 @@ public enum ApolloExtendContext {
     /**
      * apollo回调缓存
      */
-    private Map<String, ApolloExtendCallback> callbackMap;
+    private Map<String, ApolloExtendCallback> callbackMap = Maps.newHashMap();
 
     private final Object callBackMonitor = new Object();
-
-    /**
-     * 缓存：  {@link SpringValue}
-     */
-    private Map<String, SpringValue> springValueMap = Maps.newLinkedHashMap();
-
-    public void putSpringValueMap(String key, SpringValue value) {
-        this.springValueMap.put(key, value);
-    }
-
-    public Map<String, SpringValue> getSpringValueMap() {
-        return this.springValueMap;
-    }
 
     /**
      * 初始化回调

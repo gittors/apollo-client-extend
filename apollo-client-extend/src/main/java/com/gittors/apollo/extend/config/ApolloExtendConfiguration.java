@@ -4,7 +4,6 @@ import com.gittors.apollo.extend.callback.ApolloExtendCallback;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.initializer.ApolloExtendCustomListenerInitializer;
-import com.gittors.apollo.extend.processor.ApolloExtendContextClearProcessor;
 import com.gittors.apollo.extend.service.ApolloExtendCallbackAdapter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -19,11 +18,6 @@ import java.util.Map;
  */
 @Configuration(proxyBeanMethods = false)
 public class ApolloExtendConfiguration {
-
-    @Bean
-    public ApolloExtendContextClearProcessor apolloExtendContextClearProcessor() {
-        return new ApolloExtendContextClearProcessor();
-    }
 
     @Bean
     public ApolloExtendCustomListenerInitializer apolloExtendCustomListenerInitializer() {
