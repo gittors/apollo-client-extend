@@ -1,5 +1,6 @@
 package com.gittors.apollo.extend.binder.utils;
 
+import com.gittors.apollo.extend.binder.exception.BinderException;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapperRegistry;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -21,7 +22,7 @@ public class BinderObjectInjector {
                     try {
                         injector = Guice.createInjector(new SpringModule());
                     } catch (Throwable ex) {
-                        throw new RuntimeException("Unable to initialize Apollo Spring Injector!", ex);
+                        throw new BinderException("Unable to initialize Apollo Spring Injector!", ex);
                     }
                 }
             }
@@ -34,7 +35,7 @@ public class BinderObjectInjector {
         try {
             return getInjector().getInstance(clazz);
         } catch (Throwable ex) {
-            throw new RuntimeException(
+            throw new BinderException(
                     String.format("Unable to load instance for %s!", clazz.getName()), ex);
         }
     }

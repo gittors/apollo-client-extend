@@ -1,4 +1,10 @@
 #   Apollo Client Extend : Apollo Client扩展
+[![Total lines](https://tokei.rs/b1/github/gittors/apollo-client-extend?category=lines)](https://tokei.rs/b1/github/gittors/apollo-client-extend?category=lines) 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?label=license)](https://github.com/gittors/apollo-client-extend/blob/master/LICENSE) 
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.gittors/apollo-client-extend.svg?label=maven%20central)](https://search.maven.org/search?q=g:com.github.gittors%20AND%20extend) 
+[![Javadocs](http://www.javadoc.io/badge/com.github.gittors/apollo-client-extend.svg)](https://www.javadoc.io/doc/com.github.gittors/apollo-client-extend) 
+[![Build Status](https://travis-ci.org/gittors/apollo-client-extend.svg?branch=master)](https://travis-ci.org/gittors/apollo-client-extend) 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8e39a24e1be740c58b83fb81763ba317)](https://app.codacy.com/manual/gittors/apollo-client-extend/dashboard)
 
 ## 前言
 ```
@@ -55,22 +61,23 @@ application 可管理 application2 的配置项【根据 application2 配置前�
 ```
 
 ## 模块说明：
-```
-apollo-client-extend：基础模块
-apollo-client-extend-common：公共依赖模块
-apollo-client-extend-starter：基础模块Starter
-apollo-client-extend-event：事件模块
-apollo-client-extend-event-starter：事件模块Starter
-apollo-client-extend-binder：对象绑定模块
-apollo-client-extend-binder-starter：对象绑定模块Starter
-apollo-client-extend-binder-demo：绑定模块Demo
-apollo-client-extend-starter-gateway-adapter：网关适配模块
-apollo-client-extend-starter-gateway-demo：网关适配模块Demo
-apollo-client-extend-chain-processor：链式调用模块
-apollo-client-extend-admin：管理模块
-apollo-client-extend-adapter：Apollo版本适配模块
-apollo-client-extend-support：基础支持模块
-```
+| 模块名 | 描述 |
+| --- | --- |
+| apollo-client-extend | 基础模块 |
+| apollo-client-extend-common | 通用模块 |
+| apollo-client-extend-starter | 基础模块Starter |
+| apollo-client-extend-event | 事件模块 |
+| apollo-client-extend-event-starter | 事件模块Starter |
+| apollo-client-extend-binder | 对象绑定模块 |
+| apollo-client-extend-binder-starter | 对象绑定模块Starter |
+| apollo-client-extend-binder-demo | 绑定模块Demo |
+| apollo-client-extend-starter-gateway-adapter | 网关适配模块 |
+| apollo-client-extend-starter-gateway-demo | 网关适配模块Demo |
+| apollo-client-extend-chain-processor | 链式调用模块 |
+| apollo-client-extend-admin | 管理模块 |
+| apollo-client-extend-adapter | Apollo版本适配模块 |
+| apollo-client-extend-support | 基础支持模块 |
+
 
 ## 依赖版本：
 ```
