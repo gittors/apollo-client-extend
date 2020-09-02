@@ -3,7 +3,6 @@ package com.gittors.apollo.extend.spi;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.core.ConfigConsts;
-import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
 import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
@@ -11,6 +10,7 @@ import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.constant.CommonConstant;
 import com.gittors.apollo.extend.common.enums.ChangeType;
+import com.gittors.apollo.extend.common.spi.Ordered;
 import com.gittors.apollo.extend.common.utils.ListUtils;
 import com.gittors.apollo.extend.properties.ApolloExtendGlobalListenKeyProperties;
 import com.gittors.apollo.extend.properties.ApolloExtendListenKeyProperties;
@@ -179,7 +179,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
 
         MutablePropertySources mutablePropertySources = environment.getPropertySources();
         configPropertySourceList.forEach(propertySource -> {
-            //  如果是FALSE全部失效，就不用设置回调+更新
+            //  如果是FALSE全部生效，就不用设置回调
             if (configEntry.getKey()) {
                 DefaultConfigExt defaultConfig = (DefaultConfigExt) propertySource.getSource();
 
@@ -193,7 +193,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
                 //  2刷新对象
                 defaultConfig.updateConfig(properties, propertySource.getSource().getSourceType());
 
-                //  3设置配置回调
+                //  3设置回调
                 defaultConfig.addPropertiesCallBack(updateProperties -> {
                     Properties filterProperties = new Properties();
                     Properties property = (Properties) updateProperties;
@@ -240,7 +240,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             mutablePropertySources.remove(ApolloExtendStringUtils.format(propertySourceName, null, CommonConstant.PROPERTY_NAME_SUFFIX));
 
             Properties properties = new Properties();
-            //  2.1删除 "监听前缀" 的配置，管理命名空间的配置除外
+            //  2.1删除 "监听前缀" 的配置，管理配置除外
             propertySource.getSource()
                     .getPropertyNames()
                     .stream()
@@ -253,7 +253,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
 
             //  3.2移除相关监听器【废弃】
 
-            //  3.3设置配置回调，管理命名空间的配置除外
+            //  3.3设置配置回调，管理配置除外
             defaultConfig.addPropertiesCallBack(updateProperties -> {
                 Properties filterProperties = new Properties();
                 Properties property = (Properties) updateProperties;
