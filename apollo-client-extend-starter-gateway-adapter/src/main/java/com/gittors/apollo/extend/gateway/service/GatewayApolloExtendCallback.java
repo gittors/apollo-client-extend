@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,7 +23,7 @@ public class GatewayApolloExtendCallback extends ApolloExtendCallbackAdapter {
     }
 
     @Override
-    protected void changeProcess(ChangeType changeType, Map<String, List<Map<String, String>>> data) {
+    protected void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data) {
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
         eventPublisher.asyncPublish(RouteRefreshEvent.getInstance());
     }

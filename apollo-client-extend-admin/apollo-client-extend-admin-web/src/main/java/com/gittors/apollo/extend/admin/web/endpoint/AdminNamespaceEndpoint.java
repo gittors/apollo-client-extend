@@ -62,9 +62,9 @@ public class AdminNamespaceEndpoint {
         List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(namespace);
         Set<String> newNamespaceSet = new HashSet<>(namespaceList);
 
-        List<Map<String, String>> list = extendNameSpaceManager.getAddNamespace(newNamespaceSet);
+        Map<String, Map<String, String>> configMap = extendNameSpaceManager.getAddNamespace(newNamespaceSet);
 
-        apolloExtendAdminProcessor.process(beanFactory, list);
+        apolloExtendAdminProcessor.process(beanFactory, configMap);
         return ResponseEntity.ok(ApolloExtendAdminConstant.OK);
     }
 
@@ -80,11 +80,11 @@ public class AdminNamespaceEndpoint {
         extendNameSpaceManager.setEnvironment(environment);
 
         List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(namespace);
-        Set<String> newNamespaceSet = new HashSet<>(namespaceList);
+        Set<String> namespaceSet = new HashSet<>(namespaceList);
 
-        List<Map<String, String>> list = extendNameSpaceManager.getDeleteNamespace(newNamespaceSet);
+        Map<String, Map<String, String>> configMap = extendNameSpaceManager.getDeleteNamespace(namespaceSet);
 
-        apolloExtendAdminProcessor.process(beanFactory, list);
+        apolloExtendAdminProcessor.process(beanFactory, configMap);
         return ResponseEntity.ok(ApolloExtendAdminConstant.OK);
     }
 

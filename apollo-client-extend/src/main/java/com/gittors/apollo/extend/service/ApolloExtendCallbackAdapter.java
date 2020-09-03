@@ -10,7 +10,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,21 +63,22 @@ public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCa
             extendNameSpaceManager.setEnvironment(environment);
 
             //  如有新增配置项，刷新环境
-            List<Map<String, String>> addPropertySourceList = extendNameSpaceManager.getAddNamespace(excludeNamespace(newNamespaceSet));
+            Map<String, Map<String, String>> addPropertySourceList = extendNameSpaceManager.getAddNamespace(excludeNamespace(newNamespaceSet));
 
             //  如有删除配置项，刷新环境
-            List<Map<String, String>> deletePropertySourceList = extendNameSpaceManager.getDeleteNamespace(getDifferentNamespace(oldValue, newNamespaceSet));
-            Map<String, List<Map<String, String>>> data = Maps.newHashMap();
-            if (CollectionUtils.isNotEmpty(addPropertySourceList) && CollectionUtils.isNotEmpty(deletePropertySourceList)) {
+            Map<String, Map<String, String>> deletePropertySourceList = extendNameSpaceManager.getDeleteNamespace(getDifferentNamespace(oldValue, newNamespaceSet));
+            //  {Key: 新增/删除, Value: {Key: 命名空间, Value: 配置Key=配置Value}}
+            Map<String, Map<String, Map<String, String>>> data = Maps.newHashMap();
+            if (MapUtils.isNotEmpty(addPropertySourceList) && MapUtils.isNotEmpty(deletePropertySourceList)) {
                 data.put(ChangeType.ADD.name(), addPropertySourceList);
                 data.put(ChangeType.DELETE.name(), deletePropertySourceList);
 
                 changeProcess(ChangeType.BOTH, data);
-            } else if (CollectionUtils.isNotEmpty(addPropertySourceList) && CollectionUtils.isEmpty(deletePropertySourceList)) {
+            } else if (MapUtils.isNotEmpty(addPropertySourceList) && MapUtils.isEmpty(deletePropertySourceList)) {
                 data.put(ChangeType.ADD.name(), addPropertySourceList);
 
                 changeProcess(ChangeType.ADD, data);
-            } else if (CollectionUtils.isEmpty(addPropertySourceList) && CollectionUtils.isNotEmpty(deletePropertySourceList)) {
+            } else if (MapUtils.isEmpty(addPropertySourceList) && MapUtils.isNotEmpty(deletePropertySourceList)) {
                 data.put(ChangeType.DELETE.name(), deletePropertySourceList);
 
                 changeProcess(ChangeType.DELETE, data);
@@ -110,9 +111,9 @@ public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCa
     /**
      * 配置有变更，客户端的处理
      * @param changeType    变更类型
-     * @param data  变更的数据 {Key: 变更类型, Value: {Key: 配置Key, Value: 配置Value}}
+     * @param data  变更的数据 {Key: 新增/删除, Value: {Key: 命名空间, Value: 配置Key=配置Value}}
      */
-    protected abstract void changeProcess(ChangeType changeType, Map<String, List<Map<String, String>>> data);
+    protected abstract void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data);
 
     @Override
     public List<String> keyList() {

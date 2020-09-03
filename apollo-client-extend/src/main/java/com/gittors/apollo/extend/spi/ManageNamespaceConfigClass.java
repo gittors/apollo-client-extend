@@ -28,6 +28,11 @@ public class ManageNamespaceConfigClass {
 
     private PropertySource configPropertySource;
 
+    /**
+     * 管理配置前缀
+     */
+    private String manageConfigPrefix;
+
     public ManageNamespaceConfigClass() {
     }
 

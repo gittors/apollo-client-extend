@@ -9,9 +9,13 @@ import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.gittors.apollo.extend.chain.chain.AbstractLinkedProcessor;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
+import com.gittors.apollo.extend.common.spi.ServiceLookUp;
+import com.gittors.apollo.extend.spi.ApolloExtendManageNamespacePostProcessor;
 import com.gittors.apollo.extend.spi.ManageNamespaceConfigClass;
+import com.gittors.apollo.extend.support.ApolloExtendPostProcessorDelegate;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +47,9 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
 
     protected final Map<String, ManageNamespaceConfigClass> configClassMap = Maps.newLinkedHashMap();
 
+    private final List<ApolloExtendManageNamespacePostProcessor> postProcessors =
+            ServiceLookUp.loadAllOrdered(ApolloExtendManageNamespacePostProcessor.class);
+
     /**
      * 注册命名空间
      * @param environment
@@ -61,11 +68,14 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
                     environment.getPropertySources().addLast(composite);
                 }
             }
+            // invoke post processor
+            ApolloExtendPostProcessorDelegate.invokeManageNamespacePostProcessor(environment, postProcessors, Lists.newArrayList(configClassMap.values()));
         }
     }
 
     protected void parse(ConfigurableEnvironment environment, String namespace) {
         ManageNamespaceConfigClass namespaceConfigClass = new ManageNamespaceConfigClass(namespace, ConfigService.getConfig(namespace));
+        namespaceConfigClass.setManageConfigPrefix(environment.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE_PREFIX, CommonApolloConstant.APOLLO_EXTEND_NAMESPACE));
         Object configClass = null;
         do {
             configClass = doParse(environment, namespaceConfigClass, configClass);
@@ -81,7 +91,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
                 config.getSourceType() == ConfigSourceType.NONE) {
             return null;
         }
-        String namespaceConfig = config.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE, null);
+        String namespaceConfig = config.getProperty(namespaceConfigClass.getManageConfigPrefix(), null);
         if (StringUtils.isNotBlank(namespaceConfig)) {
             Set<String> namespaceSet = parseNamespace(namespaceConfig);
             //  过滤掉自己，避免死递归

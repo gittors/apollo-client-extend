@@ -2,8 +2,9 @@ package com.gittors.apollo.extend.binder.event;
 
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapper;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapperRegistry;
-import com.gittors.apollo.extend.binder.utils.BinderUtils;
 import com.gittors.apollo.extend.binder.utils.BinderObjectInjector;
+import com.gittors.apollo.extend.binder.utils.BinderUtils;
+import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
 import com.nepxion.eventbus.annotation.EventBus;
 import org.apache.commons.collections4.MapUtils;
@@ -12,7 +13,6 @@ import org.springframework.core.env.Environment;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,33 +40,29 @@ public class BinderEventSubscriber {
 
     @Subscribe
     public void refreshBinder(BinderRefreshBinderEvent event) {
-        Map<String, List<Map<String, String>>> data = event.getData();
-        List<Map<String, String>> list = data.entrySet()
-                .stream()
-                .map(entry -> entry.getValue())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        Map<String, Map<String, String>> data = event.getData();
+        Map<String, String> allMap = Maps.newHashMap();
+        data.values().forEach(map -> allMap.putAll(map));
+
         Map<String, Collection<HolderBeanWrapper>> registry = holderBeanWrapperRegistry.getRegistry(beanFactory);
         if (MapUtils.isEmpty(registry)) {
             return;
         }
 
         //  list 代表多个配置文件的配置项【客户端监听的配置前缀筛选后的结果】
-        for (Map<String, String> map : list) {
-            Set<String> keySet = new HashSet<>();
-            for (String key : map.keySet()) {
-                keySet.addAll(
-                        registry.keySet()
-                                .parallelStream()
-                                .filter(bindPrefix -> key.startsWith(bindPrefix))
-                                .collect(Collectors.toList())
-                );
-            }
-            for (String binderPrefix : keySet) {
-                Collection<HolderBeanWrapper> targetValues = registry.get(binderPrefix);
-                for (HolderBeanWrapper propertiesWrapper : targetValues) {
-                    BinderUtils.binder(environment, propertiesWrapper, binderPrefix);
-                }
+        Set<String> keySet = new HashSet<>();
+        for (String key : allMap.keySet()) {
+            keySet.addAll(
+                    registry.keySet()
+                            .parallelStream()
+                            .filter(bindPrefix -> key.startsWith(bindPrefix))
+                            .collect(Collectors.toList())
+            );
+        }
+        for (String binderPrefix : keySet) {
+            Collection<HolderBeanWrapper> targetValues = registry.get(binderPrefix);
+            for (HolderBeanWrapper propertiesWrapper : targetValues) {
+                BinderUtils.binder(environment, propertiesWrapper, binderPrefix);
             }
         }
     }

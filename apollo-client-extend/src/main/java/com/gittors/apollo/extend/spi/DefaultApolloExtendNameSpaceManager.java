@@ -12,8 +12,6 @@ import com.gittors.apollo.extend.common.constant.CommonConstant;
 import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.common.spi.Ordered;
 import com.gittors.apollo.extend.common.utils.ListUtils;
-import com.gittors.apollo.extend.properties.ApolloExtendGlobalListenKeyProperties;
-import com.gittors.apollo.extend.properties.ApolloExtendListenKeyProperties;
 import com.gittors.apollo.extend.support.ApolloExtendStringMapEntry;
 import com.gittors.apollo.extend.support.ext.DefaultConfigExt;
 import com.gittors.apollo.extend.utils.ApolloExtendStringUtils;
@@ -22,15 +20,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.boot.context.properties.bind.Bindable;
-import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 
-import java.util.AbstractMap;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,54 +55,55 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
     }
 
     @Override
-    public List<Map<String, String>> getAddNamespace(Set<String> needAddNamespaceSet) {
+    public Map<String, Map<String, String>> getAddNamespace(Set<String> needAddNamespaceSet) {
         if (CollectionUtils.isEmpty(needAddNamespaceSet)) {
-            return Lists.newArrayList();
+            return Maps.newHashMap();
         }
-        Map.Entry<Boolean, Set<String>> managerConfigPrefix = getManagerConfig(needAddNamespaceSet, ChangeType.ADD);
+        Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, needAddNamespaceSet, ChangeType.ADD);
 
         List<ConfigPropertySource> addPropertySourceList = doGetAddNamespace(needAddNamespaceSet);
 
-        List<Map<String, String>> addConfig = filter(addPropertySourceList, managerConfigPrefix);
+        Map<String, Map<String, String>> addConfig = filter(addPropertySourceList, managerConfigMap);
 
         //  新增配置项
-        addNamespace(addPropertySourceList, managerConfigPrefix);
+        addNamespace(addPropertySourceList, managerConfigMap);
 
         return addConfig;
     }
 
     @Override
-    public List<Map<String, String>> getDeleteNamespace(Set<String> needDeleteNamespaceSet) {
+    public Map<String, Map<String, String>> getDeleteNamespace(Set<String> needDeleteNamespaceSet) {
         if (CollectionUtils.isEmpty(needDeleteNamespaceSet)) {
-            return Lists.newArrayList();
+            return Maps.newHashMap();
         }
-        Map.Entry<Boolean, Set<String>> managerConfigPrefix = getManagerConfig(needDeleteNamespaceSet, ChangeType.DELETE);
+        Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, needDeleteNamespaceSet, ChangeType.DELETE);
 
         List<ConfigPropertySource> deletePropertySourceList = doGetDeleteNamespace(needDeleteNamespaceSet);
 
         //  筛选出需删除的配置项，用于返回
-        List<Map<String, String>> deleteConfig = filter(deletePropertySourceList, managerConfigPrefix);
+        Map<String, Map<String, String>> deleteConfig = filter(deletePropertySourceList, managerConfigMap);
 
         //  删除配置项
-        deleteNamespace(deletePropertySourceList, managerConfigPrefix);
+        deleteNamespace(deletePropertySourceList, managerConfigMap);
 
         return deleteConfig;
     }
 
     @Override
-    public void addNamespace(List<ConfigPropertySource> list, Map.Entry<Boolean, Set<String>> managerConfigPrefix) {
-        refreshAddEnvironment(list, managerConfigPrefix);
+    public void addNamespace(List<ConfigPropertySource> list, Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap) {
+        refreshAddEnvironment(list, managerConfigMap);
     }
 
     @Override
-    public void deleteNamespace(List<ConfigPropertySource> list, Map.Entry<Boolean, Set<String>> managerConfigPrefix) {
-        refreshDelEnvironment(list, managerConfigPrefix);
+    public void deleteNamespace(List<ConfigPropertySource> list, Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap) {
+        refreshDelEnvironment(list, managerConfigMap);
     }
 
-    protected List<Map<String, String>> filter(List<ConfigPropertySource> propertySourceList, Map.Entry<Boolean, Set<String>> managerConfigPrefix) {
-        List<Map<String, String>> propertiesList = Lists.newArrayList();
+    protected
+    Map<String, Map<String, String>> filter(List<ConfigPropertySource> propertySourceList, Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap) {
+        Map<String, Map<String, String>> propertiesMap = Maps.newHashMap();
         if (CollectionUtils.isEmpty(propertySourceList)) {
-            return propertiesList;
+            return propertiesMap;
         }
 
         for (ConfigPropertySource propertySource : propertySourceList) {
@@ -116,12 +111,13 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             propertySource.getSource()
                     .getPropertyNames()
                     .stream()
-                    .filter(configKey -> ApolloExtendUtils.predicateMatch(configKey, managerConfigPrefix))
+                    .filter(configKey -> ApolloExtendUtils.predicateMatch(configKey, managerConfigMap.get(propertySource.getName()))
+                            && !ApolloExtendUtils.predicateMatch(configKey, ApolloExtendUtils.skipMatchConfig()))
                     .forEach(configKey -> map.put(configKey, propertySource.getSource().getProperty(configKey, "")));
 
-            propertiesList.add(map);
+            propertiesMap.put(propertySource.getName(), map);
         }
-        return propertiesList;
+        return propertiesMap;
     }
 
     @Deprecated
@@ -143,67 +139,14 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         return propertiesList;
     }
 
-    protected Map.Entry<Boolean, Set<String>> getManagerConfig(Set<String> namespaceSet, ChangeType changeType) {
-        ApolloExtendGlobalListenKeyProperties globalListenKeyProperties =
-                Binder.get(environment)
-                        .bind(CommonApolloConstant.APOLLO_EXTEND_GLOBAL_LISTEN_KEY_SUFFIX, Bindable.of(ApolloExtendGlobalListenKeyProperties.class))
-                        .orElse(new ApolloExtendGlobalListenKeyProperties());
-        ApolloExtendListenKeyProperties listenKeyProperties =
-                Binder.get(environment)
-                        .bind(CommonApolloConstant.APOLLO_EXTEND_LISTEN_KEY_SUFFIX, Bindable.of(ApolloExtendListenKeyProperties.class))
-                        .orElse(new ApolloExtendListenKeyProperties());
-
-        Map<String, Set<String>> mergeMap = globalListenKeyProperties.merge(listenKeyProperties, changeType);
-        Set<String> listenKeyAll =
-                mergeMap.entrySet()
-                        .stream()
-                        .filter(entry -> namespaceSet.contains(entry.getKey()))
-                        .map(Map.Entry::getValue)
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toSet());
-        Map.Entry<Boolean, Set<String>> managerConfigPrefix;
-        if (CollectionUtils.isNotEmpty(listenKeyAll)) {
-            managerConfigPrefix = new AbstractMap.SimpleEntry<>(Boolean.TRUE, listenKeyAll);
-        } else {
-            managerConfigPrefix = new AbstractMap.SimpleEntry<>(Boolean.FALSE, null);
-        }
-        return managerConfigPrefix;
-    }
-
     /**
      * 新增配置，刷新环境
      * @param configPropertySourceList  需删除的配置项
      */
-    protected void refreshAddEnvironment(List<ConfigPropertySource> configPropertySourceList, Map.Entry<Boolean, Set<String>> managerConfigPrefix) {
-        Map.Entry<Boolean, Set<String>> configEntry = managerConfigPrefix;
-
+    protected void refreshAddEnvironment(List<ConfigPropertySource> configPropertySourceList, Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap) {
         MutablePropertySources mutablePropertySources = environment.getPropertySources();
         configPropertySourceList.forEach(propertySource -> {
-            //  如果是FALSE全部生效，就不用设置回调
-            if (configEntry.getKey()) {
-                DefaultConfigExt defaultConfig = (DefaultConfigExt) propertySource.getSource();
-
-                Properties properties = new Properties();
-                //  1根据配置监听Key 筛选生效属性
-                defaultConfig.getPropertyNames()
-                        .stream()
-                        .filter(configKey -> ApolloExtendUtils.predicateMatch(configKey, configEntry) || ApolloExtendUtils.predicateMatch(configKey, ApolloExtendUtils.skipMatchConfig()))
-                        .forEach(configKey -> properties.setProperty(configKey, defaultConfig.getProperty(configKey, "")));
-
-                //  2刷新对象
-                defaultConfig.updateConfig(properties, propertySource.getSource().getSourceType());
-
-                //  3设置回调
-                defaultConfig.addPropertiesCallBack(updateProperties -> {
-                    Properties filterProperties = new Properties();
-                    Properties property = (Properties) updateProperties;
-                    property.entrySet().stream()
-                            .map(objectEntry -> new ApolloExtendStringMapEntry(String.valueOf(objectEntry.getKey()), String.valueOf(objectEntry.getValue())))
-                            .filter(stringEntry -> ApolloExtendUtils.predicateMatch(stringEntry.getKey(), configEntry) || ApolloExtendUtils.predicateMatch(stringEntry.getKey(), ApolloExtendUtils.skipMatchConfig()))
-                            .forEach(stringEntry -> filterProperties.setProperty(stringEntry.getKey(), stringEntry.getValue()));
-                    return filterProperties;
-                });
-            }
+            ApolloExtendUtils.managerConfigHandler(propertySource, managerConfigMap.get(propertySource.getName()));
 
             String configPrefix = environment.getProperty(CommonApolloConstant.PROPERTY_SOURCE_CONFIG_SUFFIX, CommonApolloConstant.PROPERTY_SOURCE_CONFIG_DEFAULT_SUFFIX);
 
@@ -221,14 +164,16 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
 
     /**
      * 删除配置，刷新环境
+     *
+     * 注意：要删除的配置是在已生效的配置基础上删除的
+     *
      * @param configPropertySourceList  需删除的配置项
      */
-    protected void refreshDelEnvironment(List<ConfigPropertySource> configPropertySourceList, Map.Entry<Boolean, Set<String>> managerConfigPrefix) {
+    protected void refreshDelEnvironment(List<ConfigPropertySource> configPropertySourceList, Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap) {
         //  1、删除 Spring环境配置
         //  2、根据监听Key，删除配置
         //  3、刷新对象、移除监听器、设置回调
         //  4、刷新 Spring环境配置
-        Map.Entry<Boolean, Set<String>> configEntry = managerConfigPrefix;
         MutablePropertySources mutablePropertySources = environment.getPropertySources();
 
         configPropertySourceList.forEach(propertySource -> {
@@ -244,7 +189,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             propertySource.getSource()
                     .getPropertyNames()
                     .stream()
-                    .filter(configKey -> !ApolloExtendUtils.predicateMatch(configKey, configEntry) || ApolloExtendUtils.predicateMatch(configKey, ApolloExtendUtils.skipMatchConfig()))
+                    .filter(configKey -> !ApolloExtendUtils.predicateMatch(configKey, managerConfigMap.get(propertySource.getName())) || ApolloExtendUtils.predicateMatch(configKey, ApolloExtendUtils.skipMatchConfig()))
                     .forEach(configKey -> properties.setProperty(configKey, propertySource.getSource().getProperty(configKey, "")));
 
             //  3.1刷新对象
@@ -259,7 +204,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
                 Properties property = (Properties) updateProperties;
                 property.entrySet().stream()
                         .map(objectEntry -> new ApolloExtendStringMapEntry(String.valueOf(objectEntry.getKey()), String.valueOf(objectEntry.getValue())))
-                        .filter(stringEntry -> !ApolloExtendUtils.predicateMatch(stringEntry.getKey(), configEntry) || ApolloExtendUtils.predicateMatch(stringEntry.getKey(), ApolloExtendUtils.skipMatchConfig()))
+                        .filter(stringEntry -> !ApolloExtendUtils.predicateMatch(stringEntry.getKey(), managerConfigMap.get(propertySource.getName())) || ApolloExtendUtils.predicateMatch(stringEntry.getKey(), ApolloExtendUtils.skipMatchConfig()))
                         .forEach(stringEntry -> filterProperties.setProperty(stringEntry.getKey(), stringEntry.getValue()));
                 return filterProperties;
             });

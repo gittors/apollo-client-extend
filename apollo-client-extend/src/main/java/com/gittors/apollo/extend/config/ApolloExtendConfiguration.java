@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,7 +30,7 @@ public class ApolloExtendConfiguration {
     public ApolloExtendCallback defaultApolloExtendCallbackAdapter() {
         return new ApolloExtendCallbackAdapter() {
             @Override
-            protected void changeProcess(ChangeType changeType, Map<String, List<Map<String, String>>> data) {
+            protected void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data) {
             }
         };
     }

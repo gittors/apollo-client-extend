@@ -31,26 +31,26 @@ public interface ApolloExtendNameSpaceManager<T> extends Ordered {
      * @param needAddNamespaceSet
      * @return
      */
-    List<Map<String, String>> getAddNamespace(Set<String> needAddNamespaceSet);
+    Map<String, Map<String, String>> getAddNamespace(Set<String> needAddNamespaceSet);
 
     /**
      * 新增命名空间
      * @param list
-     * @param managerConfigPrefix
+     * @param managerConfigMap
      */
-    void addNamespace(List<T> list, Map.Entry<Boolean, Set<String>> managerConfigPrefix);
+    void addNamespace(List<T> list, Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap);
 
     /**
      * 得到需删除的命名空间
      * @param needDeleteNamespaceSet
      * @return
      */
-    List<Map<String, String>> getDeleteNamespace(Set<String> needDeleteNamespaceSet);
+    Map<String, Map<String, String>> getDeleteNamespace(Set<String> needDeleteNamespaceSet);
 
     /**
      * 删除命名空间
      * @param list
-     * @param managerConfigPrefix
+     * @param managerConfigMap
      */
-    void deleteNamespace(List<T> list, Map.Entry<Boolean, Set<String>> managerConfigPrefix);
+    void deleteNamespace(List<T> list, Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap);
 }

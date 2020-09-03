@@ -1,0 +1,20 @@
+package com.gittors.apollo.extend.spi;
+
+import com.gittors.apollo.extend.common.spi.Ordered;
+import org.springframework.core.env.ConfigurableEnvironment;
+
+import java.util.List;
+
+/**
+ * @author zlliu
+ * @date 2020/9/3 10:52
+ */
+public interface ApolloExtendManageNamespacePostProcessor extends Ordered {
+
+    /**
+     * 管理命名空间后置处理器
+     * @param environment
+     * @param configClasses
+     */
+    void postProcessManageNamespace(ConfigurableEnvironment environment, List<ManageNamespaceConfigClass> configClasses);
+}

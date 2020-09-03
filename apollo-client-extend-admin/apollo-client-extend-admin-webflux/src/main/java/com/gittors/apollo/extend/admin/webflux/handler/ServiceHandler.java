@@ -112,9 +112,9 @@ public class ServiceHandler {
             List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(dataEntity.getNamespace());
             Set<String> newNamespaceSet = new HashSet<>(namespaceList);
 
-            List<Map<String, String>> list = extendNameSpaceManager.getAddNamespace(newNamespaceSet);
+            Map<String, Map<String, String>> configMap = extendNameSpaceManager.getAddNamespace(newNamespaceSet);
 
-            extendAdminWebfluxProcessor.process(beanFactory, list);
+            extendAdminWebfluxProcessor.process(beanFactory, configMap);
             return null;
         }
 
@@ -125,9 +125,9 @@ public class ServiceHandler {
             List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(dataEntity.getNamespace());
             Set<String> newNamespaceSet = new HashSet<>(namespaceList);
 
-            List<Map<String, String>> list = extendNameSpaceManager.getDeleteNamespace(newNamespaceSet);
+            Map<String, Map<String, String>> configMap = extendNameSpaceManager.getDeleteNamespace(newNamespaceSet);
 
-            extendAdminWebfluxProcessor.process(beanFactory, list);
+            extendAdminWebfluxProcessor.process(beanFactory, configMap);
             return null;
         }
     }

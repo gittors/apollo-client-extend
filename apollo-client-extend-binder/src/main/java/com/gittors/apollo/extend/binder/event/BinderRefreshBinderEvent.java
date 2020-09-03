@@ -1,8 +1,8 @@
 package com.gittors.apollo.extend.binder.event;
 
+import com.google.common.collect.Maps;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -10,13 +10,13 @@ import java.util.Map;
  * @date 2020/8/20 17:25
  */
 @Data
-public class BinderRefreshBinderEvent<T> {
-    private Map<String, List<T>> data;
+public class BinderRefreshBinderEvent {
+    private Map<String, Map<String, String>> data = Maps.newHashMap();
 
     public BinderRefreshBinderEvent() {
     }
 
-    public BinderRefreshBinderEvent(Map<String, List<T>> data) {
+    public BinderRefreshBinderEvent(Map<String, Map<String,String>> data) {
         this.data = data;
     }
 }

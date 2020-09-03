@@ -84,12 +84,10 @@ public class AdminConfigEndpoint {
      * @param propertiesList
      */
     public void pushBinder(List<Properties> propertiesList) {
-        List<Map<String, String>> list = Lists.newArrayList();
+        Map<String, Map<String, String>> data = Maps.newHashMap();
         for (Properties properties : propertiesList) {
-            list.add(Maps.fromProperties(properties));
+            data.put("namespace", Maps.fromProperties(properties));
         }
-        Map<String, List<Map<String, String>>> data = Maps.newHashMap();
-        data.put("customer", list);
 
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
         eventPublisher.asyncPublish(new BinderRefreshBinderEvent(data));

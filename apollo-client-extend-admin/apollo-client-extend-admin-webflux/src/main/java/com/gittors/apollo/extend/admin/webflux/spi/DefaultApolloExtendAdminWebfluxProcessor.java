@@ -3,10 +3,8 @@ package com.gittors.apollo.extend.admin.webflux.spi;
 import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.gittors.apollo.extend.binder.event.BinderRefreshBinderEvent;
 import com.gittors.apollo.extend.event.EventPublisher;
-import com.google.common.collect.Maps;
 import org.springframework.beans.factory.BeanFactory;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,20 +14,17 @@ import java.util.Map;
 public class DefaultApolloExtendAdminWebfluxProcessor implements ApolloExtendAdminWebfluxProcessor<BeanFactory> {
     @Override
     public void process(BeanFactory request, Object... objects) {
-        pushBinder(request, (List<Map<String, String>>) objects[0]);
+        pushBinder(request, (Map<String, Map<String, String>>) objects[0]);
     }
 
     /**
      * 推送绑定事件
      * @param beanFactory
-     * @param list
+     * @param config
      */
-    protected void pushBinder(BeanFactory beanFactory, List<Map<String, String>> list) {
-        Map<String, List<Map<String, String>>> data = Maps.newHashMap();
-        data.put("customer operator", list);
-
+    protected void pushBinder(BeanFactory beanFactory, Map<String, Map<String, String>> config) {
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(new BinderRefreshBinderEvent(data));
+        eventPublisher.asyncPublish(new BinderRefreshBinderEvent(config));
     }
 
     @Override

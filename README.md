@@ -5,7 +5,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.gittors/apollo-client-extend.svg?label=maven%20central)](https://search.maven.org/search?q=g:com.github.gittors%20AND%20extend) 
 [![Javadocs](http://www.javadoc.io/badge/com.github.gittors/apollo-client-extend.svg)](https://www.javadoc.io/doc/com.github.gittors/apollo-client-extend) 
 [![Build Status](https://api.travis-ci.com/gittors/apollo-client-extend.svg?branch=master)](https://travis-ci.com/github/gittors/apollo-client-extend) 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8e39a24e1be740c58b83fb81763ba317)](https://app.codacy.com/manual/gittors/apollo-client-extend/dashboard)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3da0bc583b1d439586401f2469d9ac5e)](https://www.codacy.com/manual/gittors/apollo-client-extend?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gittors/apollo-client-extend&amp;utm_campaign=Badge_Grade)
 
 ## 前言
 ```
