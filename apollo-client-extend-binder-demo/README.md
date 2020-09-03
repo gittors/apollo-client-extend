@@ -8,7 +8,7 @@
 <dependency>
     <groupId>com.gittors</groupId>
     <artifactId>apollo-client-extend-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 
 复合使用时，依赖 apollo-client-extend-binder 和 apollo-client-extend：
@@ -16,13 +16,13 @@
 <dependency>
     <groupId>com.gittors</groupId>
     <artifactId>apollo-client-extend-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 
 <dependency>
     <groupId>com.gittors</groupId>
     <artifactId>apollo-client-extend-binder-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 
 说明：
