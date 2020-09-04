@@ -87,10 +87,10 @@ public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCa
     }
 
     private Set<String> excludeNamespace(Set<String> namespaceSet) {
-        namespaceSet = namespaceSet.stream()
+        Set<String> exclude = namespaceSet.stream()
                 .filter(namespace -> !ConfigConsts.NAMESPACE_APPLICATION.equalsIgnoreCase(namespace))
                 .collect(Collectors.toSet());
-        return namespaceSet;
+        return exclude;
     }
 
     /**
