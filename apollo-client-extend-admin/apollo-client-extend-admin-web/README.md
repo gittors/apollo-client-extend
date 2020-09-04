@@ -1,4 +1,4 @@
-#   Apollo Client Extend-Admin-Web
+# Apollo Client Extend-Admin-Web
 
 ## 使用注意事项
 ```textmate
