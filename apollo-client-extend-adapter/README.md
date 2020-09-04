@@ -7,16 +7,16 @@
 <dependency>
     <groupId>com.github.gittors</groupId>
     <artifactId>apollo-client-extend-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
-- 1.3.x ~ 1.5.x的版本：[需要适配低版本]
+- 1.3.x ~ 1.5.x的版本：[适配低版本]
 ```
 <dependency>
     <groupId>com.github.gittors</groupId>
     <artifactId>apollo-client-extend-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <exclusions>
         <exclusion>
             <groupId>com.github.gittors</groupId>
@@ -28,6 +28,6 @@
 <dependency>
     <groupId>com.github.gittors</groupId>
     <artifactId>apollo-client-extend-lower-adapter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
