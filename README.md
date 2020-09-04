@@ -15,6 +15,9 @@ SpringCloud Config 以GIT仓库 + 消息总线原理，通过手动触发POST请
 以Apollo和Nacos比较，Apollo的Star 数较高，本项目以 Apollo 为技术选型，在使用者的角度做了一些扩展及思考。
 ```
 
+## Apollo 官网
+https://github.com/ctripcorp/apollo
+
 ## Apollo的一些使用场景：
 ```
 1、用 Apollo做分布式配置中心时，配置的新增和删除操作可以通过其 WEB界面【Apollo Portal】操作，并且配置的更改 Apollo会联动推送给每个客户端。
@@ -44,28 +47,29 @@ apollo.bootstrap.namespaces: application,application2
 ```
 
 ## 小目标：
-```
-为了更好的适配上述的使用场景，诞生了这个项目，以下是一些小目标：
-1、实现在新增了命名空间的情况下无须重启服务就让配置生效的目标。
-2、支持 @ConfigurationProperties 注解，无须依赖 EnvironmentChangeEvent 或 RefreshScope。
-3、让 Apollo 的命名空间具有 "管理" 其他命名空间的能力。
-4、基于3，实现配置的可部分生效/可部分失效的功能。
-
-```
+* **为了更好的适配上述的一些使用场景，是这个项目的诞生背景，以下是一些小目标：**
+  * 实现在新增了命名空间的情况下无须重启服务就让配置生效【但需要将命名空间名称添加到对应的配置】。
+  * 支持 @ConfigurationProperties 注解，无须依赖 EnvironmentChangeEvent 或 RefreshScope。
+  * 实现让 Apollo 的命名空间具有部分 "管理" 其他命名空间的能力【详见功能描述】。
+  * 基于3，实现配置的可部分生效/可部分失效。
 
 ## 功能描述：
-- 实现 @ConfigurationProperties 注解标注对象的属性值联动更新
-```
-对于 @ConfigurationProperties 注解标注的对象，如果相应的配置有更新，则联动更新其属性值
-```
+* **实现在新增了命名空间的情况下无须重启服务就让配置生效**
+  * 需要在配置项：apollo.extend.namespace 添加新建的命名空间名称
 
-- 实现配置管理
+* **实现 @ConfigurationProperties 注解标注对象的属性值联动更新**
+  * 对于 @ConfigurationProperties 注解标注的对象，如果相应的配置有更新，则联动更新其属性值
+
+
+* **实现配置管理**
+  * 新增了命名空间无须重启服务
 ```
-例如：application --> application2 : 
-application 可管理 application2 的配置项
+例如：application 命名空间新增配置项：apollo.extend.namespace=application2
+则 application 可管理 application2 的配置项, 可以管理多个命名空间, 配置多个值: "," 号分隔。
+新增或者删除上述的配置,即代表相应的配置生效或失效。
 备注：
-1所谓管理，指的是 application 命名空间可以让 application2 命名空间的配置生效或失效。
-2还可以通过监听 application2的配置前缀，实现 application2 命名空间的配置部分生效或失效。
+1所谓管理，指的是 application 命名空间可以让 application2 命名空间的配置生效或失效功能。
+2还可以通过监听 application2的配置前缀，实现 application2 命名空间的配置部分生效或失效功能。
 
 ```
 
@@ -96,18 +100,17 @@ SpringBoot：2.2.9.RELEASE
 ```
 
 ## 实现细则：
-1、动态监听某个配置【Value为命名空间的值】，实现新增或删除命名空间时，将命名空间的配置刷新至服务环境
-2、且客户端可根据实现接口对新增或删除的配置做相应操作【详见：ApolloExtendCallbackAdapter#changeProcess 接口】
-3、@ConfigurationProperties 注解标注的类属性值联动更新
+* **通过监听管理配置，实现新增或删除命名空间时，将命名空间的配置刷新至服务环境，无须重启服务**
+* **新增或删除管理配置时，可让命名空间内的配置部分生效或失效**
+* **@ConfigurationProperties 注解标注的类属性值联动更新**
 
-- 细则1具体实现：
+ **细则1实现：**
+
 ```
 1、在Apollo application 命名空间新增一个配置项：
 apollo.extend.namespace = dynamic-config
 
-备注：dynamic-config 值为另一个 命名空间的名称
-
-2、新增或删除上述定义的配置，动态刷新至服务环境
+2、新增或删除上述定义的 apollo.extend.namespace 配置，动态刷新至服务环境
 比如新增：
 apollo.extend.namespace = dynamic-config,dynamic-config2
 那么：
@@ -119,12 +122,8 @@ apollo.extend.namespace = dynamic-config,dynamic-config2
 那么：
 dynamic-config2 命名空间的配置会失效
 
-删除时，如果不配置监听Key，则该命名空间的配置全部失效。
-也可根据配置的监听Key实现部分失效：
-比如配置监听Key：listen.key.delMap.dynamic-config2 = my.map
-那么：dynamic-config2 的命名空间以 "my.map" 为前缀的配置将失效。
-同理：新增命名空间时，监听 listen.key.addMap.dynamic-config2 = my.map 的配置，可以让其部分生效。
-可参考：apollo-client-extend-binder-demo 模块的测试说明。
+实现上，通过监听 apollo.extend.namespace 配置的变化，将对应命名空间的配置刷新。
+
 
 特别说明：如果客户端需要关心配置的变化，比如新增了配置或删除了配置需要做一些操作的时候：
 则需要手动实现：【ApolloExtendCallbackAdapter#changeProcess】 接口
@@ -132,7 +131,29 @@ dynamic-config2 命名空间的配置会失效
 
 ```
 
-- 细则3具体实现：
+ **细则2实现：**
+```
+控制管理的命名空间的配置, 部分生效或失效：
+增加配置项：
+## 配置当前命名空间所管理命名空间的监听key - 新增
+listen.key.addMap.application2 = my.map
+说明：添加 application2 的管理配置时, 其以 "my.map" 为前缀的配置生效。
+
+## 配置当前命名空间所管理命名空间的监听key - 删除
+listen.key.delMap.application2 = my1.map
+说明：删除 application2 的管理配置时, 其以 "my1.map" 为前缀的配置失效。
+
+## 配置当前命名空间所管理命名空间的监听key - 全局
+listen.key.global.map.application2 = my.map3
+说明：此为管理命名空间的全局配置, 新增或删除时都将生效
+当新增管理配置 application2 时: application2 命名空间的生效配置：my.map3,my.map
+当删除管理配置 application2 时: application2 命名空间的失效配置：my.map3,my1.map
+
+备注：如果不配置上述配置, 则新增/删除命名空间时配置全部生效/全部失效。
+可参考：apollo-client-extend-binder-demo 模块的测试说明。
+```
+
+ **细则3实现：**
 参考：apollo-client-extend-binder 模块
 
 ## Apollo Client 版本适配：
