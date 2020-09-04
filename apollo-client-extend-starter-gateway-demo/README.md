@@ -1,14 +1,14 @@
-#   Apollo Client Extend Starter Gateway Demo
+# Apollo Client Extend Starter Gateway Demo
 
 - 说明
-```
+```text
 使用 apollo-client-extend-starter-gateway-adapter 模块的前提：
 1、网关的配置纳入 Apollo管理
 2、通过新增或修改 Apollo配置，实现路由的动态刷新
 ```
 
 - 使用
-```
+```text
 依赖 apollo-client-extend-starter-gateway-adapter 模块实现路由的 Spring环境更新
 说明：
 1、路由组件不限定，可以为 SpringCloud Gateway 或者 Zuul，自行选择

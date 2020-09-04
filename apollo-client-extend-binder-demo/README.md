@@ -1,8 +1,8 @@
-#   Apollo Client Extend Binder Demo
+# Apollo Client Extend Binder Demo
 
-- apollo-client-extend-binder 模块可单独使用，也可以复合 apollo-client-extend 模块使用：
--- 复合使用可实现配置放在多个命名空间，且联动更新
-````
+-   apollo-client-extend-binder 模块可单独使用，也可以复合 apollo-client-extend 模块使用：
+-   复合使用可实现配置放在多个命名空间，且联动更新
+````text
 单独使用时，只需依赖 apollo-client-extend-binder 即可：
 依赖项：
 <dependency>
@@ -31,8 +31,8 @@ apollo.extend.namespace = application-test
 注：application-test 值为其他 命名空间名称
 ````
 
-- 测试
-````
+测试
+````text
 1、在 Apollo WEB 新建 application-test 命名空间
 2、application 和 application-test 命名空间的配置，可参考：/config/application.txt 和 /config/application-test.txt
 3、通过修改 application 的 apollo.extend.namespace 配置属性：删除或新增【新增要保证有其他命名空间的情况下】
