@@ -11,6 +11,9 @@ import java.util.Map;
  */
 @Data
 public class BinderRefreshBinderEvent {
+    /**
+     * {Key：命名空间，Value：{配置Key=配置Value}}
+     */
     private Map<String, Map<String, String>> data = Maps.newHashMap();
 
     public BinderRefreshBinderEvent() {

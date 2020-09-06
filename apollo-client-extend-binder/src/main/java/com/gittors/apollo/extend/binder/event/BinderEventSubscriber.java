@@ -49,7 +49,6 @@ public class BinderEventSubscriber {
             return;
         }
 
-        //  list 代表多个配置文件的配置项【客户端监听的配置前缀筛选后的结果】
         Set<String> keySet = new HashSet<>();
         for (String key : allMap.keySet()) {
             keySet.addAll(
