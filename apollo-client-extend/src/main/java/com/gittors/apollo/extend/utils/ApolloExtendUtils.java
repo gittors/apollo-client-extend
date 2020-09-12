@@ -1,5 +1,6 @@
 package com.gittors.apollo.extend.utils;
 
+import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
@@ -73,9 +74,8 @@ public final class ApolloExtendUtils {
      * @param callbackMap
      */
     public static void addListener(String namespaces, Map<String, ApolloExtendCallback> callbackMap) {
-        DefaultConfigExt config = (DefaultConfigExt) ConfigService.getConfig(namespaces);
+        Config config = ConfigService.getConfig(namespaces);
         if (config != null) {
-            config.setAddConfigChangeListenerIndex(1);
             config.addChangeListener(getChangeListener(callbackMap));
         }
     }

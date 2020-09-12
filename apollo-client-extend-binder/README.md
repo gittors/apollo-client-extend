@@ -14,6 +14,14 @@ apollo-client-extend-binder 模块单独使用参考：apollo-client-extend-bind
 使用可参考：apollo-client-extend-binder-demo
 ```
 
+-   注意：
+```textmate
+1、如果binder的配置和管理配置同时修改的情况下，可能会导致管理配置还没有刷新到环境就先执行了binder监听器，
+从而导致binder绑定失败
+因为binder监听器和管理配置的监听器执行是没有顺序的，Apollo 是通过线程池提交的。
+这种情况可以将配置的修改分为两步，不要同时修改。
+```
+
 -   实现：
 ```textmate
 思路：

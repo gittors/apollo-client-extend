@@ -37,7 +37,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * 扩展:
  *    {@link com.ctrip.framework.apollo.internals.AbstractConfig}
  *    1、提供 m_listeners 属性GET方法: @see {@link #getChangeListener()}
- *    2、增加 {@link #addConfigChangeListenerIndex}
  *
  * @author zlliu
  * @date 2020/7/25 11:18
@@ -64,18 +63,9 @@ public abstract class AbstractConfigExt implements Config {
   private final List<Cache> allCaches;
   private final AtomicLong m_configVersion; //indicate config version
 
-  /**
-   * 监听器索引
-   */
-  private Integer addConfigChangeListenerIndex;
-
   static {
     m_executorService = Executors.newCachedThreadPool(ApolloThreadFactory
         .create("Config", true));
-  }
-
-  protected void setAddConfigChangeListenerIndex(Integer addConfigChangeListenerIndex) {
-    this.addConfigChangeListenerIndex = addConfigChangeListenerIndex;
   }
 
   public AbstractConfigExt() {
@@ -98,12 +88,7 @@ public abstract class AbstractConfigExt implements Config {
   @Override
   public void addChangeListener(ConfigChangeListener listener, Set<String> interestedKeys, Set<String> interestedKeyPrefixes) {
     if (!m_listeners.contains(listener)) {
-      if (addConfigChangeListenerIndex != null) {
-        m_listeners.add(addConfigChangeListenerIndex, listener);
-        addConfigChangeListenerIndex = null;
-      } else {
         m_listeners.add(listener);
-      }
       if (interestedKeys != null && !interestedKeys.isEmpty()) {
         m_interestedKeys.put(listener, Sets.newHashSet(interestedKeys));
       }

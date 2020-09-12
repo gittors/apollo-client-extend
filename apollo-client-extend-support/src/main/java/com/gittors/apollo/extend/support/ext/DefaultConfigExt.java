@@ -76,11 +76,6 @@ public class DefaultConfigExt extends AbstractConfigExt implements RepositoryCha
     initialize();
   }
 
-  @Override
-  public void setAddConfigChangeListenerIndex(Integer addConfigChangeListenerIndex) {
-    super.setAddConfigChangeListenerIndex(addConfigChangeListenerIndex);
-  }
-
   public void initialize() {
     try {
       updateConfig(m_configRepository.getConfig(), m_configRepository.getSourceType());
