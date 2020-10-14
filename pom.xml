@@ -14,14 +14,13 @@
         <module>apollo-client-extend-event</module>
         <module>apollo-client-extend-event-starter</module>
         <module>apollo-client-extend-binder</module>
-        <module>apollo-client-extend-binder-demo</module>
         <module>apollo-client-extend-binder-starter</module>
         <module>apollo-client-extend-starter-gateway-adapter</module>
-        <module>apollo-client-extend-starter-gateway-demo</module>
         <module>apollo-client-extend-chain-processor</module>
         <module>apollo-client-extend-admin</module>
         <module>apollo-client-extend-adapter</module>
         <module>apollo-client-extend-support</module>
+        <module>apollo-client-extend-demo</module>
     </modules>
 
     <packaging>pom</packaging>
