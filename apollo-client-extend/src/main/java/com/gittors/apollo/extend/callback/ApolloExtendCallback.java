@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface ApolloExtendCallback {
     /**
-     * 回调
+     * Apollo配置更新回调
      * @param namespace
      * @param oldValue
      * @param newValue
