@@ -159,14 +159,8 @@ public final class ApolloExtendUtils {
         if (!configEntry.getKey() || CollectionUtils.isEmpty(configEntry.getValue())) {
             return true;
         }
-        boolean match = false;
-        for (String prefix : configEntry.getValue()) {
-            if (key.startsWith(prefix)) {
-                match = true;
-                break;
-            }
-        }
-        return match;
+        return configEntry.getValue().stream()
+                .anyMatch(prefix -> key.startsWith(prefix));
     }
 
     /**
@@ -205,7 +199,7 @@ public final class ApolloExtendUtils {
         Map<String, Set<String>> mergeMap = globalListenKeyProperties.merge(listenKeyProperties, changeType);
         Map<String, Map.Entry<Boolean, Set<String>>> map = Maps.newHashMap();
         for (String namespace : namespaceSet) {
-            //  mergeMap是所有的管理配置项
+            //  mergeMap是合并后的所有管理配置项
             //  这个过滤的结果为：找出匹配namespaceSet范围内的命名空间配置项
             Set<String> listenKeyAll =
                     mergeMap.entrySet()
