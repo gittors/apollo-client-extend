@@ -19,6 +19,13 @@ public class ServiceLookUp {
         return loader.iterator();
     }
 
+    /**
+     * 加载所有SPI类的实现，按优先级排序
+     *
+     * @param clazz
+     * @param <T>
+     * @return
+     */
     public static <T extends Ordered> List<T> loadAllOrdered(Class<T> clazz) {
         Iterator<T> iterator = loadAll(clazz);
         if (!iterator.hasNext()) {
@@ -27,16 +34,18 @@ public class ServiceLookUp {
                     clazz.getName()));
         }
         List<T> candidates = Lists.newArrayList(iterator);
-        Collections.sort(candidates, new Comparator<T>() {
-            @Override
-            public int compare(T o1, T o2) {
-                // the smaller order has higher priority
-                return Integer.compare(o1.getOrder(), o2.getOrder());
-            }
-        });
+        // 数值越小优先级越高
+        Collections.sort(candidates, Comparator.comparingInt(Ordered::getOrder));
         return candidates;
     }
 
+    /**
+     * 加载所有SPI类的实现，选择优先级最高的
+     *
+     * @param clazz
+     * @param <T>
+     * @return
+     */
     public static <T extends Ordered> T loadPrimary(Class<T> clazz) {
         List<T> candidates = loadAllOrdered(clazz);
         return candidates.get(0);
