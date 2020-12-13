@@ -66,7 +66,7 @@ public class HolderBeanWrapperRegistry {
 
     private void initialize() {
         Executors.newSingleThreadScheduledExecutor(
-                ApolloThreadFactory.create("ConfigurationPropertiesRegistry", true)
+                ApolloThreadFactory.create("ApolloExtend-ConfigurationPropertiesRegistry", true)
         ).scheduleAtFixedRate(
                 () -> {
                     try {
