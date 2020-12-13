@@ -12,6 +12,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * 这个缺省的实现：
+ * 1、假如配置了：listen.key.addMap.application2 = my.key
+ * 2、即根据1的配置，将命名空间 application2的配置部分生效，生效的KEY为"my.key"
+ * 注：如果不需要这个功能，通过SPI替换一个空的实现即可
+ *
  * @author zlliu
  * @date 2020/9/3 11:19
  */

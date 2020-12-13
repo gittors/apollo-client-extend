@@ -22,7 +22,7 @@ public class ManageNamespaceConfigClass {
     private Config config;
 
     /**
-     * propertySource configuration suffix
+     * PropertySource configuration suffix
      */
     private String compositePropertySourceName;
 

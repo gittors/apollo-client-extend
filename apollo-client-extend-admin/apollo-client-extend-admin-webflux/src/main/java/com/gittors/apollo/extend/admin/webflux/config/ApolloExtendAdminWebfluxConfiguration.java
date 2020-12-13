@@ -55,6 +55,7 @@ public class ApolloExtendAdminWebfluxConfiguration {
         @Bean
         public RouterFunction<ServerResponse> extendAdminRouterFunction() {
             return RouterFunctions
+                    //  获得访问Token
                     .route(GET("/token/get").and(request -> {
                         // 不满足条件则404，限制1分钟只能访问一次
                         return cacheManager.get(request.path()) == null;
@@ -66,6 +67,7 @@ public class ApolloExtendAdminWebfluxConfiguration {
                         return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN)
                                 .body(BodyInserters.fromValue(token));
                     })
+                    //  新增命名空间
                     .andRoute(POST("/namespace/inject-namespace")
                                     .and(contentType(APPLICATION_JSON))
                                     .and(request -> {
@@ -73,6 +75,7 @@ public class ApolloExtendAdminWebfluxConfiguration {
                                         return cacheManager.get(request.path()) == null;
                                     }), request -> handler(request, ServiceHandler.HandlerEnum.HANDLER_NAMESPACEINJECT)
                     )
+                    //  删除命名空间
                     .andRoute(POST("/namespace/delete-namespace")
                                     .and(contentType(APPLICATION_JSON))
                                     .and(request -> {

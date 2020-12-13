@@ -28,7 +28,7 @@ public class ApolloExtendAdminConstant {
     public static final String ADMIN_WEBFLUX_AUTO_CONFIGURATION_ENABLED = "apollo.extend.admin.webflux.configuration.enabled";
 
     /**
-     * web 配置开关
+     * WEB 配置开关
      */
     public static final String ADMIN_AUTO_CONFIGURATION_ENABLED = "apollo.extend.admin.web.configuration.enabled";
 
@@ -38,7 +38,7 @@ public class ApolloExtendAdminConstant {
     public static final String REQUEST_INTERCEPTOR_ENABLED = "apollo.extend.admin.request.interceptor.enabled";
 
     /**
-     * token 拦截开关：缺省：TRUE
+     * Token 拦截开关：缺省：TRUE
      */
     public static final String TOKEN_INTERCEPTOR_ENABLED = "apollo.extend.admin.token.interceptor.enabled";
 }

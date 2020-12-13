@@ -30,7 +30,7 @@ public class AdminTokenEndpoint {
     private CacheManager cacheManager;
 
     @RequestMapping(path = "/get", method = RequestMethod.GET)
-    @ApiOperation(value = "生成token", notes = "", response = ResponseEntity.class, httpMethod = "GET")
+    @ApiOperation(value = "获得访问Token", notes = "", response = ResponseEntity.class, httpMethod = "GET")
     @ResponseBody
     public ResponseEntity<?> getToken(HttpServletRequest request) {
         try {

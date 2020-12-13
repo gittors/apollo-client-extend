@@ -59,7 +59,10 @@ public class ServiceHandler {
     private ConfigurableEnvironment environment;
 
     private Map<String, Class<? extends Object>> callMap = new HashMap() {{
+        //  参数校验类
         put(CHECK, new ParameterCheck());
+
+        //  其他处理类
         put(HANDLER, new InjectNamespace());
     }};
 
@@ -67,6 +70,7 @@ public class ServiceHandler {
         if (handlerEnum == null || request == null) {
             return ApiResponse.fail();
         }
+        //  通过枚举类名，反射得到调用对象+方法名
         String callRouteName = handlerEnum.name();
         List<String> callList = CALL_SPLITTER.splitToList(callRouteName);
         if (CollectionUtils.isEmpty(callList)) {

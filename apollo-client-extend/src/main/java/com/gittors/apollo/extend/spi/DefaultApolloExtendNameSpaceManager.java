@@ -34,6 +34,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * 这个缺省的实现：
+ * Apollo的管理配置：{@link CommonApolloConstant#APOLLO_EXTEND_NAMESPACE}
+ * 的新增和删除的处理类
+ *
  * @author zlliu
  * @date 2020/8/26 10:38
  */
@@ -59,13 +63,16 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         if (CollectionUtils.isEmpty(needAddNamespaceSet)) {
             return Maps.newHashMap();
         }
+        //  获得合并的配置项
         Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, needAddNamespaceSet, ChangeType.ADD);
 
+        //  获得新增命名空间的propertySource
         List<ConfigPropertySource> addPropertySourceList = doGetAddNamespace(needAddNamespaceSet);
 
+        //  过滤掉"apollo extend管理配置"之外的配置项【用户真正需要关心的配置项】
         Map<String, Map<String, String>> addConfig = filter(addPropertySourceList, managerConfigMap);
 
-        //  新增配置项
+        //  新增配置项，刷新spring环境
         addNamespace(addPropertySourceList, managerConfigMap);
 
         return addConfig;
@@ -76,14 +83,17 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         if (CollectionUtils.isEmpty(needDeleteNamespaceSet)) {
             return Maps.newHashMap();
         }
+        //  获得合并的配置项
         Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, needDeleteNamespaceSet, ChangeType.DELETE);
 
+        //  获得需删除的命名空间的propertySource
         List<ConfigPropertySource> deletePropertySourceList = doGetDeleteNamespace(needDeleteNamespaceSet);
 
+        //  过滤掉"apollo extend管理配置"之外的配置项【用户真正需要关心的配置项】
         //  筛选出需删除的配置项，用于返回
         Map<String, Map<String, String>> deleteConfig = filter(deletePropertySourceList, managerConfigMap);
 
-        //  删除配置项
+        //  删除配置项，刷新spring环境
         deleteNamespace(deletePropertySourceList, managerConfigMap);
 
         return deleteConfig;
@@ -148,8 +158,10 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         configPropertySourceList.forEach(propertySource -> {
             ApolloExtendUtils.managerConfigHandler(propertySource, managerConfigMap.get(propertySource.getName()));
 
+            //  获得命名空间对应的spring propertySource前缀名称
             String configPrefix = environment.getProperty(CommonApolloConstant.PROPERTY_SOURCE_CONFIG_SUFFIX, CommonApolloConstant.PROPERTY_SOURCE_CONFIG_DEFAULT_SUFFIX);
 
+            //  获得命名空间对应的spring propertySource名称
             String propertySourceName = ApolloExtendUtils.getPropertySourceName(environment, configPrefix, propertySource.getName());
 
             CompositePropertySource composite = new CompositePropertySource(propertySourceName);
@@ -178,8 +190,10 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
 
         configPropertySourceList.forEach(propertySource -> {
             //  1.1删除 Spring环境配置
+            //  获得命名空间对应的spring propertySource前缀名称
             String configPrefix = environment.getProperty(CommonApolloConstant.PROPERTY_SOURCE_CONFIG_SUFFIX, CommonApolloConstant.PROPERTY_SOURCE_CONFIG_DEFAULT_SUFFIX);
 
+            //  获得命名空间对应的spring propertySource名称
             String propertySourceName = ApolloExtendUtils.getPropertySourceName(environment, configPrefix, propertySource.getName());
             mutablePropertySources.remove(propertySourceName);
             mutablePropertySources.remove(ApolloExtendStringUtils.format(propertySourceName, null, CommonConstant.PROPERTY_NAME_SUFFIX));

@@ -136,8 +136,8 @@ public final class ApolloExtendUtils {
     /**
      * 根据配置前缀拼接 propertySource 名称
      * @param environment
-     * @param configPrefix
-     * @param namespaceName
+     * @param configPrefix  配置的前缀
+     * @param namespaceName 命名空间名称
      * @return
      */
     public static String getPropertySourceName(ConfigurableEnvironment environment, String configPrefix, String namespaceName) {
@@ -170,7 +170,7 @@ public final class ApolloExtendUtils {
     }
 
     /**
-     * 构建跳过验证的Key
+     * 构建跳过验证的 KEY
      * @return
      */
     public static Map.Entry<Boolean, Set<String>> skipMatchConfig() {
@@ -190,18 +190,23 @@ public final class ApolloExtendUtils {
      */
     public static Map<String, Map.Entry<Boolean, Set<String>>> getManagerConfig(ConfigurableEnvironment environment,
                                                                    Set<String> namespaceSet, ChangeType changeType) {
+        //  全局配置项：listen.key.global.map.application2 = my.map
         ApolloExtendGlobalListenKeyProperties globalListenKeyProperties =
                 Binder.get(environment)
                         .bind(CommonApolloConstant.APOLLO_EXTEND_GLOBAL_LISTEN_KEY_SUFFIX, Bindable.of(ApolloExtendGlobalListenKeyProperties.class))
                         .orElse(new ApolloExtendGlobalListenKeyProperties());
+        //  局部配置项：listen.key.addMap.application2 = my.map2
         ApolloExtendListenKeyProperties listenKeyProperties =
                 Binder.get(environment)
                         .bind(CommonApolloConstant.APOLLO_EXTEND_LISTEN_KEY_SUFFIX, Bindable.of(ApolloExtendListenKeyProperties.class))
                         .orElse(new ApolloExtendListenKeyProperties());
 
+        //  合并全局+局部配置项：{key:application2,value:[my.map,my.map2]}
         Map<String, Set<String>> mergeMap = globalListenKeyProperties.merge(listenKeyProperties, changeType);
         Map<String, Map.Entry<Boolean, Set<String>>> map = Maps.newHashMap();
         for (String namespace : namespaceSet) {
+            //  mergeMap是所有的管理配置项
+            //  这个过滤的结果为：找出匹配namespaceSet范围内的命名空间配置项
             Set<String> listenKeyAll =
                     mergeMap.entrySet()
                             .stream()
@@ -241,6 +246,9 @@ public final class ApolloExtendUtils {
             defaultConfig.updateConfig(properties, propertySource.getSource().getSourceType());
 
             //  3设置回调
+            //  回调的作用是每次apollo命名空间的配置动态刷新时，利用这个回调过滤掉一些配置：
+            //  由于动态失效或生效是利用更新了apollo的内存对象DefaultConfigExt的原理，真正的apollo WEB界面这个配置是存在的，所以这个回调显得很重要~
+            //  比如：设置了某些key失效了【listen.key.delMap.application2 = my.key】，apollo更新配置发布后，这些失效的key还会带过来，利用这个回调过滤掉即可
             defaultConfig.addPropertiesCallBack(updateProperties -> {
                 Properties filterProperties = new Properties();
                 Properties property = (Properties) updateProperties;
