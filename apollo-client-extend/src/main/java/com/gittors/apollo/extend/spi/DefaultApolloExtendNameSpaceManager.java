@@ -20,6 +20,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
@@ -49,13 +51,9 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
     private BeanFactory beanFactory;
 
     @Override
-    public void setEnvironment(ConfigurableEnvironment environment) {
-        this.environment = environment;
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
+        this.beanFactory = ((AnnotationConfigApplicationContext) applicationContext).getBeanFactory();
     }
 
     @Override

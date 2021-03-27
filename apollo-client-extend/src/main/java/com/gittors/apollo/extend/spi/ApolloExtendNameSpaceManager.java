@@ -1,8 +1,7 @@
 package com.gittors.apollo.extend.spi;
 
 import com.gittors.apollo.extend.common.spi.Ordered;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.context.ApplicationContext;
 
 import java.util.List;
 import java.util.Map;
@@ -16,15 +15,9 @@ public interface ApolloExtendNameSpaceManager<T> extends Ordered {
 
     /**
      * 设置环境
-     * @param environment
+     * @param applicationContext
      */
-    void setEnvironment(ConfigurableEnvironment environment);
-
-    /**
-     * 设置bean工厂
-     * @param beanFactory
-     */
-    void setBeanFactory(BeanFactory beanFactory);
+    void setApplicationContext(ApplicationContext applicationContext);
 
     /**
      * 得到新增命名空间

@@ -12,7 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,10 +43,7 @@ public class AdminNamespaceEndpoint {
             ServiceLookUp.loadPrimary(ApolloExtendAdminProcessor.class);
 
     @Autowired
-    private ConfigurableEnvironment environment;
-
-    @Autowired
-    private BeanFactory beanFactory;
+    private ApplicationContext applicationContext;
 
     @RequestMapping(path = "/inject-namespace", method = RequestMethod.POST)
     @ApiOperationSupport(order = 1)
@@ -56,15 +53,14 @@ public class AdminNamespaceEndpoint {
                                                  @RequestParam("token") String token,
                                              @ApiParam(value = "命名空间", required = true)
                                               @RequestParam("namespace") String namespace) {
-        extendNameSpaceManager.setBeanFactory(beanFactory);
-        extendNameSpaceManager.setEnvironment(environment);
+        extendNameSpaceManager.setApplicationContext(applicationContext);
 
         List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(namespace);
         Set<String> newNamespaceSet = new HashSet<>(namespaceList);
 
         Map<String, Map<String, String>> configMap = extendNameSpaceManager.getAddNamespace(newNamespaceSet);
 
-        apolloExtendAdminProcessor.process(beanFactory, configMap);
+        apolloExtendAdminProcessor.process(applicationContext, configMap);
         return ResponseEntity.ok(ApolloExtendAdminConstant.OK);
     }
 
@@ -76,15 +72,14 @@ public class AdminNamespaceEndpoint {
                                                  @RequestParam("token") String token,
                                              @ApiParam(value = "命名空间", required = true)
                                               @RequestParam("namespace") String namespace) {
-        extendNameSpaceManager.setBeanFactory(beanFactory);
-        extendNameSpaceManager.setEnvironment(environment);
+        extendNameSpaceManager.setApplicationContext(applicationContext);
 
         List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(namespace);
         Set<String> namespaceSet = new HashSet<>(namespaceList);
 
         Map<String, Map<String, String>> configMap = extendNameSpaceManager.getDeleteNamespace(namespaceSet);
 
-        apolloExtendAdminProcessor.process(beanFactory, configMap);
+        apolloExtendAdminProcessor.process(applicationContext, configMap);
         return ResponseEntity.ok(ApolloExtendAdminConstant.OK);
     }
 

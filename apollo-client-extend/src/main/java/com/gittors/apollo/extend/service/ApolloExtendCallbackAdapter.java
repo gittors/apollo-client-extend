@@ -12,9 +12,9 @@ import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,10 +37,7 @@ public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCa
             ServiceLookUp.loadPrimary(ApolloExtendNameSpaceManager.class);
 
     @Autowired
-    private ConfigurableEnvironment environment;
-
-    @Autowired
-    private BeanFactory beanFactory;
+    private ApplicationContext applicationContext;
 
     public ApolloExtendCallbackAdapter() {
     }
@@ -59,8 +56,7 @@ public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCa
             Set<String> newNamespaceSet = new HashSet<>(namespaceList);
             newNamespaceSet.add(ConfigConsts.NAMESPACE_APPLICATION);
 
-            extendNameSpaceManager.setBeanFactory(beanFactory);
-            extendNameSpaceManager.setEnvironment(environment);
+            extendNameSpaceManager.setApplicationContext(applicationContext);
 
             //  如有新增配置项，刷新环境
             Map<String, Map<String, String>> addPropertySourceList = extendNameSpaceManager.getAddNamespace(excludeNamespace(newNamespaceSet));
@@ -122,6 +118,7 @@ public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCa
 
     @Override
     protected String getConfigPrefix() {
+        Environment environment = this.applicationContext.getEnvironment();
         String extNamespaceConfig = environment.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE_PREFIX);
         if (StringUtils.isNotBlank(extNamespaceConfig)) {
             return extNamespaceConfig;

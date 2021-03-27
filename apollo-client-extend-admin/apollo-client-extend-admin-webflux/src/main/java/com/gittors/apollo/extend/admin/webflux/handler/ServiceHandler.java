@@ -4,8 +4,8 @@ import com.gittors.apollo.extend.admin.webflux.entity.ApiResponse;
 import com.gittors.apollo.extend.admin.webflux.entity.DataEntity;
 import com.gittors.apollo.extend.admin.webflux.spi.ApolloExtendAdminWebfluxProcessor;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
-import com.gittors.apollo.extend.common.spi.ServiceLookUp;
 import com.gittors.apollo.extend.common.manager.CacheManager;
+import com.gittors.apollo.extend.common.spi.ServiceLookUp;
 import com.gittors.apollo.extend.spi.ApolloExtendNameSpaceManager;
 import com.google.common.base.Splitter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 
 import java.lang.reflect.Method;
@@ -53,10 +53,7 @@ public class ServiceHandler {
     private CacheManager cacheManager;
 
     @Autowired
-    private BeanFactory beanFactory;
-
-    @Autowired
-    private ConfigurableEnvironment environment;
+    private ApplicationContext applicationContext;
 
     private Map<String, Class<? extends Object>> callMap = new HashMap() {{
         //  参数校验类
@@ -110,28 +107,26 @@ public class ServiceHandler {
 
     class InjectNamespace {
         public ApiResponse namespaceinject(DataEntity dataEntity) {
-            extendNameSpaceManager.setBeanFactory(beanFactory);
-            extendNameSpaceManager.setEnvironment(environment);
+            extendNameSpaceManager.setApplicationContext(applicationContext);
 
             List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(dataEntity.getNamespace());
             Set<String> newNamespaceSet = new HashSet<>(namespaceList);
 
             Map<String, Map<String, String>> configMap = extendNameSpaceManager.getAddNamespace(newNamespaceSet);
 
-            extendAdminWebfluxProcessor.process(beanFactory, configMap);
+            extendAdminWebfluxProcessor.process(applicationContext, configMap);
             return null;
         }
 
         public ApiResponse namespacedelete(DataEntity dataEntity) {
-            extendNameSpaceManager.setBeanFactory(beanFactory);
-            extendNameSpaceManager.setEnvironment(environment);
+            extendNameSpaceManager.setApplicationContext(applicationContext);
 
             List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(dataEntity.getNamespace());
             Set<String> newNamespaceSet = new HashSet<>(namespaceList);
 
             Map<String, Map<String, String>> configMap = extendNameSpaceManager.getDeleteNamespace(newNamespaceSet);
 
-            extendAdminWebfluxProcessor.process(beanFactory, configMap);
+            extendAdminWebfluxProcessor.process(applicationContext, configMap);
             return null;
         }
     }
