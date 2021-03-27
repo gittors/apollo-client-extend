@@ -35,11 +35,8 @@ import java.util.stream.Collectors;
  * @date 2020/8/29 15:41
  */
 public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinkedProcessor<ConfigurableEnvironment> {
-    /**
-     * 分割器，分割符：","
-     */
-    private static final Splitter NAMESPACE_SPLITTER =
-            Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR)
+
+    private static final Splitter NAMESPACE_SPLITTER = Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR)
             .omitEmptyStrings().trimResults();
 
     private final ConfigPropertySourceFactory configPropertySourceFactory = SpringInjector
@@ -73,6 +70,12 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
         }
     }
 
+    /**
+     * 解析扩展命名空间配置   {@link CommonApolloConstant#APOLLO_EXTEND_NAMESPACE}
+     *
+     * @param environment
+     * @param namespace     命名空间管理配置名称
+     */
     protected void parse(ConfigurableEnvironment environment, String namespace) {
         ManageNamespaceConfigClass namespaceConfigClass = new ManageNamespaceConfigClass(namespace, ConfigService.getConfig(namespace));
         namespaceConfigClass.setManageConfigPrefix(environment.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE_PREFIX, CommonApolloConstant.APOLLO_EXTEND_NAMESPACE));
@@ -84,6 +87,13 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
         this.configClassMap.put(namespace, namespaceConfigClass);
     }
 
+    /**
+     * 根据命名空间管理配置，继续递归解析
+     * @param environment
+     * @param namespaceConfigClass
+     * @param configClass
+     * @return
+     */
     protected Object doParse(ConfigurableEnvironment environment, ManageNamespaceConfigClass namespaceConfigClass, Object configClass) {
         Config config = namespaceConfigClass.getConfig();
         //  Load failed skip
@@ -98,6 +108,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
             namespaceSet = namespaceSet.stream()
                     .filter(namespace -> !StringUtils.equalsIgnoreCase(namespace, namespaceConfigClass.getNamespace()))
                     .collect(Collectors.toSet());
+            //  根据管理配置的命名空间名称，继续递归解析是否有管理配置
             for (String namespace : namespaceSet) {
                 parse(environment, namespace);
             }
@@ -111,6 +122,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
 
         ConfigurationPropertySources.attach(standardEnvironment);
 
+        //  获得 propertySource配置前缀
         String configPrefix = standardEnvironment.getProperty(CommonApolloConstant.PROPERTY_SOURCE_CONFIG_SUFFIX, CommonApolloConstant.PROPERTY_SOURCE_CONFIG_DEFAULT_SUFFIX);
 
         namespaceConfigClass.setCompositePropertySourceName(ApolloExtendUtils.getPropertySourceName(standardEnvironment, configPrefix, namespaceConfigClass.getNamespace()));

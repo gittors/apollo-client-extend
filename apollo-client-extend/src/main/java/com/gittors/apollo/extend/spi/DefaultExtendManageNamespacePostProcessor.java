@@ -28,6 +28,7 @@ public class DefaultExtendManageNamespacePostProcessor implements ApolloExtendMa
                 configClasses.stream()
                         .map(ManageNamespaceConfigClass::getNamespace)
                         .collect(Collectors.toSet());
+        //  获得管理配置，部分配置生效等
         Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap =
                 ApolloExtendUtils.getManagerConfig(environment, namespaceSet, ChangeType.ADD);
 
@@ -35,7 +36,10 @@ public class DefaultExtendManageNamespacePostProcessor implements ApolloExtendMa
                         .map(configClass -> (ConfigPropertySource) configClass.getConfigPropertySource())
                         .collect(Collectors.toList());
 
-        addPropertySourceList.forEach(propertySource -> ApolloExtendUtils.managerConfigHandler(propertySource, managerConfigMap.get(propertySource.getName())));
+        //  过滤Apollo配置，使其部分生效
+        addPropertySourceList.forEach(propertySource ->
+                ApolloExtendUtils.managerConfigHandler(propertySource, managerConfigMap.get(propertySource.getName()))
+        );
 
     }
 

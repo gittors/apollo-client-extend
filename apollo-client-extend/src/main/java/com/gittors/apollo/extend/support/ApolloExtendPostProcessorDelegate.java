@@ -14,6 +14,13 @@ public final class ApolloExtendPostProcessorDelegate {
     private ApolloExtendPostProcessorDelegate() {
     }
 
+    /**
+     * 命名空间后置处理
+     *
+     * @param environment
+     * @param postProcessors
+     * @param configClasses
+     */
     public static void invokeManageNamespacePostProcessor(ConfigurableEnvironment environment,
                                                           List<ApolloExtendManageNamespacePostProcessor> postProcessors,
                                                           List<ManageNamespaceConfigClass> configClasses) {
