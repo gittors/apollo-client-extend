@@ -83,9 +83,8 @@ apollo.bootstrap.namespaces: application,application2
 | apollo-client-extend-event-starter | 事件模块Starter |
 | apollo-client-extend-binder | 对象绑定 |
 | apollo-client-extend-binder-starter | 对象绑定Starter |
-| apollo-client-extend-binder-demo | 对象绑定Demo |
+| apollo-client-extend-demo | 示例Demo |
 | apollo-client-extend-starter-gateway-adapter | 网关适配 |
-| apollo-client-extend-starter-gateway-demo | 网关适配Demo |
 | apollo-client-extend-chain-processor | 链式调用 |
 | apollo-client-extend-admin | 管理模块 |
 | apollo-client-extend-adapter | Apollo版本适配 |
