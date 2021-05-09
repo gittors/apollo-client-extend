@@ -21,10 +21,9 @@ import java.util.Set;
 
 /**
  * @author zlliu
- * @date 2020/8/19 21:39
+ * @date 2021/05/05 15:55
  */
-public class BinderClassPathScannerRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
-
+public class AbstractBinderRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
     private ResourceLoader resourceLoader;
 
     @Override
@@ -33,7 +32,7 @@ public class BinderClassPathScannerRegistrar implements ImportBeanDefinitionRegi
                 BinderPropertySourcesPostProcessor.class);
 
         AnnotationAttributes annAttrs =
-                AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(BinderScan.class.getName()));
+                AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(getAnnotationName()));
         BinderClassPathScanner scanner = new BinderClassPathScanner(registry);
 
         if (resourceLoader != null) {
@@ -70,9 +69,16 @@ public class BinderClassPathScannerRegistrar implements ImportBeanDefinitionRegi
         scanner.scanner(StringUtils.toStringArray(basePackages));
     }
 
+    /**
+     * 获得注解名称
+     * @return
+     */
+    protected String getAnnotationName() {
+        throw new RuntimeException("annotationName not supported");
+    }
+
     @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
     }
-
 }
