@@ -14,7 +14,8 @@ public final class ListUtils {
     }
 
     /**
-     * 集合去重
+     * 集合去重：
+     *  第一个能放进去，第二个放不进去
      * @param keyExtractor
      * @param <T>
      * @return
@@ -25,4 +26,5 @@ public final class ListUtils {
             return seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
         };
     }
+
 }

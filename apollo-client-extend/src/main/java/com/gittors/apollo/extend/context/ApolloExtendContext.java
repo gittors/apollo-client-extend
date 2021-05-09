@@ -13,7 +13,7 @@ public enum ApolloExtendContext {
     INSTANCE;
 
     /**
-     * apollo回调缓存
+     * Apollo回调缓存
      */
     private Map<String, ApolloExtendCallback> callbackMap = Maps.newHashMap();
 
