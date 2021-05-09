@@ -4,9 +4,9 @@ import com.gittors.apollo.extend.binder.registry.HolderBeanWrapper;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapperRegistry;
 import com.gittors.apollo.extend.binder.utils.BinderObjectInjector;
 import com.gittors.apollo.extend.binder.utils.BinderUtils;
-import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
 import com.nepxion.eventbus.annotation.EventBus;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.env.Environment;
@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  * @author zlliu
  * @date 2020/7/8 11:29
  */
+@Slf4j
 @EventBus
 public class BinderEventSubscriber {
 
@@ -38,27 +39,33 @@ public class BinderEventSubscriber {
         this.environment = environment;
     }
 
+    /**
+     * 监听绑定事件，并刷新对象
+     * @param event 事件对象
+     */
     @Subscribe
     public void refreshBinder(BinderRefreshBinderEvent event) {
-        Map<String, Map<String, String>> data = event.getData();
-        Map<String, String> allMap = Maps.newHashMap();
-        data.values().forEach(map -> allMap.putAll(map));
+        //  所有待刷新的配置：{key:配置key,value:配置value}
+        Map<String, String> allMap = event.getData();
 
+        //  根据bean工厂获得注册工厂
         Map<String, Collection<HolderBeanWrapper>> registry = holderBeanWrapperRegistry.getRegistry(beanFactory);
         if (MapUtils.isEmpty(registry)) {
+            log.warn("#refreshBinder skip refreshBinder,registry is empty!");
             return;
         }
-
-        Set<String> keySet = new HashSet<>();
+        Set<String> keyPrefixSet = new HashSet<>();
+        //  循环待刷新的key,获得待刷新的key前缀配置
         for (String key : allMap.keySet()) {
-            keySet.addAll(
+            keyPrefixSet.addAll(
                     registry.keySet()
                             .parallelStream()
                             .filter(bindPrefix -> key.startsWith(bindPrefix))
                             .collect(Collectors.toList())
             );
         }
-        for (String binderPrefix : keySet) {
+        for (String binderPrefix : keyPrefixSet) {
+            //  根据配置key前缀，获得bean绑定对象wrapper
             Collection<HolderBeanWrapper> targetValues = registry.get(binderPrefix);
             for (HolderBeanWrapper propertiesWrapper : targetValues) {
                 BinderUtils.binder(environment, propertiesWrapper, binderPrefix);

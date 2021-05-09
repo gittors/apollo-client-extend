@@ -6,9 +6,11 @@ import com.gittors.apollo.extend.event.EventPublisher;
 import com.gittors.apollo.extend.service.ApolloExtendCallbackAdapter;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -25,8 +27,16 @@ public class BinderDemoCallback extends ApolloExtendCallbackAdapter {
 
     @Override
     protected void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data) {
-        Map<String, Map<String, String>> configMap = Maps.newHashMap();
-        data.values().forEach(map -> configMap.putAll(map));
+        Map<String, String> configMap = Maps.newHashMap();
+        data.values()
+                .stream()
+                .map(Map::values)
+                .flatMap(Collection::stream)
+                .forEach(map -> configMap.putAll(map));
+        if (MapUtils.isEmpty(configMap)) {
+            log.warn("#changeProcess configMap is empty!");
+            return;
+        }
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
         eventPublisher.asyncPublish(new BinderRefreshBinderEvent(configMap));
     }

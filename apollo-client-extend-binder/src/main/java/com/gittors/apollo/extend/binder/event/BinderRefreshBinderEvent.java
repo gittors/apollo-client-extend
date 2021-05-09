@@ -14,12 +14,12 @@ public class BinderRefreshBinderEvent {
     /**
      * {Key：命名空间，Value：{配置Key=配置Value}}
      */
-    private Map<String, Map<String, String>> data = Maps.newHashMap();
+    private Map<String, String> data = Maps.newHashMap();
 
     public BinderRefreshBinderEvent() {
     }
 
-    public BinderRefreshBinderEvent(Map<String, Map<String,String>> data) {
+    public BinderRefreshBinderEvent(Map<String,String> data) {
         this.data = data;
     }
 }

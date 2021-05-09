@@ -3,6 +3,7 @@ package com.gittors.apollo.extend.admin.webflux.spi;
 import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.gittors.apollo.extend.binder.event.BinderRefreshBinderEvent;
 import com.gittors.apollo.extend.event.EventPublisher;
+import com.google.common.collect.Maps;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
@@ -23,8 +24,11 @@ public class DefaultApolloExtendAdminWebfluxProcessor implements ApolloExtendAdm
      * @param config
      */
     protected void pushBinder(ApplicationContext context, Map<String, Map<String, String>> config) {
+        Map<String, String> data = Maps.newHashMap();
+        config.values().forEach(map -> data.putAll(map));
+
         EventPublisher eventPublisher = context.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(new BinderRefreshBinderEvent(config));
+        eventPublisher.asyncPublish(new BinderRefreshBinderEvent(data));
     }
 
     @Override

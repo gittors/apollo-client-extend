@@ -48,6 +48,7 @@ public class AdminConfigEndpoint {
     @RequestMapping(path = "/update-config", method = RequestMethod.POST)
     @ApiOperation(value = "更新配置", notes = "", response = ResponseEntity.class, httpMethod = "POST")
     @ResponseBody
+    @Deprecated
     public ResponseEntity<?> updateConfig(@ApiParam(value = "token", required = true)
                                               @RequestParam("token") String token,
                                           @ApiParam(value = "命名空间", required = true)
@@ -84,9 +85,9 @@ public class AdminConfigEndpoint {
      * @param propertiesList
      */
     public void pushBinder(List<Properties> propertiesList) {
-        Map<String, Map<String, String>> data = Maps.newHashMap();
+        Map<String, String> data = Maps.newHashMap();
         for (Properties properties : propertiesList) {
-            data.put("namespace", Maps.fromProperties(properties));
+            data.putAll(Maps.fromProperties(properties));
         }
 
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
