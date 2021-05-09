@@ -13,4 +13,4 @@ echo "============================================================="
 
 echo "Apollo Client Extend"
 
-mvn versions:set -DgenerateBackupPoms=false -DnewVersion=1.0.3
+mvn versions:set -DgenerateBackupPoms=false -DnewVersion=1.0.4
