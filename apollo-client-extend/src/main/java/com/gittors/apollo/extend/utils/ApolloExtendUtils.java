@@ -55,13 +55,15 @@ public final class ApolloExtendUtils {
     public static ConfigChangeListener getChangeListener(Map<String, ApolloExtendCallback> callbackMap) {
         return changeEvent -> {
             log.info("ApolloConfig onchange... namespace: {}", changeEvent.getNamespace());
-            long changeTimestamp = System.currentTimeMillis();
             for (String key : changeEvent.changedKeys()) {
                 // 精确匹配和模糊查询
                 for (Map.Entry<String, ApolloExtendCallback> entry : callbackMap.entrySet()) {
                     if (key.equals(entry.getKey()) ||
                             (entry.getKey().indexOf("*") > 0 && key.indexOf(entry.getKey().replace("*","")) >= 0)) {
-                        entry.getValue().callback(changeEvent.getNamespace(), changeEvent.getChange(key).getOldValue(), changeEvent.getChange(key).getNewValue(), changeTimestamp);
+                        ApolloExtendCallback callback = entry.getValue();
+                        if (callback != null) {
+                            callback.callback(changeEvent.getChange(key).getOldValue(), changeEvent.getChange(key).getNewValue(), key, changeEvent);
+                        }
                     }
                 }
             }
@@ -136,11 +138,12 @@ public final class ApolloExtendUtils {
     /**
      * 根据配置前缀拼接 propertySource 名称
      * @param environment
-     * @param configPrefix  配置的前缀
      * @param namespaceName 命名空间名称
      * @return
      */
-    public static String getPropertySourceName(ConfigurableEnvironment environment, String configPrefix, String namespaceName) {
+    public static String getPropertySourceName(ConfigurableEnvironment environment, String namespaceName) {
+        //  获得命名空间对应的spring propertySource名称
+        String configPrefix = environment.getProperty(CommonApolloConstant.PROPERTY_SOURCE_CONFIG_SUFFIX, CommonApolloConstant.PROPERTY_SOURCE_CONFIG_DEFAULT_SUFFIX);
         ApolloExtendPropertySourceProperties propertySourceConfig =
                 Binder.get(environment)
                         .bind(configPrefix, Bindable.of(ApolloExtendPropertySourceProperties.class))
@@ -152,7 +155,8 @@ public final class ApolloExtendUtils {
 
     /**
      * 匹配 Key是否存在于监听Key集合
-     * @param key   参数Key
+     * @param key   参数Key，如：my.map.name3
+     * @param configEntry   管理配置 listen.key.addMap 的key：如 my.map
      * @return
      */
     public static boolean predicateMatch(String key, Map.Entry<Boolean, Set<String>> configEntry) {
@@ -160,6 +164,7 @@ public final class ApolloExtendUtils {
             return true;
         }
         return configEntry.getValue().stream()
+                .filter(prefix -> StringUtils.isNotBlank(prefix))
                 .anyMatch(prefix -> key.startsWith(prefix));
     }
 
@@ -201,13 +206,12 @@ public final class ApolloExtendUtils {
         for (String namespace : namespaceSet) {
             //  mergeMap是合并后的所有管理配置项
             //  这个过滤的结果为：找出匹配namespaceSet范围内的命名空间配置项
-            Set<String> listenKeyAll =
-                    mergeMap.entrySet()
-                            .stream()
-                            .filter(entry -> namespace.equalsIgnoreCase(entry.getKey()))
-                            .map(Map.Entry::getValue)
-                            .flatMap(Collection::stream)
-                            .collect(Collectors.toSet());
+            Set<String> listenKeyAll = mergeMap.entrySet().stream()
+                    .filter(entry -> namespace.equalsIgnoreCase(entry.getKey()))
+                    .map(Map.Entry::getValue)
+                    .flatMap(Collection::stream)
+                    .filter(StringUtils::isNotBlank)
+                    .collect(Collectors.toSet());
             Map.Entry<Boolean, Set<String>> managerConfigPrefix;
             if (CollectionUtils.isNotEmpty(listenKeyAll)) {
                 managerConfigPrefix = new AbstractMap.SimpleEntry<>(Boolean.TRUE, listenKeyAll);
@@ -229,12 +233,13 @@ public final class ApolloExtendUtils {
         if (configEntry.getKey()) {
             DefaultConfigExt defaultConfig = (DefaultConfigExt) propertySource.getSource();
 
+            Properties sourceProperties = ((DefaultConfigExt) propertySource.getSource()).getConfigRepository().getConfig();
             Properties properties = new Properties();
             //  1根据配置监听Key 筛选生效属性
-            defaultConfig.getPropertyNames()
+            sourceProperties.stringPropertyNames()
                     .stream()
                     .filter(configKey -> ApolloExtendUtils.predicateMatch(configKey, configEntry) || ApolloExtendUtils.predicateMatch(configKey, ApolloExtendUtils.skipMatchConfig()))
-                    .forEach(configKey -> properties.setProperty(configKey, defaultConfig.getProperty(configKey, "")));
+                    .forEach(configKey -> properties.setProperty(configKey, sourceProperties.getProperty(configKey, "")));
 
             //  2刷新对象
             defaultConfig.updateConfig(properties, propertySource.getSource().getSourceType());

@@ -24,10 +24,8 @@ public class DefaultExtendManageNamespacePostProcessor implements ApolloExtendMa
 
     @Override
     public void postProcessManageNamespace(ConfigurableEnvironment environment, List<ManageNamespaceConfigClass> configClasses) {
-        Set<String> namespaceSet =
-                configClasses.stream()
-                        .map(ManageNamespaceConfigClass::getNamespace)
-                        .collect(Collectors.toSet());
+        Set<String> namespaceSet = configClasses.stream()
+                .map(ManageNamespaceConfigClass::getNamespace).collect(Collectors.toSet());
         //  获得管理配置，部分配置生效等
         Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap =
                 ApolloExtendUtils.getManagerConfig(environment, namespaceSet, ChangeType.ADD);

@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *    2、开放 {@link #initialize()} 方法权限： private --> public
  *    3、新增回调 {@link propertiesCallBack} + {@link #addPropertiesCallBack(PropertiesCallBack)} 方法: 配置删除时用
  *    4、新增属性更新方法 {@link #setProperty(String, String)}
+ *    5、新增属性 m_configRepository GET方法 {@link #getConfigRepository()}
  *
  * @author zlliu
  * @date 2020/7/25 11:18
@@ -76,6 +77,10 @@ public class DefaultConfigExt extends AbstractConfigExt implements RepositoryCha
     initialize();
   }
 
+  public ConfigRepository getConfigRepository() {
+    return this.m_configRepository;
+  }
+
   public void initialize() {
     try {
       updateConfig(m_configRepository.getConfig(), m_configRepository.getSourceType());
@@ -91,7 +96,7 @@ public class DefaultConfigExt extends AbstractConfigExt implements RepositoryCha
     }
   }
 
-  public void addPropertiesCallBack(PropertiesCallBack callBack) {
+  public synchronized void addPropertiesCallBack(PropertiesCallBack callBack) {
     propertiesCallBack.set(callBack);
   }
 

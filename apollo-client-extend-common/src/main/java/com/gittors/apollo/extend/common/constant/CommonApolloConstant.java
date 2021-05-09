@@ -7,13 +7,13 @@ package com.gittors.apollo.extend.common.constant;
 public class CommonApolloConstant {
 
     /**
-     * apollo扩展命名空间配置前缀
+     * Apollo扩展命名空间配置前缀
      * 缺省：{@link #APOLLO_EXTEND_NAMESPACE}
      */
     public static final String APOLLO_EXTEND_NAMESPACE_PREFIX = "apollo.extend.namespace.prefix";
 
     /**
-     * apollo扩展命名空间
+     * Apollo扩展命名空间
      */
     public static final String APOLLO_EXTEND_NAMESPACE = "apollo.extend.namespace";
 
@@ -52,8 +52,21 @@ public class CommonApolloConstant {
      */
     public static final String DEFAULT_APOLLO_EXTEND_CALLBACK_ADAPTER = "defaultApolloExtendCallbackAdapter";
 
+    /**
+     * application 命名空间
+     */
     public static final String NAMESPACE_APPLICATION = "application";
 
     public static final String CLUSTER_NAMESPACE_SEPARATOR = "+";
+
+    /**
+     * 管理配置：新增命名空间时，生效的配置属性
+     */
+    public static final String APOLLO_EXTEND_ADD_CALLBACK_CONFIG = APOLLO_EXTEND_LISTEN_KEY_SUFFIX + ".addMap";
+
+    /**
+     * 管理配置：删除命名空间时，失效的配置属性
+     */
+    public static final String APOLLO_EXTEND_DELETE_CALLBACK_CONFIG = APOLLO_EXTEND_LISTEN_KEY_SUFFIX + ".delMap";
 
 }

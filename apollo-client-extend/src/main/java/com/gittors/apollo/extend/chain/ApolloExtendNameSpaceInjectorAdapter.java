@@ -122,10 +122,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
 
         ConfigurationPropertySources.attach(standardEnvironment);
 
-        //  获得 propertySource配置前缀
-        String configPrefix = standardEnvironment.getProperty(CommonApolloConstant.PROPERTY_SOURCE_CONFIG_SUFFIX, CommonApolloConstant.PROPERTY_SOURCE_CONFIG_DEFAULT_SUFFIX);
-
-        namespaceConfigClass.setCompositePropertySourceName(ApolloExtendUtils.getPropertySourceName(standardEnvironment, configPrefix, namespaceConfigClass.getNamespace()));
+        namespaceConfigClass.setCompositePropertySourceName(ApolloExtendUtils.getPropertySourceName(standardEnvironment, namespaceConfigClass.getNamespace()));
         namespaceConfigClass.setConfigPropertySource(configPropertySource);
 
         return null;

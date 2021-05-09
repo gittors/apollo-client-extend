@@ -6,9 +6,7 @@ import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.common.spi.ServiceLookUp;
 import com.gittors.apollo.extend.spi.ApolloExtendNameSpaceManager;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author zlliu
@@ -29,9 +26,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
-
-    private static final Splitter NAMESPACE_SPLITTER =
-            Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR).omitEmptyStrings().trimResults();
 
     private final ApolloExtendNameSpaceManager extendNameSpaceManager =
             ServiceLookUp.loadPrimary(ApolloExtendNameSpaceManager.class);
@@ -43,7 +37,7 @@ public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCa
     }
 
     @Override
-    public void callback(String namespace, String oldValue, String newValue, long timestamp) {
+    public void callback(String oldValue, String newValue, Object... objects) {
         doCallback(oldValue, newValue);
     }
 
@@ -80,28 +74,6 @@ public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCa
                 changeProcess(ChangeType.DELETE, data);
             }
         }
-    }
-
-    private Set<String> excludeNamespace(Set<String> namespaceSet) {
-        Set<String> exclude = namespaceSet.stream()
-                .filter(namespace -> !ConfigConsts.NAMESPACE_APPLICATION.equalsIgnoreCase(namespace))
-                .collect(Collectors.toSet());
-        return exclude;
-    }
-
-    /**
-     * 计算需要删除的命名空间
-     * @param oldValue
-     * @param newNamespaceSet
-     * @return
-     */
-    private Set<String> getDifferentNamespace(String oldValue, Set<String> newNamespaceSet) {
-        List<String> oldNamespaceList = NAMESPACE_SPLITTER.splitToList(StringUtils.isNotBlank(oldValue) ? oldValue : ConfigConsts.NAMESPACE_APPLICATION);
-        Set<String> oldNamespaceSet = new HashSet<>(oldNamespaceList);
-        oldNamespaceSet.add(ConfigConsts.NAMESPACE_APPLICATION);
-
-        Set<String> commonSet = Sets.intersection(oldNamespaceSet, newNamespaceSet);
-        return excludeNamespace(Sets.difference(oldNamespaceSet, commonSet));
     }
 
     /**

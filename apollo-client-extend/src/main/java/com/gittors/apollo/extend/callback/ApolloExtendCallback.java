@@ -10,12 +10,11 @@ import java.util.List;
 public interface ApolloExtendCallback {
     /**
      * Apollo配置更新回调
-     * @param namespace
-     * @param oldValue
-     * @param newValue
-     * @param timestamp
+     * @param oldValue  配置key旧值
+     * @param newValue  配置key新值
+     * @param objects
      */
-    void callback(String namespace, String oldValue, String newValue, long timestamp);
+    void callback(String oldValue, String newValue, Object... objects);
 
     /**
      * 监听key集合
