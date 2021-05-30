@@ -228,7 +228,7 @@ public final class ApolloExtendUtils {
      * @param propertySource
      * @param configEntry
      */
-    public static void managerConfigHandler(ConfigPropertySource propertySource, Map.Entry<Boolean, Set<String>> configEntry) {
+    public static void configValidHandler(ConfigPropertySource propertySource, Map.Entry<Boolean, Set<String>> configEntry) {
         //  如果是FALSE全部生效，就不用设置回调
         if (configEntry.getKey()) {
             DefaultConfigExt defaultConfig = (DefaultConfigExt) propertySource.getSource();

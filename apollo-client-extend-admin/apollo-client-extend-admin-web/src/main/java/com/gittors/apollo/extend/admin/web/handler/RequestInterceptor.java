@@ -1,5 +1,6 @@
 package com.gittors.apollo.extend.admin.web.handler;
 
+import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
 import com.gittors.apollo.extend.common.manager.CacheManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
     public static final String BEAN_NAME = "requestInterceptor";
 
     @Autowired
-    @Qualifier("extendAdminCacheManager")
+    @Qualifier(ApolloExtendAdminConstant.EXTEND_ADMIN_CACHE_MANAGER)
     private CacheManager cacheManager;
 
     @Override

@@ -41,4 +41,14 @@ public class ApolloExtendAdminConstant {
      * Token 拦截开关：缺省：TRUE
      */
     public static final String TOKEN_INTERCEPTOR_ENABLED = "apollo.extend.admin.token.interceptor.enabled";
+
+    /**
+     * Extend webflux cache
+     */
+    public static final String EXTEND_ADMIN_WEB_FLUX_CACHE_MANAGER = "extendAdminWebFluxCacheManager";
+
+    /**
+     * Extend web cache
+     */
+    public static final String EXTEND_ADMIN_CACHE_MANAGER = "extendAdminCacheManager";
 }

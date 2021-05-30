@@ -25,6 +25,11 @@ public class ApiResponse<T> {
      */
     private String msg;
 
+    /**
+     * 是否成功
+     */
+    private boolean success;
+
     public static ApiResponse success(Object object) {
         return success(object, "SUCCESS");
     }
@@ -34,6 +39,7 @@ public class ApiResponse<T> {
                 .msg(msg)
                 .code(200)
                 .data(object)
+                .success(true)
                 .build();
     }
 

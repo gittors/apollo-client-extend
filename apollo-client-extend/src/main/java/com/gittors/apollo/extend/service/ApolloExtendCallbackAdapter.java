@@ -25,7 +25,7 @@ import java.util.Set;
  * @date 2020/7/8 20:29
  */
 @Slf4j
-public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
+public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
 
     private final ApolloExtendNameSpaceManager extendNameSpaceManager =
             ServiceLookUp.loadPrimary(ApolloExtendNameSpaceManager.class);
@@ -53,10 +53,10 @@ public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCa
             extendNameSpaceManager.setApplicationContext(applicationContext);
 
             //  如有新增配置项，刷新环境
-            Map<String, Map<String, String>> addPropertySourceList = extendNameSpaceManager.getAddNamespace(excludeNamespace(newNamespaceSet));
+            Map<String, Map<String, String>> addPropertySourceList = extendNameSpaceManager.getAddNamespaceConfig(excludeNamespace(newNamespaceSet));
 
             //  如有删除配置项，刷新环境
-            Map<String, Map<String, String>> deletePropertySourceList = extendNameSpaceManager.getDeleteNamespace(getDifferentNamespace(oldValue, newNamespaceSet));
+            Map<String, Map<String, String>> deletePropertySourceList = extendNameSpaceManager.getDeleteNamespaceConfig(getDifferentNamespace(oldValue, newNamespaceSet));
             //  {Key: 新增/删除, Value: {Key: 命名空间, Value: 配置Key=配置Value}}
             Map<String, Map<String, Map<String, String>>> data = Maps.newHashMap();
             if (MapUtils.isNotEmpty(addPropertySourceList) && MapUtils.isNotEmpty(deletePropertySourceList)) {
@@ -81,7 +81,8 @@ public abstract class ApolloExtendCallbackAdapter extends AbstractApolloExtendCa
      * @param changeType    变更类型
      * @param data  变更的数据 {Key: 新增/删除, Value: {Key: 命名空间, Value: 配置Key=配置Value}}
      */
-    protected abstract void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data);
+    protected void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data) {
+    }
 
     @Override
     public List<String> keyList() {

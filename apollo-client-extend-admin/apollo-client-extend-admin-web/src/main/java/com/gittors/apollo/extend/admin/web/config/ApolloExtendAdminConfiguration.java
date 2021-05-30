@@ -54,6 +54,7 @@ public class ApolloExtendAdminConfiguration {
      */
     private static class AdminOtherConfiguration {
         @Bean
+        @ConditionalOnMissingBean(name = ApolloExtendAdminConstant.EXTEND_ADMIN_CACHE_MANAGER)
         public CacheManager extendAdminCacheManager(Environment environment) {
             return new CacheManager(environment);
         }

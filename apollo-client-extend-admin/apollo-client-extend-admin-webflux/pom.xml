@@ -12,7 +12,6 @@
     <artifactId>apollo-client-extend-admin-webflux</artifactId>
 
     <dependencies>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webflux</artifactId>

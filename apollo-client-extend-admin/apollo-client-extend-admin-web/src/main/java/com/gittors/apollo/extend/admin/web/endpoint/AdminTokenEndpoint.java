@@ -1,5 +1,6 @@
 package com.gittors.apollo.extend.admin.web.endpoint;
 
+import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
 import com.gittors.apollo.extend.common.encry.EncryptUtils;
 import com.gittors.apollo.extend.common.manager.CacheManager;
 import io.swagger.annotations.Api;
@@ -26,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 @Api(tags = { "Token接口" })
 public class AdminTokenEndpoint {
     @Autowired
-    @Qualifier("extendAdminCacheManager")
+    @Qualifier(ApolloExtendAdminConstant.EXTEND_ADMIN_CACHE_MANAGER)
     private CacheManager cacheManager;
 
     @RequestMapping(path = "/get", method = RequestMethod.GET)

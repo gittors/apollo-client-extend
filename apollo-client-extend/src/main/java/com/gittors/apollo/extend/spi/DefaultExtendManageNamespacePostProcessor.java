@@ -36,7 +36,7 @@ public class DefaultExtendManageNamespacePostProcessor implements ApolloExtendMa
 
         //  过滤Apollo配置，使其部分生效
         addPropertySourceList.forEach(propertySource ->
-                ApolloExtendUtils.managerConfigHandler(propertySource, managerConfigMap.get(propertySource.getName()))
+                ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getName()))
         );
 
     }
