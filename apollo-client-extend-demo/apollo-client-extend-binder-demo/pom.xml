@@ -18,6 +18,7 @@
             <artifactId>apollo-client-extend-admin-web</artifactId>
         </dependency>
 
+        <!--   不依赖admin,则需要依赖extend-starter和extend-binder-starter   -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>apollo-client-extend-starter</artifactId>
