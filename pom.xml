@@ -5,13 +5,12 @@
 
     <groupId>com.github.gittors</groupId>
     <artifactId>apollo-client-extend-parent</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 
     <modules>
         <module>apollo-client-extend</module>
         <module>apollo-client-extend-common</module>
         <module>apollo-client-extend-starter</module>
-        <module>apollo-client-extend-event</module>
         <module>apollo-client-extend-event-starter</module>
         <module>apollo-client-extend-binder</module>
         <module>apollo-client-extend-binder-starter</module>
@@ -36,7 +35,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <spring-boot.version>2.2.9.RELEASE</spring-boot.version>
-        <guava.version>25.0-jre</guava.version>
+        <guava.version>30.0-jre</guava.version>
         <apollo.version>1.7.0</apollo.version>
         <eventbus.version>2.0.12</eventbus.version>
     </properties>
@@ -97,12 +96,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>apollo-client-extend-binder-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-event</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -178,7 +171,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.6</version>
+                <version>2.9.0</version>
             </dependency>
 
             <dependency>

@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.gittors</groupId>
         <artifactId>apollo-client-extend-demo</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -19,10 +19,11 @@
         </dependency>
 
         <!--   不依赖admin,则需要依赖extend-starter和extend-binder-starter   -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>apollo-client-extend-starter</artifactId>
-        </dependency>
+        <!--   依赖extend-starter时,需要注意apollo-client的版本,高版本的依赖apollo-client-extend-higher-adapter   -->
+<!--        <dependency>-->
+<!--            <groupId>${project.groupId}</groupId>-->
+<!--            <artifactId>apollo-client-extend-starter</artifactId>-->
+<!--        </dependency>-->
 
 <!--        <dependency>-->
 <!--            <groupId>${project.groupId}</groupId>-->
