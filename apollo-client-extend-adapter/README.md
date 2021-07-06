@@ -7,7 +7,7 @@
 <dependency>
     <groupId>com.github.gittors</groupId>
     <artifactId>apollo-client-extend-starter</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 
@@ -16,7 +16,7 @@
 <dependency>
     <groupId>com.github.gittors</groupId>
     <artifactId>apollo-client-extend-starter</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <exclusions>
         <exclusion>
             <groupId>com.github.gittors</groupId>
@@ -28,7 +28,7 @@
 <dependency>
     <groupId>com.github.gittors</groupId>
     <artifactId>apollo-client-extend-lower-adapter</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 

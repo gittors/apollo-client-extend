@@ -15,9 +15,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 扩展： {@link DefaultConfigFactory}
- * 修改：{@link #create(String)} 方法对
+ * 修改：
+ * 1、{@link #create(String)} 方法对
  *      {@link com.ctrip.framework.apollo.internals.DefaultConfig}
  *      的创建：DefaultConfig --> DefaultConfigExt
+ * 2、{@link #determineFileFormat(String)} --> protected
+ * 3、{@link #createPropertiesCompatibleFileConfigRepository(String, ConfigFileFormat)} --> protected
+ * 4、{@link #createLocalConfigRepository(String)} --> protected
  *
  * @author zlliu
  * @date 2020/7/26 18:12
@@ -40,7 +44,7 @@ public class DefaultConfigFactoryExt extends DefaultConfigFactory {
         return new DefaultConfigExt(namespace, createLocalConfigRepository(namespace));
     }
 
-    LocalFileConfigRepository createLocalConfigRepository(String namespace) {
+    protected LocalFileConfigRepository createLocalConfigRepository(String namespace) {
         if (m_configUtil.isInLocalMode()) {
             logger.warn(
                     "==== Apollo is in local mode! Won't pull configs from remote server for namespace {} ! ====",
@@ -50,11 +54,11 @@ public class DefaultConfigFactoryExt extends DefaultConfigFactory {
         return new LocalFileConfigRepository(namespace, createRemoteConfigRepository(namespace));
     }
 
-    RemoteConfigRepository createRemoteConfigRepository(String namespace) {
+    protected RemoteConfigRepository createRemoteConfigRepository(String namespace) {
         return new RemoteConfigRepository(namespace);
     }
 
-    PropertiesCompatibleFileConfigRepository createPropertiesCompatibleFileConfigRepository(String namespace,
+    protected PropertiesCompatibleFileConfigRepository createPropertiesCompatibleFileConfigRepository(String namespace,
                                                                                             ConfigFileFormat format) {
         String actualNamespaceName = trimNamespaceFormat(namespace, format);
         PropertiesCompatibleConfigFile configFile = (PropertiesCompatibleConfigFile) ConfigService
@@ -64,7 +68,7 @@ public class DefaultConfigFactoryExt extends DefaultConfigFactory {
     }
 
     // for namespaces whose format are not properties, the file extension must be present, e.g. application.yaml
-    ConfigFileFormat determineFileFormat(String namespaceName) {
+    protected ConfigFileFormat determineFileFormat(String namespaceName) {
         String lowerCase = namespaceName.toLowerCase();
         for (ConfigFileFormat format : ConfigFileFormat.values()) {
             if (lowerCase.endsWith("." + format.getValue())) {

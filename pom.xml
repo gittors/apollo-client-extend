@@ -5,7 +5,7 @@
 
     <groupId>com.github.gittors</groupId>
     <artifactId>apollo-client-extend-parent</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 
     <modules>
         <module>apollo-client-extend</module>
@@ -38,6 +38,24 @@
         <guava.version>30.0-jre</guava.version>
         <apollo.version>1.7.0</apollo.version>
         <eventbus.version>2.0.12</eventbus.version>
+
+        <!--    apollo-client-extend version start    -->
+        <apollo-client-extend.version>1.1.1</apollo-client-extend.version>
+        <apollo-client-extend-common.version>1.1.1</apollo-client-extend-common.version>
+        <apollo-client-extend-starter.version>1.1.1</apollo-client-extend-starter.version>
+        <apollo-client-extend-binder.version>1.1.1</apollo-client-extend-binder.version>
+        <apollo-client-extend-binder-starter.version>1.1.1</apollo-client-extend-binder-starter.version>
+        <apollo-client-extend-event-starter.version>1.1.1</apollo-client-extend-event-starter.version>
+        <apollo-client-extend-starter-gateway-adapter.version>1.1.1</apollo-client-extend-starter-gateway-adapter.version>
+        <apollo-client-extend-admin-web.version>1.1.1</apollo-client-extend-admin-web.version>
+        <apollo-client-extend-admin-webflux.version>1.1.1</apollo-client-extend-admin-webflux.version>
+        <apollo-client-extend-chain-processor.version>1.1.1</apollo-client-extend-chain-processor.version>
+        <!--   @since 1.1.2     -->
+        <apollo-client-extend-support.version>1.1.2</apollo-client-extend-support.version>
+        <apollo-client-extend-lower-adapter.version>1.1.2</apollo-client-extend-lower-adapter.version>
+        <apollo-client-extend-higher-adapter.version>1.1.2</apollo-client-extend-higher-adapter.version>
+        <apollo-client-extend-common-adapter.version>1.0.0</apollo-client-extend-common-adapter.version>
+        <!--    apollo-client-extend version end    -->
     </properties>
 
     <dependencyManagement>
@@ -67,87 +85,6 @@
                 <scope>import</scope>
             </dependency>
             <!--  ============== import dependency end =================  -->
-
-            <!--  ============== apollo-client-extend dependency start =================  -->
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-binder</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-binder-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-event-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-starter-gateway-adapter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-admin-web</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-admin-webflux</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-chain-processor</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-support</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-lower-adapter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-higher-adapter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <!--  ============== apollo-client-extend dependency end =================  -->
 
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -180,6 +117,91 @@
                 <version>${guava.version}</version>
             </dependency>
 
+            <!--  ============== apollo-client-extend dependency start =================  -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend</artifactId>
+                <version>${apollo-client-extend.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-common</artifactId>
+                <version>${apollo-client-extend-common.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-starter</artifactId>
+                <version>${apollo-client-extend-starter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-binder</artifactId>
+                <version>${apollo-client-extend-binder.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-binder-starter</artifactId>
+                <version>${apollo-client-extend-binder-starter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-event-starter</artifactId>
+                <version>${apollo-client-extend-event-starter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-starter-gateway-adapter</artifactId>
+                <version>${apollo-client-extend-starter-gateway-adapter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-admin-web</artifactId>
+                <version>${apollo-client-extend-admin-web.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-admin-webflux</artifactId>
+                <version>${apollo-client-extend-admin-webflux.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-chain-processor</artifactId>
+                <version>${apollo-client-extend-chain-processor.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-support</artifactId>
+                <version>${apollo-client-extend-support.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-lower-adapter</artifactId>
+                <version>${apollo-client-extend-lower-adapter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-higher-adapter</artifactId>
+                <version>${apollo-client-extend-higher-adapter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>apollo-client-extend-common-adapter</artifactId>
+                <version>${apollo-client-extend-common-adapter.version}</version>
+            </dependency>
+            <!--  ============== apollo-client-extend dependency end =================  -->
         </dependencies>
     </dependencyManagement>
 
