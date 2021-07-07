@@ -16,7 +16,7 @@ import com.gittors.apollo.extend.properties.ApolloExtendGlobalListenKeyPropertie
 import com.gittors.apollo.extend.properties.ApolloExtendListenKeyProperties;
 import com.gittors.apollo.extend.properties.ApolloExtendPropertySourceProperties;
 import com.gittors.apollo.extend.support.ApolloExtendStringMapEntry;
-import com.gittors.apollo.extend.support.ext.DefaultConfigExt;
+import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -231,9 +231,9 @@ public final class ApolloExtendUtils {
     public static void configValidHandler(ConfigPropertySource propertySource, Map.Entry<Boolean, Set<String>> configEntry) {
         //  如果是FALSE全部生效，就不用设置回调
         if (configEntry.getKey()) {
-            DefaultConfigExt defaultConfig = (DefaultConfigExt) propertySource.getSource();
+            ApolloClientExtendConfig defaultConfig = (ApolloClientExtendConfig) propertySource.getSource();
 
-            Properties sourceProperties = ((DefaultConfigExt) propertySource.getSource()).getConfigRepository().getConfig();
+            Properties sourceProperties = ((ApolloClientExtendConfig) propertySource.getSource()).getConfigRepository().getConfig();
             Properties properties = new Properties();
             //  1根据配置监听Key 筛选生效属性
             sourceProperties.stringPropertyNames()

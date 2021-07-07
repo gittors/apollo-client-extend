@@ -6,7 +6,7 @@ import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.gittors.apollo.extend.binder.event.BinderRefreshBinderEvent;
 import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
 import com.gittors.apollo.extend.event.EventPublisher;
-import com.gittors.apollo.extend.support.ext.DefaultConfigExt;
+import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -69,7 +69,7 @@ public class AdminConfigEndpoint {
     }
 
     private ResponseEntity<?> update(ConfigPropertySource cps, String key, String value) {
-        DefaultConfigExt configExt = (DefaultConfigExt) cps.getSource();
+        ApolloClientExtendConfig configExt = (ApolloClientExtendConfig) cps.getSource();
         configExt.setProperty(key, value);
 
         //  发送绑定事件

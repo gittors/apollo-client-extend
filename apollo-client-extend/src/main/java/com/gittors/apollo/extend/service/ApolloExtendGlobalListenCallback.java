@@ -3,7 +3,7 @@ package com.gittors.apollo.extend.service;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.support.ApolloExtendStringMapEntry;
-import com.gittors.apollo.extend.support.ext.DefaultConfigExt;
+import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 /**
  * 监听： {@link CommonApolloConstant#APOLLO_EXTEND_GLOBAL_LISTEN_KEY_SUFFIX}
@@ -25,6 +26,11 @@ import java.util.Set;
 public class ApolloExtendGlobalListenCallback extends AbstractApolloExtendListenCallback {
     public static final String BEAN_NAME = "apolloExtendGlobalListenCallback";
 
+    /**
+     * 限制同一时间只能一个线程修改 {@link CommonApolloConstant#APOLLO_EXTEND_GLOBAL_LISTEN_KEY_SUFFIX} 配置
+     */
+    private Semaphore semaphore = new Semaphore(1);
+
     public ApolloExtendGlobalListenCallback(ConfigurableEnvironment environment) {
         super(environment);
     }
@@ -32,6 +38,11 @@ public class ApolloExtendGlobalListenCallback extends AbstractApolloExtendListen
     @Override
     protected String getConfigPrefix() {
         return CommonApolloConstant.APOLLO_EXTEND_GLOBAL_LISTEN_KEY_SUFFIX;
+    }
+
+    @Override
+    protected Semaphore lockConfigure() {
+        return this.semaphore;
     }
 
     @Override
@@ -52,7 +63,7 @@ public class ApolloExtendGlobalListenCallback extends AbstractApolloExtendListen
     }
 
     @Override
-    protected void propertiesBeforeHandler(final Properties properties, final DefaultConfigExt defaultConfig, Map.Entry<Boolean, Set<String>> configEntry,
+    protected void propertiesBeforeHandler(final Properties properties, final ApolloClientExtendConfig defaultConfig, Map.Entry<Boolean, Set<String>> configEntry,
                                            final ChangeType changeType) {
         //  剔除掉应该失效的属性
         Properties sourceProperties = defaultConfig.getConfigRepository().getConfig();
@@ -75,7 +86,7 @@ public class ApolloExtendGlobalListenCallback extends AbstractApolloExtendListen
     }
 
     @Override
-    protected void propertiesAfterHandler(DefaultConfigExt defaultConfig, Map.Entry<Boolean, Set<String>> configEntry, final ChangeType changeType) {
+    protected void propertiesAfterHandler(ApolloClientExtendConfig defaultConfig, Map.Entry<Boolean, Set<String>> configEntry, final ChangeType changeType) {
         switch (changeType) {
             case ADD:
                 //  设置属性部分生效

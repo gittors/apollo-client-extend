@@ -1,6 +1,5 @@
 package com.gittors.apollo.extend.support.ext;
 
-import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
@@ -37,11 +36,14 @@ import java.util.concurrent.atomic.AtomicLong;
  * 扩展:
  *    {@link com.ctrip.framework.apollo.internals.AbstractConfig}
  *    1、提供 m_listeners 属性GET方法: @see {@link #getChangeListener()}
+ *    2、开放 {@link #calcPropertyChanges(String, Properties, Properties)} 权限 default --> protected
+ *
+ *    注意：如果要扩展此类，请务必实现上述扩展点
  *
  * @author zlliu
  * @date 2020/7/25 11:18
  */
-public abstract class AbstractConfigExt implements Config {
+public abstract class AbstractConfigExt implements ApolloClientExtendConfig {
   private static final Logger logger = LoggerFactory.getLogger(AbstractConfigExt.class);
 
   private static final ExecutorService m_executorService;
@@ -499,7 +501,7 @@ public abstract class AbstractConfigExt implements Config {
     return false;
   }
 
-  List<ConfigChange> calcPropertyChanges(String namespace, Properties previous,
+  protected List<ConfigChange> calcPropertyChanges(String namespace, Properties previous,
                                          Properties current) {
     if (previous == null) {
       previous = new Properties();

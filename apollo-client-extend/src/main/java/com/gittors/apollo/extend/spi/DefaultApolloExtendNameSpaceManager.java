@@ -13,7 +13,7 @@ import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.common.spi.Ordered;
 import com.gittors.apollo.extend.common.utils.ListUtils;
 import com.gittors.apollo.extend.support.ApolloExtendStringMapEntry;
-import com.gittors.apollo.extend.support.ext.DefaultConfigExt;
+import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.gittors.apollo.extend.utils.ApolloExtendStringUtils;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import com.google.common.collect.Lists;
@@ -155,7 +155,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
                     if (configPropertySource == null) {
                         configPropertySource = configPropertySourceFactory.getConfigPropertySource(routeNamespace, ConfigService.getConfig(routeNamespace));
                     } else {
-                        DefaultConfigExt defaultConfig = ((DefaultConfigExt) configPropertySource.getSource());
+                        ApolloClientExtendConfig defaultConfig = ((ApolloClientExtendConfig) configPropertySource.getSource());
                         //  删除 listener
                         for (ConfigChangeListener changeListener : defaultConfig.getChangeListener()) {
                             if (changeListener != null) {
@@ -250,7 +250,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
 
             Map.Entry<Boolean, Set<String>> configEntry = managerConfigMap.get(propertySource.getName());
             Properties properties = new Properties();
-            Properties sourceProperties = ((DefaultConfigExt) propertySource.getSource()).getConfigRepository().getConfig();
+            Properties sourceProperties = ((ApolloClientExtendConfig) propertySource.getSource()).getConfigRepository().getConfig();
             //  2.1删除 "监听前缀" 的配置，管理配置除外
             sourceProperties.stringPropertyNames()
                     .stream()
@@ -258,7 +258,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
                     .forEach(configKey -> properties.setProperty(configKey, sourceProperties.getProperty(configKey, "")));
 
             //  3.1刷新对象
-            DefaultConfigExt defaultConfig = ((DefaultConfigExt) propertySource.getSource());
+            ApolloClientExtendConfig defaultConfig = ((ApolloClientExtendConfig) propertySource.getSource());
             defaultConfig.updateConfig(properties, propertySource.getSource().getSourceType());
 
             //  3.2移除相关监听器【废弃】

@@ -3,7 +3,7 @@ package com.gittors.apollo.extend.service;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.support.ApolloExtendStringMapEntry;
-import com.gittors.apollo.extend.support.ext.DefaultConfigExt;
+import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 /**
  * 监听： {@link CommonApolloConstant#APOLLO_EXTEND_DELETE_CALLBACK_CONFIG}
@@ -24,6 +25,11 @@ import java.util.Set;
 @Slf4j
 public class ApolloExtendDeleteListenCallback extends AbstractApolloExtendListenCallback {
     public static final String BEAN_NAME = "apolloExtendDeleteListenCallback";
+
+    /**
+     * 限制同一时间只能一个线程修改 {@link CommonApolloConstant#APOLLO_EXTEND_DELETE_CALLBACK_CONFIG} 配置
+     */
+    private Semaphore semaphore = new Semaphore(1);
 
     public ApolloExtendDeleteListenCallback(ConfigurableEnvironment environment) {
         super(environment);
@@ -48,12 +54,17 @@ public class ApolloExtendDeleteListenCallback extends AbstractApolloExtendListen
     }
 
     @Override
+    protected Semaphore lockConfigure() {
+        return this.semaphore;
+    }
+
+    @Override
     protected ChangeType judgmentChangeType(String managerNamespaceConfig, String managerNamespace) {
         return ChangeType.DELETE;
     }
 
     @Override
-    protected void propertiesBeforeHandler(final Properties properties, final DefaultConfigExt defaultConfig, Map.Entry<Boolean, Set<String>> configEntry,
+    protected void propertiesBeforeHandler(final Properties properties, final ApolloClientExtendConfig defaultConfig, Map.Entry<Boolean, Set<String>> configEntry,
                                            final ChangeType changeType) {
         //  剔除掉应该失效的属性
         Properties sourceProperties = defaultConfig.getConfigRepository().getConfig();
@@ -64,7 +75,7 @@ public class ApolloExtendDeleteListenCallback extends AbstractApolloExtendListen
     }
 
     @Override
-    protected void propertiesAfterHandler(DefaultConfigExt defaultConfig, Map.Entry<Boolean, Set<String>> configEntry, final ChangeType changeType) {
+    protected void propertiesAfterHandler(ApolloClientExtendConfig defaultConfig, Map.Entry<Boolean, Set<String>> configEntry, final ChangeType changeType) {
         //  设置属性部分失效
         defaultConfig.addPropertiesCallBack(updateProperties -> {
             Properties filterProperties = new Properties();

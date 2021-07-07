@@ -10,8 +10,6 @@ import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.util.ExceptionUtil;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.RateLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +26,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * 扩展:
- *    {@link com.ctrip.framework.apollo.internals.DefaultConfig}
+ * 扩展: {@link com.ctrip.framework.apollo.internals.DefaultConfig}
  *    1、开放 {@link #updateConfig(Properties, ConfigSourceType)} 方法权限： private --> public synchronized
  *    2、开放 {@link #initialize()} 方法权限： private --> public
  *    3、新增回调 {@link propertiesCallBack} + {@link #addPropertiesCallBack(PropertiesCallBack)} 方法: 配置删除时用
  *    4、新增属性更新方法 {@link #setProperty(String, String)}
  *    5、新增属性 m_configRepository GET方法 {@link #getConfigRepository()}
+ *
+ *    注意：如果要扩展此类，请务必实现上述的扩展点
  *
  * @author zlliu
  * @date 2020/7/25 11:18
@@ -97,7 +96,7 @@ public class DefaultConfigExt extends AbstractConfigExt implements RepositoryCha
   }
 
   public synchronized void addPropertiesCallBack(PropertiesCallBack callBack) {
-    propertiesCallBack.set(callBack);
+    this.propertiesCallBack.set(callBack);
   }
 
   @Override
@@ -251,49 +250,6 @@ public class DefaultConfigExt extends AbstractConfigExt implements RepositoryCha
       }
     }
     return actualChanges.build();
-  }
-
-  @Override
-  List<ConfigChange> calcPropertyChanges(String namespace, Properties previous,
-                                         Properties current) {
-    if (previous == null) {
-      previous = new Properties();
-    }
-
-    if (current == null) {
-      current = new Properties();
-    }
-
-    Set<String> previousKeys = previous.stringPropertyNames();
-    Set<String> currentKeys = current.stringPropertyNames();
-
-    Set<String> commonKeys = Sets.intersection(previousKeys, currentKeys);
-    Set<String> newKeys = Sets.difference(currentKeys, commonKeys);
-    Set<String> removedKeys = Sets.difference(previousKeys, commonKeys);
-
-    List<ConfigChange> changes = Lists.newArrayList();
-
-    for (String newKey : newKeys) {
-      changes.add(new ConfigChange(namespace, newKey, null, current.getProperty(newKey),
-              PropertyChangeType.ADDED));
-    }
-
-    for (String removedKey : removedKeys) {
-      changes.add(new ConfigChange(namespace, removedKey, previous.getProperty(removedKey), null,
-              PropertyChangeType.DELETED));
-    }
-
-    for (String commonKey : commonKeys) {
-      String previousValue = previous.getProperty(commonKey);
-      String currentValue = current.getProperty(commonKey);
-      if (Objects.equals(previousValue, currentValue)) {
-        continue;
-      }
-      changes.add(new ConfigChange(namespace, commonKey, previousValue, currentValue,
-              PropertyChangeType.MODIFIED));
-    }
-
-    return changes;
   }
 
   private Properties loadFromResource(String namespace) {

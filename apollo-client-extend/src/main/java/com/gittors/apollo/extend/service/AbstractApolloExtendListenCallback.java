@@ -9,7 +9,7 @@ import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.gittors.apollo.extend.callback.AbstractApolloExtendCallback;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.enums.ChangeType;
-import com.gittors.apollo.extend.support.ext.DefaultConfigExt;
+import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 /**
  * @author zlliu
@@ -29,7 +30,8 @@ import java.util.Set;
  */
 @Slf4j
 public abstract class AbstractApolloExtendListenCallback extends AbstractApolloExtendCallback {
-    private final ConfigPropertySourceFactory configPropertySourceFactory = SpringInjector.getInstance(ConfigPropertySourceFactory.class);
+    private final ConfigPropertySourceFactory configPropertySourceFactory =
+            SpringInjector.getInstance(ConfigPropertySourceFactory.class);
 
     private ConfigurableEnvironment environment;
 
@@ -39,66 +41,84 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
 
     @Override
     public void callback(String oldValue, String newValue, Object... objects) {
-        //  当前更新的key, 如： listen.key.addMap.application-test
-        String key = (String) objects[0];
-        ConfigChangeEvent changeEvent = (ConfigChangeEvent) objects[1];
-        //  当前更新的命名空间
-        String namespace = changeEvent.getNamespace();
-        //  截取当前更新key的命名空间,如： listen.key.addMap.application-test ==> 如： application-test
-        String managerNamespace = key.substring(key.lastIndexOf(".") + 1);
-        if (StringUtils.isBlank(managerNamespace)) {
-            log.warn("#callback key:{},managerNamespace is empty!", key);
+        Semaphore semaphore = lockConfigure();
+        //  更新操作并发控制
+        if (semaphore == null || !semaphore.tryAcquire()) {
+            log.warn("#callback multiple updates are not allowed for the same configuration!");
             return;
         }
+        try {
+            //  当前更新的key, 如： listen.key.addMap.application-test
+            String key = (String) objects[0];
+            ConfigChangeEvent changeEvent = (ConfigChangeEvent) objects[1];
+            //  当前更新的命名空间
+            String namespace = changeEvent.getNamespace();
+            //  截取当前更新key的命名空间,如： listen.key.addMap.application-test ==> application-test
+            String managerNamespace = key.substring(key.lastIndexOf(".") + 1);
+            if (StringUtils.isBlank(managerNamespace)) {
+                log.warn("#callback key:{},managerNamespace is empty!", key);
+                return;
+            }
 
-        //  1、根据当前命名空间key，找到对应管理配置：apollo.extend.namespace 的值
-        String propertySourceName = null;
-        //  application 命名空间
-        if (CommonApolloConstant.NAMESPACE_APPLICATION.equals(namespace)) {
-            propertySourceName = PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME;
-        } else {
-            propertySourceName = ApolloExtendUtils.getPropertySourceName(environment, namespace);
-        }
-        MutablePropertySources mutablePropertySources = environment.getPropertySources();
-        PropertySource propertySource = mutablePropertySources.get(propertySourceName);
-        if (propertySource == null) {
-            log.warn("#callback propertySource is null");
-            return;
-        }
-        //  获得 管理配置：apollo.extend.namespace 的配置值校验
-        String managerNamespaceConfig = (String) propertySource.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE);
-        if (check(managerNamespaceConfig, managerNamespace)) {
-            return;
-        }
-        //  2、如果1的命名空间已存在，且修改了：listen.key.addMap 或delMap 配置的值，直接根据配置刷新Spring环境
-        Set<String> newNamespaceSet = Sets.newHashSet(managerNamespace);
-        ChangeType changeType = judgmentChangeType(managerNamespaceConfig, managerNamespace);
-        if (changeType == null) {
-            log.warn("#callback changeType is null");
-            return;
-        }
-        Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, newNamespaceSet, changeType);
+            //  1、根据当前命名空间key，找到对应管理配置：apollo.extend.namespace 的值
+            String propertySourceName = null;
+            //  application 命名空间
+            if (CommonApolloConstant.NAMESPACE_APPLICATION.equals(namespace)) {
+                propertySourceName = PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME;
+            } else {
+                propertySourceName = ApolloExtendUtils.getPropertySourceName(environment, namespace);
+            }
+            MutablePropertySources mutablePropertySources = environment.getPropertySources();
+            PropertySource propertySource = mutablePropertySources.get(propertySourceName);
+            if (propertySource == null) {
+                log.warn("#callback propertySource is null");
+                return;
+            }
+            //  获得 管理配置：apollo.extend.namespace 的配置值校验
+            String managerNamespaceConfig = (String) propertySource.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE);
+            if (check(managerNamespaceConfig, managerNamespace)) {
+                return;
+            }
+            //  2、如果1的命名空间已存在，且修改了：listen.key.addMap 或delMap 配置的值，直接根据配置刷新Spring环境
+            Set<String> newNamespaceSet = Sets.newHashSet(managerNamespace);
+            ChangeType changeType = judgmentChangeType(managerNamespaceConfig, managerNamespace);
+            if (changeType == null) {
+                log.warn("#callback changeType is null");
+                return;
+            }
+            Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, newNamespaceSet, changeType);
 
-        //  获得propertySource, 相同的取最后一个
-        Optional<ConfigPropertySource> optional = configPropertySourceFactory.getAllConfigPropertySources()
-                .stream()
-                .filter(configPropertySource -> configPropertySource.getSource().getSourceType() != ConfigSourceType.NONE)
-                .filter(configPropertySource -> managerNamespace.equals(configPropertySource.getName()))
-                .reduce((first, second) -> second)
-                ;
-        if (!optional.isPresent()) {
-            log.warn("#callback configPropertySource can't be find");
-            return;
+            //  获得propertySource, 相同的取最后一个
+            Optional<ConfigPropertySource> optional = configPropertySourceFactory.getAllConfigPropertySources()
+                    .stream()
+                    .filter(configPropertySource -> configPropertySource.getSource().getSourceType() != ConfigSourceType.NONE)
+                    .filter(configPropertySource -> managerNamespace.equals(configPropertySource.getName()))
+                    .reduce((first, second) -> second)
+                    ;
+            if (!optional.isPresent()) {
+                log.warn("#callback configPropertySource can't be find");
+                return;
+            }
+            ConfigPropertySource configPropertySource = optional.get();
+            ApolloClientExtendConfig defaultConfig = (ApolloClientExtendConfig) configPropertySource.getSource();
+            Properties properties = new Properties();
+            //  前置处理
+            propertiesBeforeHandler(properties, defaultConfig, managerConfigMap.get(configPropertySource.getName()), changeType);
+            //  刷新对象
+            defaultConfig.updateConfig(properties, configPropertySource.getSource().getSourceType());
+            //  后置处理
+            propertiesAfterHandler(defaultConfig, managerConfigMap.get(configPropertySource.getName()), changeType);
+        } finally {
+            semaphore.release();
         }
-        ConfigPropertySource configPropertySource = optional.get();
-        DefaultConfigExt defaultConfig = (DefaultConfigExt) configPropertySource.getSource();
-        Properties properties = new Properties();
-        //  前置处理
-        propertiesBeforeHandler(properties, defaultConfig, managerConfigMap.get(configPropertySource.getName()), changeType);
-        //  刷新对象
-        defaultConfig.updateConfig(properties, configPropertySource.getSource().getSourceType());
-        //  后置处理
-        propertiesAfterHandler(defaultConfig, managerConfigMap.get(configPropertySource.getName()), changeType);
+    }
+
+    /**
+     * 并发限制
+     * @return
+     */
+    protected Semaphore lockConfigure() {
+        throw new RuntimeException("lockConfigure not supported");
     }
 
     /**
@@ -125,7 +145,7 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
      * @param defaultConfig
      * @param configEntry
      */
-    protected void propertiesBeforeHandler(final Properties sourceProperties, final DefaultConfigExt defaultConfig,
+    protected void propertiesBeforeHandler(final Properties sourceProperties, final ApolloClientExtendConfig defaultConfig,
                                            final Map.Entry<Boolean, Set<String>> configEntry, final ChangeType changeType) {
         throw new RuntimeException("propertiesPostHandler not supported");
     }
@@ -135,6 +155,6 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
      * @param defaultConfig
      * @param configEntry
      */
-    protected void propertiesAfterHandler(final DefaultConfigExt defaultConfig, final Map.Entry<Boolean, Set<String>> configEntry, final ChangeType changeType) {
+    protected void propertiesAfterHandler(final ApolloClientExtendConfig defaultConfig, final Map.Entry<Boolean, Set<String>> configEntry, final ChangeType changeType) {
     }
 }

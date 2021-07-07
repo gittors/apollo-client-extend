@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @EnableConfigurationProperties({MyProperties.class})
 public class BinderDemoController {
+
     @Autowired
     private MyProperties myProperties;
 

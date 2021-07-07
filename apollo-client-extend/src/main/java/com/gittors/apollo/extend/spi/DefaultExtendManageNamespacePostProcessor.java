@@ -12,10 +12,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 这个缺省的实现：
+ * 【这个缺省的实现】：
  * 1、假如配置了：listen.key.addMap.application2 = my.key
  * 2、即根据1的配置，将命名空间 application2的配置部分生效，生效的KEY为"my.key"
- * 注：如果不需要这个功能，通过SPI替换一个空的实现即可
+ * 注：如果不需要这个功能(加载全部key)，通过SPI替换一个空的实现即可
+ *
+ * 如果配置了 addMap 和 delMap 的配置，初始化时只有 addMap 生效(后续修改 delMap 的配置，只是在addMap基础上做删除)：
+ * ## 配置当前命名空间所管理命名空间的监听key - 新增
+ * listen.key.addMap.application-test = my.map,my1.map1
+ * ## 配置当前命名空间所管理命名空间的监听key - 删除
+ * listen.key.delMap.application-test = my.map,my1.map1
  *
  * @author zlliu
  * @date 2020/9/3 11:19
