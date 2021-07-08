@@ -25,3 +25,5 @@ test-output/
 .settings/
 target/
 deploy-his.txt
+deploy.sh
+version.sh
