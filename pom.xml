@@ -5,7 +5,7 @@
 
     <groupId>com.github.gittors</groupId>
     <artifactId>apollo-client-extend-parent</artifactId>
-    <version>${revision}</version>
+    <version>1.2.1</version>
 
     <modules>
         <module>apollo-client-extend</module>
@@ -28,7 +28,6 @@
     <url>https://github.com/gittors/apollo-client-extend</url>
 
     <properties>
-        <revision>1.2.1</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
