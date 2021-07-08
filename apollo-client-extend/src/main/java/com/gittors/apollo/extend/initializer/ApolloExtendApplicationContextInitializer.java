@@ -1,4 +1,4 @@
-package com.gittors.apollo.extend.spring;
+package com.gittors.apollo.extend.initializer;
 
 import com.ctrip.framework.apollo.spring.boot.ApolloApplicationContextInitializer;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;

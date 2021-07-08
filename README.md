@@ -11,8 +11,7 @@
 ```textmate
 在微服务架构流行的当下，每个服务或多或少会有一些属于应用的配置需要管理，尤其在灰度场景下，对于配置热更新的需求显得尤为迫切，在这种背景下，分布式配置中心应运而生。
 当下可供选择的分布式配置中心的开源组件有：SpringCloud Config、Apollo、Nacos等。
-SpringCloud Config 以GIT仓库 + 消息总线原理，通过手动触发POST请求实现配置热更新，但是由于没有WEB界面的操作，所以在体验上不尽如人意~
-以Apollo和Nacos比较，Apollo的Star 数较高，本项目以 Apollo 为技术选型，在使用者的角度做了一些扩展及思考。
+本项目以 Apollo 为技术选型，在使用者的角度做了一些扩展及思考。
 ```
 
 ## Apollo 官网
@@ -87,14 +86,14 @@ apollo.bootstrap.namespaces: application,application2
 | apollo-client-extend-starter-gateway-adapter | 网关适配 |
 | apollo-client-extend-chain-processor | 链式调用 |
 | apollo-client-extend-admin | 管理模块 |
-| apollo-client-extend-adapter | Apollo版本适配 |
+| apollo-client-extend-adapter | Apollo Client版本适配 |
 | apollo-client-extend-support | 基础支持模块 |
 
 
 ## 依赖版本：
 ```textmate
 Apollo：1.7.0【低于此版本的请参考Apollo版本适配说明】
-Guava：25.0-jre
+Guava：30.0-jre
 SpringBoot：2.2.9.RELEASE
 ```
 

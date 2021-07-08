@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.gittors</groupId>
         <artifactId>apollo-client-extend-parent</artifactId>
-        <version>1.2.0</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -25,6 +25,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

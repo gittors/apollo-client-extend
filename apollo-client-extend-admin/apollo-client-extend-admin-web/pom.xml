@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.gittors</groupId>
         <artifactId>apollo-client-extend-admin</artifactId>
-        <version>1.2.0</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -46,6 +46,11 @@
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
         </dependency>
 
     </dependencies>

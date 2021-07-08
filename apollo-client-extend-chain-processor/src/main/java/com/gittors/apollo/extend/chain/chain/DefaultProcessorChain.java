@@ -8,7 +8,6 @@ import com.gittors.apollo.extend.chain.context.Context;
  */
 public class DefaultProcessorChain extends ProcessorChain {
     AbstractLinkedProcessor<?> first = new AbstractLinkedProcessor<Object>() {
-
         @Override
         public void entry(Context context, Object t, Object... args)
                 throws Throwable {
