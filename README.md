@@ -78,7 +78,6 @@ apollo.bootstrap.namespaces: application,application2
 | apollo-client-extend | 基础模块 |
 | apollo-client-extend-common | 通用模块 |
 | apollo-client-extend-starter | 基础模块Starter |
-| apollo-client-extend-event | 事件模块 |
 | apollo-client-extend-event-starter | 事件模块Starter |
 | apollo-client-extend-binder | 对象绑定 |
 | apollo-client-extend-binder-starter | 对象绑定Starter |
