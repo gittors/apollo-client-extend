@@ -24,6 +24,7 @@ test-output/
 *.iml
 .settings/
 target/
-deploy-his.txt
+
 deploy.sh
 version.sh
+install.sh
