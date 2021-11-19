@@ -4,11 +4,15 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.internals.ConfigRepository;
+import com.ctrip.framework.apollo.model.ConfigChange;
 
 import java.util.List;
 import java.util.Properties;
 
 /**
+ * 扩展Config：
+ *      开放某些 {@link com.ctrip.framework.apollo.internals.DefaultConfig} 接口权限
+ *
  * @author zlliu
  * @date 2021/7/6 22:52
  */
@@ -50,4 +54,6 @@ public interface ApolloClientExtendConfig extends Config {
      * @param value 属性值
      */
     void setProperty(String key, String value);
+
+    List<ConfigChange> calcPropertyChanges(String namespace, Properties previous, Properties current);
 }

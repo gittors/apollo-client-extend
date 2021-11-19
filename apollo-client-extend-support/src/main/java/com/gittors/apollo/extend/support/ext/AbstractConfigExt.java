@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 扩展:
  *    {@link com.ctrip.framework.apollo.internals.AbstractConfig}
  *    1、提供 m_listeners 属性GET方法: @see {@link #getChangeListener()}
- *    2、开放 {@link #calcPropertyChanges(String, Properties, Properties)} 权限 default --> protected
+ *    2、开放 {@link #calcPropertyChanges(String, Properties, Properties)} 权限 default --> public
  *
  *    注意：如果要扩展此类，请务必实现上述扩展点
  *
@@ -501,7 +501,7 @@ public abstract class AbstractConfigExt implements ApolloClientExtendConfig {
     return false;
   }
 
-  protected List<ConfigChange> calcPropertyChanges(String namespace, Properties previous,
+  public List<ConfigChange> calcPropertyChanges(String namespace, Properties previous,
                                          Properties current) {
     if (previous == null) {
       previous = new Properties();
