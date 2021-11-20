@@ -4,10 +4,13 @@ import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.event.EventPublisher;
 import com.gittors.apollo.extend.gateway.event.RouteRefreshEvent;
 import com.gittors.apollo.extend.service.ApolloExtendCallbackAdapter;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -24,7 +27,19 @@ public class GatewayApolloExtendCallback extends ApolloExtendCallbackAdapter {
 
     @Override
     protected void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data) {
+        Map<String, String> configMap = Maps.newHashMap();
+        data.values()
+                .stream()
+                .map(Map::values)
+                .flatMap(Collection::stream)
+                .forEach(map -> configMap.putAll(map));
+        if (MapUtils.isEmpty(configMap)) {
+            log.warn("#changeProcess configMap is empty!");
+            return;
+        }
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(RouteRefreshEvent.getInstance());
+        RouteRefreshEvent routeRefreshEvent = RouteRefreshEvent.getInstance();
+        routeRefreshEvent.setData(configMap);
+        eventPublisher.asyncPublish(routeRefreshEvent);
     }
 }

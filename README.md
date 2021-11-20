@@ -77,21 +77,20 @@ apollo.bootstrap.namespaces: application,application2
 | --- | --- |
 | apollo-client-extend | 基础模块 |
 | apollo-client-extend-common | 通用模块 |
-| apollo-client-extend-starter | 基础模块Starter |
-| apollo-client-extend-event-starter | 事件模块Starter |
+| apollo-client-extend-starter | 基础Starter |
+| apollo-client-extend-event-starter | 事件Starter |
 | apollo-client-extend-binder | 对象绑定 |
 | apollo-client-extend-binder-starter | 对象绑定Starter |
 | apollo-client-extend-demo | 示例Demo |
 | apollo-client-extend-starter-gateway-adapter | 网关适配 |
 | apollo-client-extend-chain-processor | 链式调用 |
 | apollo-client-extend-admin | 管理模块 |
-| apollo-client-extend-adapter | Apollo Client版本适配 |
 | apollo-client-extend-support | 基础支持模块 |
 
 
 ## 依赖版本：
 ```textmate
-Apollo：1.7.0【低于此版本的请参考Apollo版本适配说明】
+Apollo：1.7.0
 Guava：30.0-jre
 SpringBoot：2.2.9.RELEASE
 ```

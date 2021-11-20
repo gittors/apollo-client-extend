@@ -27,8 +27,10 @@ public class DefaultApolloExtendAdminWebfluxProcessor implements ApolloExtendAdm
         Map<String, String> data = Maps.newHashMap();
         config.values().forEach(map -> data.putAll(map));
 
+        BinderRefreshBinderEvent binderRefreshBinderEvent = BinderRefreshBinderEvent.getInstance();
+        binderRefreshBinderEvent.setData(data);
         EventPublisher eventPublisher = context.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(new BinderRefreshBinderEvent(data));
+        eventPublisher.asyncPublish(binderRefreshBinderEvent);
     }
 
     @Override

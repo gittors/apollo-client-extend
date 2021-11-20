@@ -1,4 +1,4 @@
-package com.gittors.apollo.extend.version.adapter;
+package com.gittors.apollo.extend.support.ext;
 
 import com.ctrip.framework.apollo.exceptions.ApolloConfigException;
 import com.ctrip.framework.apollo.internals.DefaultInjector;
@@ -6,7 +6,6 @@ import com.ctrip.framework.apollo.internals.Injector;
 import com.ctrip.framework.apollo.spi.ConfigFactory;
 import com.ctrip.framework.apollo.spi.DefaultConfigFactory;
 import com.ctrip.framework.apollo.tracer.Tracer;
-import com.gittors.apollo.extend.support.ext.DefaultConfigFactoryExt;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Module;
@@ -56,14 +55,13 @@ public class DefaultInjectorExt implements Injector {
             //  找到内部类 ApolloModule
             if ("com.ctrip.framework.apollo.internals.DefaultInjector$ApolloModule".equals(clazz.getName())) {
                 //  根据ApolloModule构建一个类
-                CtClass agentClass = pool.makeClass("com.gittors.apollo.extend.version.adapter.ApolloModuleAgent");
+                CtClass agentClass = pool.makeClass("com.gittors.apollo.extend.support.ext.ApolloModuleAgent");
                 agentClass.setModifiers(Modifier.PUBLIC);
                 //  添加父类及接口
                 agentClass.setSuperclass(pool.get("com.google.inject.AbstractModule"));
                 agentClass.setInterfaces(new CtClass[]{
                         pool.get("com.google.inject.Module")
                 });
-
                 CtConstructor ctConstructor = new CtConstructor(new CtClass[]{}, agentClass);
                 ctConstructor.setModifiers(Modifier.PUBLIC);
                 ctConstructor.setBody("{}");
@@ -73,7 +71,6 @@ public class DefaultInjectorExt implements Injector {
                     if (method.getLongName().equals("com.ctrip.framework.apollo.internals.DefaultInjector$ApolloModule.configure()")) {
                         CtMethod copy = CtNewMethod.copy(method, agentClass, null);
                         copy.setName(method.getName());
-
                         agentClass.addMethod(copy);
                     }
                 }

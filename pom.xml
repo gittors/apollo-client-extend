@@ -5,7 +5,7 @@
 
     <groupId>com.github.gittors</groupId>
     <artifactId>apollo-client-extend-parent</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
 
     <modules>
         <module>apollo-client-extend</module>
@@ -17,7 +17,6 @@
         <module>apollo-client-extend-starter-gateway-adapter</module>
         <module>apollo-client-extend-chain-processor</module>
         <module>apollo-client-extend-admin</module>
-        <module>apollo-client-extend-adapter</module>
         <module>apollo-client-extend-support</module>
         <module>apollo-client-extend-demo</module>
     </modules>
@@ -167,30 +166,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>apollo-client-extend-support</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-lower-adapter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-higher-adapter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-common-adapter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>apollo-client-extend-version-adapter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!--  ============== apollo-client-extend dependency end =================  -->

@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 /**
  * @author zlliu
@@ -30,6 +31,11 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
     private final ApolloExtendNameSpaceManager extendNameSpaceManager =
             ServiceLookUp.loadPrimary(ApolloExtendNameSpaceManager.class);
 
+    /**
+     * 限制修改 {@link CommonApolloConstant.APOLLO_EXTEND_NAMESPACE} 配置的线程数
+     */
+    private Semaphore semaphore = new Semaphore(1);
+
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -38,7 +44,16 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
 
     @Override
     public void callback(String oldValue, String newValue, Object... objects) {
-        doCallback(oldValue, newValue);
+        Semaphore semaphore = lockConfigure();
+        if (semaphore == null || !semaphore.tryAcquire()) {
+            log.warn("#callback multiple updates are not allowed for the same configuration!");
+            return;
+        }
+        try {
+            doCallback(oldValue, newValue);
+        } finally {
+            semaphore.release();
+        }
     }
 
     protected void doCallback(String oldValue, String newValue) {
@@ -53,10 +68,12 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
             extendNameSpaceManager.setApplicationContext(applicationContext);
 
             //  如有新增配置项，刷新环境
-            Map<String, Map<String, String>> addPropertySourceList = extendNameSpaceManager.getAddNamespaceConfig(excludeNamespace(newNamespaceSet));
+            Map<String, Map<String, String>> addPropertySourceList =
+                    extendNameSpaceManager.getAddNamespaceConfig(excludeNamespace(newNamespaceSet));
 
             //  如有删除配置项，刷新环境
-            Map<String, Map<String, String>> deletePropertySourceList = extendNameSpaceManager.getDeleteNamespaceConfig(getDifferentNamespace(oldValue, newNamespaceSet));
+            Map<String, Map<String, String>> deletePropertySourceList =
+                    extendNameSpaceManager.getDeleteNamespaceConfig(getDifferentNamespace(oldValue, newNamespaceSet));
             //  {Key: 新增/删除, Value: {Key: 命名空间, Value: 配置Key=配置Value}}
             Map<String, Map<String, Map<String, String>>> data = Maps.newHashMap();
             if (MapUtils.isNotEmpty(addPropertySourceList) && MapUtils.isNotEmpty(deletePropertySourceList)) {
@@ -74,6 +91,14 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
                 changeProcess(ChangeType.DELETE, data);
             }
         }
+    }
+
+    /**
+     * 并发限制
+     * @return
+     */
+    protected Semaphore lockConfigure() {
+        return this.semaphore;
     }
 
     /**

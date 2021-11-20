@@ -89,9 +89,10 @@ public class AdminConfigEndpoint {
         for (Properties properties : propertiesList) {
             data.putAll(Maps.fromProperties(properties));
         }
-
+        BinderRefreshBinderEvent binderRefreshBinderEvent = BinderRefreshBinderEvent.getInstance();
+        binderRefreshBinderEvent.setData(data);
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(new BinderRefreshBinderEvent(data));
+        eventPublisher.asyncPublish(binderRefreshBinderEvent);
     }
 
 }

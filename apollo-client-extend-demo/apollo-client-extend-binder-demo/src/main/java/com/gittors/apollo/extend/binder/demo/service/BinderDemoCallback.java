@@ -37,8 +37,10 @@ public class BinderDemoCallback extends ApolloExtendCallbackAdapter {
             log.warn("#changeProcess configMap is empty!");
             return;
         }
+        BinderRefreshBinderEvent binderRefreshBinderEvent = BinderRefreshBinderEvent.getInstance();
+        binderRefreshBinderEvent.setData(configMap);
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(new BinderRefreshBinderEvent(configMap));
+        eventPublisher.asyncPublish(binderRefreshBinderEvent);
     }
 
 }

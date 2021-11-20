@@ -12,14 +12,17 @@ import java.util.Map;
 @Data
 public class BinderRefreshBinderEvent {
     /**
-     * {Key：命名空间，Value：{配置Key=配置Value}}
+     * {Key：配置Key，Value：配置Value}
      */
     private Map<String, String> data = Maps.newHashMap();
+
+    private static BinderRefreshBinderEvent INSTANCE = new BinderRefreshBinderEvent();
+
+    public static BinderRefreshBinderEvent getInstance() {
+        return INSTANCE;
+    }
 
     public BinderRefreshBinderEvent() {
     }
 
-    public BinderRefreshBinderEvent(Map<String,String> data) {
-        this.data = data;
-    }
 }
