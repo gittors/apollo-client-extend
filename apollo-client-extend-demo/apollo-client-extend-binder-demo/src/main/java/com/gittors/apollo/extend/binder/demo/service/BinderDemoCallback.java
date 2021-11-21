@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.binder.demo.service;
 
-import com.gittors.apollo.extend.binder.event.BinderRefreshBinderEvent;
 import com.gittors.apollo.extend.common.enums.ChangeType;
+import com.gittors.apollo.extend.common.event.BinderRefreshBinderEvent;
 import com.gittors.apollo.extend.event.EventPublisher;
 import com.gittors.apollo.extend.service.ApolloExtendCallbackAdapter;
 import com.google.common.collect.Maps;
@@ -37,10 +37,10 @@ public class BinderDemoCallback extends ApolloExtendCallbackAdapter {
             log.warn("#changeProcess configMap is empty!");
             return;
         }
-        BinderRefreshBinderEvent binderRefreshBinderEvent = BinderRefreshBinderEvent.getInstance();
-        binderRefreshBinderEvent.setData(configMap);
+        BinderRefreshBinderEvent binderEvent = BinderRefreshBinderEvent.getInstance();
+        binderEvent.setData(configMap);
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(binderRefreshBinderEvent);
+        eventPublisher.asyncPublish(binderEvent);
     }
 
 }

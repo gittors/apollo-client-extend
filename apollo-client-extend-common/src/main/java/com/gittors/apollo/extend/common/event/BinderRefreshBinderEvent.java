@@ -1,4 +1,4 @@
-package com.gittors.apollo.extend.binder.event;
+package com.gittors.apollo.extend.common.event;
 
 import com.google.common.collect.Maps;
 import lombok.Data;
@@ -11,6 +11,9 @@ import java.util.Map;
  */
 @Data
 public class BinderRefreshBinderEvent {
+    public BinderRefreshBinderEvent() {
+    }
+
     /**
      * {Key：配置Key，Value：配置Value}
      */
@@ -20,9 +23,6 @@ public class BinderRefreshBinderEvent {
 
     public static BinderRefreshBinderEvent getInstance() {
         return INSTANCE;
-    }
-
-    public BinderRefreshBinderEvent() {
     }
 
 }

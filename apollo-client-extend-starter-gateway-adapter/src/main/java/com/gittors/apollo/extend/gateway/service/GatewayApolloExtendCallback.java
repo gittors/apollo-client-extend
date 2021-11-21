@@ -4,13 +4,13 @@ import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.event.EventPublisher;
 import com.gittors.apollo.extend.gateway.event.RouteRefreshEvent;
 import com.gittors.apollo.extend.service.ApolloExtendCallbackAdapter;
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -27,7 +27,7 @@ public class GatewayApolloExtendCallback extends ApolloExtendCallbackAdapter {
 
     @Override
     protected void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data) {
-        Map<String, String> configMap = Maps.newHashMap();
+        Map<String, String> configMap = new HashMap<>();
         data.values()
                 .stream()
                 .map(Map::values)

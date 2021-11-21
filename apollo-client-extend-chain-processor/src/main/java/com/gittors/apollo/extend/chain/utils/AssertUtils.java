@@ -12,7 +12,7 @@ public final class AssertUtils {
     private AssertUtils(){}
 
     public static void notEmpty(String string, String message) {
-        if (StringUtils.isEmpty(string)) {
+        if (StringUtils.isBlank(string)) {
             throw new IllegalArgumentException(message);
         }
     }

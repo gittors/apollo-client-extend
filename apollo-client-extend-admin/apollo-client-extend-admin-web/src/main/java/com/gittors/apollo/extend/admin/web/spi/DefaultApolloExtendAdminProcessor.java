@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.admin.web.spi;
 
 import com.ctrip.framework.apollo.core.spi.Ordered;
-import com.gittors.apollo.extend.binder.event.BinderRefreshBinderEvent;
+import com.gittors.apollo.extend.common.event.BinderRefreshBinderEvent;
 import com.gittors.apollo.extend.event.EventPublisher;
 import com.google.common.collect.Maps;
 import org.springframework.context.ApplicationContext;

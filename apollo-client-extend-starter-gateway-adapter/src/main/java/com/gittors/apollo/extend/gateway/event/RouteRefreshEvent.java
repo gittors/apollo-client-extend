@@ -1,8 +1,8 @@
 package com.gittors.apollo.extend.gateway.event;
 
-import com.google.common.collect.Maps;
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -11,10 +11,13 @@ import java.util.Map;
  */
 @Data
 public class RouteRefreshEvent {
+    public RouteRefreshEvent() {
+    }
+
     /**
      * {Key：配置Key，Value：配置Value}
      */
-    private Map<String, String> data = Maps.newHashMap();
+    private Map<String, String> data = new HashMap<>();
 
     private static RouteRefreshEvent INSTANCE = new RouteRefreshEvent();
 

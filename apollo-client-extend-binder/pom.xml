@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.gittors</groupId>
         <artifactId>apollo-client-extend-parent</artifactId>
-        <version>1.3.1</version>
+        <version>1.3.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,6 +38,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

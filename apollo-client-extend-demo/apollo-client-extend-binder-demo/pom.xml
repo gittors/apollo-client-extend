@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.gittors</groupId>
         <artifactId>apollo-client-extend-demo</artifactId>
-        <version>1.3.1</version>
+        <version>1.3.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -18,7 +18,12 @@
             <artifactId>apollo-client-extend-admin-web</artifactId>
         </dependency>
 
-        <!--   不依赖admin,则需要依赖extend-starter和extend-binder-starter   -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>apollo-client-extend-binder-starter</artifactId>
+        </dependency>
+
+        <!--   不依赖admin,则需要依赖extend-starter和event-starter   -->
 <!--        <dependency>-->
 <!--            <groupId>${project.groupId}</groupId>-->
 <!--            <artifactId>apollo-client-extend-starter</artifactId>-->
@@ -26,7 +31,7 @@
 
 <!--        <dependency>-->
 <!--            <groupId>${project.groupId}</groupId>-->
-<!--            <artifactId>apollo-client-extend-binder-starter</artifactId>-->
+<!--            <artifactId>apollo-client-extend-event-starter</artifactId>-->
 <!--        </dependency>-->
 
         <dependency>

@@ -19,7 +19,7 @@ https://github.com/ctripcorp/apollo
 
 ## Apollo的一些使用场景：
 ```textmate
-1、用 Apollo做分布式配置中心时，配置的新增和删除操作可以通过其 WEB界面【Apollo Portal】操作，并且配置的更改 Apollo会联动推送给每个客户端。
+一、用 Apollo做分布式配置中心时，配置的新增和删除操作可以通过其 WEB界面【Apollo Portal】操作，并且配置的更改 Apollo会联动推送给每个客户端。
 前提是：在 WEB管理的命名空间要纳入 Apollo "运行时态"的管理范围，方式是通过 启动参数/配置参数或者 Apollo 的一些API来实现。
 比如通过 @EnableApolloConfig 注解：
 @Configuration
@@ -31,22 +31,22 @@ apollo.bootstrap.namespaces: application,application2
 将【application,application2】命名空间选择性的纳入 Apollo的管理范围。
 缺点就是，对于手动新建的命名空间只能通过重启服务并添加到管理范围才能让配置生效。
 
-场景1：如果我手动新建了一个命名空间，我不想重启服务就想让配置生效怎么办？
+场景：如果我在Apollo WEB管理界面手动新建了一个命名空间，不想重启服务就想让配置生效怎么办？
+手动新建命名空间的使用场景：比如某一类型的配置，分开多个命名空间便于管理。【比如网关的路由配置，根据接入的系统分开管理，而不是放在一起】
 
-2、Apollo 对于 Spring的一些原生注解有很好的支持，比如：@Value 注解。
+二、Apollo 对于 Spring的一些原生注解有很好的支持，比如：@Value 注解。
 如果配置有更新，Apollo 会联动 @Value的属性值更新。
 但是对 @ConfigurationProperties 注解的支持有限，需要配合 EnvironmentChangeEvent 或 RefreshScope 使用。
 
-场景2：我想用 @ConfigurationProperties 注解的时候就跟 @Value 有一样的丝滑体验，不想依赖 EnvironmentChangeEvent或RefreshScope 怎么办？
+场景：我想用 @ConfigurationProperties 注解的时候就跟 @Value 有一样的丝滑体验，不想依赖 EnvironmentChangeEvent或RefreshScope 怎么办？
 
 还有一些场景：
-1、比如某一类型的配置，我不想放在同一个命名空间内管理，这样既增加了维护的难度也显得配置很臃肿，我希望根据某一维度分开管理。【比如网关的路由配置，我希望根据接入的系统分开管理，而不是放在一起】
-2、比如某个命名空间内的配置，在特定的场景下，我希望让一部分配置失效，而不影响其他的配置状态。
+1、比如某个命名空间内的配置，在特定的场景下，我希望让一部分配置失效，而不影响其他的配置状态。
 
 ```
 
 ## 小目标：
-* **为了更好的适配上述的一些使用场景，是这个项目的诞生背景，以下是一些小目标：**
+* **为了更好的适配上述的一些使用场景，诞生了这个项目，以下是一些小目标：**
   * 实现在新增了命名空间的情况下无须重启服务就让配置生效【但需要将命名空间名称添加到对应的配置】。
   * 支持 @ConfigurationProperties 注解，无须依赖 EnvironmentChangeEvent 或 RefreshScope。
   * 实现让 Apollo 的命名空间具有部分 "管理" 其他命名空间的能力【详见功能描述】。
@@ -67,8 +67,8 @@ apollo.bootstrap.namespaces: application,application2
 则 application 可管理 application2 的配置项, 可以管理多个命名空间, 配置多个值: "," 号分隔。
 新增或者删除上述的配置,即代表相应的配置生效或失效。
 备注：
-1所谓管理，指的是 application 命名空间可以让 application2 命名空间的配置生效或失效功能。
-2还可以通过监听 application2的配置前缀，实现 application2 命名空间的配置部分生效或失效功能。
+1、所谓管理，指的是 application 命名空间可以让 application2 命名空间的配置生效或失效功能。
+2、还可以通过监听 application2的配置前缀，实现 application2 命名空间的配置部分生效或失效功能。
 
 ```
 
@@ -87,6 +87,25 @@ apollo.bootstrap.namespaces: application,application2
 | apollo-client-extend-admin | 管理模块 |
 | apollo-client-extend-support | 基础支持模块 |
 
+## 模块补充说明：
+* **基础模块：基本功能实现，将命名空间的配置刷新至服务环境（包含手动新建的命名空间）**
+* **通用模块：包含公有实现、工具类**
+* **基础Starter：集成基础模块**
+* **事件Starter：具有发布事件的功能**
+* **对象绑定：监听 @ConfigurationProperties 注解的配置，动态更新；监听绑定事件**
+* **对象绑定Starter：集成对象绑定模块**
+* **示例Demo：使用示例**
+* **网关适配：通过集成基础Starter+事件Starter，具有：新增命名空间配置后，发布网关配置事件功能**
+* **链式调用：具有简单的链式调用功能**
+* **管理模块：修改管理配置可以通过 Apollo WEB界面，也可以通过管理模块的接口**
+* **基础支持模块：Apollo Client 的扩展实现**
+
+```
+说明：
+1、如果只需要将命名空间的配置刷新至服务环境：集成 基础Starter 即可。
+2、如果需要在1的基础上，刷新 @ConfigurationProperties 注解的配置，那么需要集成：基础Starter、对象绑定Starter。
+注：1、2可以单独集成使用。
+```
 
 ## 依赖版本：
 ```textmate

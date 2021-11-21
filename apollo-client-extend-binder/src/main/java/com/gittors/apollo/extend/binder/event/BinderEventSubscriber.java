@@ -4,6 +4,7 @@ import com.gittors.apollo.extend.binder.registry.HolderBeanWrapper;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapperRegistry;
 import com.gittors.apollo.extend.binder.utils.BinderObjectInjector;
 import com.gittors.apollo.extend.binder.utils.BinderUtils;
+import com.gittors.apollo.extend.common.event.BinderRefreshBinderEvent;
 import com.google.common.eventbus.Subscribe;
 import com.nepxion.eventbus.annotation.EventBus;
 import lombok.extern.slf4j.Slf4j;

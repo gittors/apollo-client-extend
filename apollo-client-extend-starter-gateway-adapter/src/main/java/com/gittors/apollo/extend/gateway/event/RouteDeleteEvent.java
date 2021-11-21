@@ -2,20 +2,24 @@ package com.gittors.apollo.extend.gateway.event;
 
 import lombok.Data;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author zlliu
  * @date 2020/7/8 11:29
  */
 @Data
-public class RouteDeleteEvent<T> {
+public class RouteDeleteEvent {
+    public RouteDeleteEvent() {
+    }
+
     private static RouteDeleteEvent INSTANCE = new RouteDeleteEvent();
 
     /**
-     * 数据对象
+     * {Key：配置Key，Value：配置Value}
      */
-    private List<T> dataList;
+    private Map<String, String> data = new HashMap<>();
 
     public static RouteDeleteEvent getInstance() {
         return INSTANCE;
