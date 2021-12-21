@@ -9,11 +9,6 @@ import com.gittors.apollo.extend.common.spi.Ordered;
 public class DefaultChainProcessor extends ChainProcessor.AbstractChainProcessor {
 
     @Override
-    public Object process(Object request, String name, Object... objects) throws Throwable {
-        return super.process(request, name, objects);
-    }
-
-    @Override
     public int getOrder() {
         return Ordered.LOWEST_PRECEDENCE;
     }

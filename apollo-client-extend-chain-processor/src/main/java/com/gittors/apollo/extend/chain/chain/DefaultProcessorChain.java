@@ -2,6 +2,8 @@ package com.gittors.apollo.extend.chain.chain;
 
 import com.gittors.apollo.extend.chain.context.Context;
 
+import java.util.Map;
+
 /**
  * @author zlliu
  * @date 2020/8/14 22:36
@@ -9,7 +11,7 @@ import com.gittors.apollo.extend.chain.context.Context;
 public class DefaultProcessorChain extends ProcessorChain {
     AbstractLinkedProcessor<?> first = new AbstractLinkedProcessor<Object>() {
         @Override
-        public void entry(Context context, Object t, Object... args)
+        public void entry(Context context, Object t, Map<String, Object> args)
                 throws Throwable {
             super.fireEntry(context, t, args);
         }
@@ -42,7 +44,7 @@ public class DefaultProcessorChain extends ProcessorChain {
     }
 
     @Override
-    public void entry(Context context, Object t, Object... args)
+    public void entry(Context context, Object t, Map<String, Object> args)
             throws Throwable {
         first.transformEntry(context, t, args);
     }

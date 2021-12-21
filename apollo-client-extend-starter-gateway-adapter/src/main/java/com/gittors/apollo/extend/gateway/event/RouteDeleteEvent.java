@@ -11,7 +11,7 @@ import java.util.Map;
  */
 @Data
 public class RouteDeleteEvent {
-    public RouteDeleteEvent() {
+    private RouteDeleteEvent() {
     }
 
     private static RouteDeleteEvent INSTANCE = new RouteDeleteEvent();

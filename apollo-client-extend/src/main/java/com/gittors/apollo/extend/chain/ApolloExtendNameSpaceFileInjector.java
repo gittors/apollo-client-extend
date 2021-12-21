@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 public class ApolloExtendNameSpaceFileInjector extends ApolloExtendNameSpaceInjectorAdapter {
 
     @Override
-    public void entry(Context context, ConfigurableEnvironment environment, Object... args) throws Throwable {
+    public void entry(Context context, ConfigurableEnvironment environment, Map<String, Object> args) throws Throwable {
         try {
             Map<String, Properties> propertiesMap = getPropertiesMap();
             if (MapUtils.isNotEmpty(propertiesMap)) {

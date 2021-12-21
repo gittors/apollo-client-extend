@@ -1,9 +1,12 @@
 package com.gittors.apollo.extend.chain.spi;
 
+import com.gittors.apollo.extend.chain.chain.AbstractLinkedProcessor;
 import com.gittors.apollo.extend.chain.chain.DefaultProcessorChain;
 import com.gittors.apollo.extend.chain.chain.ProcessorChain;
-import com.gittors.apollo.extend.chain.stream.SayHelloStream;
+import com.gittors.apollo.extend.chain.context.Context;
 import com.gittors.apollo.extend.common.spi.Ordered;
+
+import java.util.Map;
 
 /**
  * @author zlliu
@@ -21,8 +24,20 @@ public class DefaultChainBuilder implements ChainBuilder {
         return chain;
     }
 
+    class SayHelloStream extends AbstractLinkedProcessor<Object> {
+        @Override
+        public void entry(Context context, Object param, Map<String, Object> args) throws Throwable {
+            System.out.println("----------- say hello ------------");
+
+            //  enter into next stream
+            fireEntry(context, param, args);
+        }
+
+    }
+
     @Override
     public int getOrder() {
+        //  最低优先级
         return Ordered.LOWEST_PRECEDENCE;
     }
 }

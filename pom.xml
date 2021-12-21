@@ -5,7 +5,7 @@
 
     <groupId>com.github.gittors</groupId>
     <artifactId>apollo-client-extend-parent</artifactId>
-    <version>1.3.2</version>
+    <version>1.4.0</version>
 
     <modules>
         <module>apollo-client-extend</module>
@@ -22,8 +22,11 @@
     </modules>
 
     <packaging>pom</packaging>
-    <name>apollo-client-extend-parent</name>
-    <description>apollo-client-extend</description>
+    <name>Apollo Client Extend Parent</name>
+    <description>
+        This is Apollo Client Extend Parent Pom.
+        Apollo Client Extend is a client using extensions.
+    </description>
     <url>https://github.com/gittors/apollo-client-extend</url>
 
     <properties>

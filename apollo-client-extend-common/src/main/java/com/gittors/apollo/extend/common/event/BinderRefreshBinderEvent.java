@@ -11,7 +11,7 @@ import java.util.Map;
  */
 @Data
 public class BinderRefreshBinderEvent {
-    public BinderRefreshBinderEvent() {
+    private BinderRefreshBinderEvent() {
     }
 
     /**

@@ -5,6 +5,8 @@ import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 
+import java.util.Map;
+
 /**
  * @author zlliu
  * @date 2020/8/29 2:00
@@ -12,7 +14,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 public class ApolloExtendNameSpaceConfigInjector extends ApolloExtendNameSpaceInjectorAdapter {
 
     @Override
-    public void entry(Context context, ConfigurableEnvironment environment, Object... args) throws Throwable {
+    public void entry(Context context, ConfigurableEnvironment environment, Map<String, Object> args) throws Throwable {
         //  找监控配置：
         //  1、从 Apollo application 命名空间找 - 第一优先级
         //  2、从启动参数 apollo.extend.namespace 配置找 - 第二优先级

@@ -1,4 +1,4 @@
-package com.gittors.apollo.extend.common.encry;
+package com.gittors.apollo.extend.common.utils;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;

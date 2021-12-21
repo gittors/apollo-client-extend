@@ -49,7 +49,7 @@ public class ApolloExtendApplicationContextInitializer implements
         }
         try {
             //  解析管理命名空间并注册到Spring环境
-            chainProcessor.process(environment, "namespace injector");
+            chainProcessor.process(environment, "namespace injector", null);
         } catch (Throwable throwable) {
             log.error("#initialize error: ", throwable.getMessage());
         }

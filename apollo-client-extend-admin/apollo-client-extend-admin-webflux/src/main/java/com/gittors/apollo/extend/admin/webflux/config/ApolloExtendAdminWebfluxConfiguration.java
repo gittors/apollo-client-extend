@@ -5,7 +5,7 @@ import com.gittors.apollo.extend.admin.webflux.entity.DataEntity;
 import com.gittors.apollo.extend.admin.webflux.handler.DefaultServiceHandler;
 import com.gittors.apollo.extend.admin.webflux.handler.ServiceHandler;
 import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
-import com.gittors.apollo.extend.common.encry.EncryptUtils;
+import com.gittors.apollo.extend.common.utils.EncryptUtils;
 import com.gittors.apollo.extend.common.manager.CacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

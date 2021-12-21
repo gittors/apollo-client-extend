@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.admin.web.endpoint;
 
 import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
-import com.gittors.apollo.extend.common.encry.EncryptUtils;
+import com.gittors.apollo.extend.common.utils.EncryptUtils;
 import com.gittors.apollo.extend.common.manager.CacheManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
