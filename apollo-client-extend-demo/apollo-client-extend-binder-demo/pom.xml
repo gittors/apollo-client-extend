@@ -15,12 +15,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>apollo-client-extend-admin-web</artifactId>
+            <artifactId>apollo-client-extend-binder-starter</artifactId>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>apollo-client-extend-binder-starter</artifactId>
+            <artifactId>apollo-client-extend-admin-web</artifactId>
         </dependency>
 
         <!--   不依赖admin,则需要依赖extend-starter和event-starter   -->
