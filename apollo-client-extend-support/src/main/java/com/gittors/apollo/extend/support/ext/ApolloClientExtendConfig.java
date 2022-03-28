@@ -17,6 +17,7 @@ import java.util.Properties;
  * @date 2021/7/6 22:52
  */
 public interface ApolloClientExtendConfig extends Config {
+    //  =============================== DefaultConfig 扩展点   =========================================
     /**
      * 初始化
      */
@@ -36,24 +37,25 @@ public interface ApolloClientExtendConfig extends Config {
     void updateConfig(Properties newConfigProperties, ConfigSourceType sourceType);
 
     /**
+     * 设置属性
+     * @param key   属性key
+     * @param value 属性值
+     */
+    void setProperty(String key, String value);
+
+    /**
      * 获得配置仓库
      *
      * @return
      */
     ConfigRepository getConfigRepository();
 
+    //  =============================== AbstractConfig 扩展点  ============================================
     /**
      * 获得修改的监听器
      * @return
      */
     List<ConfigChangeListener> getChangeListener();
-
-    /**
-     * 设置属性
-     * @param key   属性key
-     * @param value 属性值
-     */
-    void setProperty(String key, String value);
 
     List<ConfigChange> calcPropertyChanges(String namespace, Properties previous, Properties current);
 }

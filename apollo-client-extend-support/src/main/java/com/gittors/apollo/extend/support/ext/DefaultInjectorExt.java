@@ -39,17 +39,18 @@ public class DefaultInjectorExt implements Injector {
     /**
      * 通过Javassist扩展 {@link DefaultInjector}
      * 1、找到 {@link DefaultInjector} 的内部类 ApolloModule
-     * 2、根据 ApolloModule 构建一个类
-     * 3、找到 ApolloModule 的configure方法并添加至2
-     * 4、根据2的类创建一个对象返回
+     * 2、根据 ApolloModule 构建一个类 ApolloModuleAgent
+     * 3、找到 ApolloModule 的configure方法并添加至 ApolloModuleAgent
+     * 4、根据 ApolloModuleAgent 创建一个对象返回
      *
      * @return
      * @throws Throwable
      */
     private static Module buildModule() throws Throwable {
         ClassPool pool = ClassPool.getDefault();
+        //  获得 CtClass 对象
         CtClass ctClass = pool.get("com.ctrip.framework.apollo.internals.DefaultInjector");
-        //  找出所有内部类
+        //  获得所有内部类
         CtClass[] innerClass = ctClass.getNestedClasses();
         for (CtClass clazz : innerClass) {
             //  找到内部类 ApolloModule
@@ -62,13 +63,16 @@ public class DefaultInjectorExt implements Injector {
                 agentClass.setInterfaces(new CtClass[]{
                         pool.get("com.google.inject.Module")
                 });
+                //  添加构造方法
                 CtConstructor ctConstructor = new CtConstructor(new CtClass[]{}, agentClass);
                 ctConstructor.setModifiers(Modifier.PUBLIC);
                 ctConstructor.setBody("{}");
                 agentClass.addConstructor(ctConstructor);
+                //  遍历内部类方法
                 for (CtMethod method : clazz.getMethods()) {
                     //  找到ApolloModule的configure方法
                     if (method.getLongName().equals("com.ctrip.framework.apollo.internals.DefaultInjector$ApolloModule.configure()")) {
+                        //  复制configure方法，添加至agentClass
                         CtMethod copy = CtNewMethod.copy(method, agentClass, null);
                         copy.setName(method.getName());
                         agentClass.addMethod(copy);
@@ -78,7 +82,11 @@ public class DefaultInjectorExt implements Injector {
                 return (Module) aClass.newInstance();
             }
         }
-        return null;
+        return new AbstractModule() {
+            @Override
+            protected void configure() {
+            }
+        };
     }
 
     /**

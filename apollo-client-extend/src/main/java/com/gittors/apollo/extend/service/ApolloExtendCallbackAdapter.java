@@ -103,8 +103,10 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
 
     /**
      * 配置有变更，客户端的处理
+     * 备注：此时配置已经刷新至 Spring环境，此方法留待客户端回调后续处理
+     *
      * @param changeType    变更类型
-     * @param data  变更的数据 {Key: 新增/删除, Value: {Key: 命名空间, Value: 配置Key=配置Value}}
+     * @param data  变更的数据 {Key: 新增/删除/新增删除都有, Value: {Key: 命名空间, Value: 配置Key=配置Value}}
      */
     protected void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data) {
     }
