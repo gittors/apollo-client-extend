@@ -61,7 +61,7 @@ public class DefaultInjectorExt implements Injector {
      * @return
      * @throws Throwable
      */
-    private static Module buildModule() throws Throwable {
+    protected Module buildModule() throws Throwable {
         ClassPool pool = ClassPool.getDefault();
         //  获得 CtClass 对象
         CtClass ctClass = pool.get(DEFAULT_INJECTOR);
@@ -108,14 +108,14 @@ public class DefaultInjectorExt implements Injector {
      * 修改 {@link ConfigFactory} 注入：
      *      {@link DefaultConfigFactory} --> {@link DefaultConfigFactoryExt}
      */
-    private static class ApolloExtendModule extends AbstractModule {
+    private class ApolloExtendModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(ConfigFactory.class).to(build()).in(Singleton.class);
+            bind(ConfigFactory.class).to(buildFactory()).in(Singleton.class);
         }
     }
 
-    public static Class<? extends ConfigFactory> build() {
+    protected Class<? extends ConfigFactory> buildFactory() {
         Class<? extends ConfigFactory> clazz = DefaultConfigFactoryExt.class;
         Properties properties = System.getProperties();
         //  Javassist配置：默认动态扩展，预留开关控制

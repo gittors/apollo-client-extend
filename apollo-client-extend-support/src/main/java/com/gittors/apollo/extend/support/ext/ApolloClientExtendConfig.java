@@ -14,6 +14,7 @@ import java.util.Properties;
  *      开放某些 {@link com.ctrip.framework.apollo.internals.DefaultConfig} 接口权限
  *      开放某些 {@link com.ctrip.framework.apollo.internals.AbstractConfig} 接口权限
  *
+ * 注意：手动扩展，需要实现此接口
  * @author zlliu
  * @date 2021/7/6 22:52
  */

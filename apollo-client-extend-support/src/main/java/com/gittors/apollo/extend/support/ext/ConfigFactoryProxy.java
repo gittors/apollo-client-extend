@@ -95,7 +95,7 @@ public class ConfigFactoryProxy {
         return configFactoryClazz;
     }
 
-    private CtClass buildDefaultConfigExt(ClassPool pool, CtClass abstractConfigExtCtClass) throws NotFoundException, CannotCompileException {
+    protected CtClass buildDefaultConfigExt(ClassPool pool, CtClass abstractConfigExtCtClass) throws NotFoundException, CannotCompileException {
         //  DefaultConfigExtProxy 对象
         CtClass defaultConfigExtCtClass = pool.getAndRename(DEFAULT_CONFIG, DEFAULT_CONFIG_EXT);
         //  2.1 设置继承父类
@@ -134,17 +134,13 @@ public class ConfigFactoryProxy {
         CtMethod onRepositoryChange = defaultConfigExtCtClass.getDeclaredMethod(SupportConstant.DEFAULT_CONFIG_ON_REPOSITORY_CHANGE_METHOD);
         onRepositoryChange.setBody(ONREPOSITORY_CHANGE_METHOD);
 
-//        CtMethod calcPropertyChanges = abstractConfigExtCtClass.getDeclaredMethod("calcPropertyChanges");
-//        CtMethod copyMethod = CtNewMethod.copy(calcPropertyChanges, defaultConfigExtCtClass, null);
-//        defaultConfigExtCtClass.addMethod(copyMethod);
-
         //  将对象加载至JVM
         defaultConfigExtCtClass.toClass();
 
         return defaultConfigExtCtClass;
     }
 
-    private CtClass buildAbstractConfigExt(ClassPool pool) throws NotFoundException, CannotCompileException {
+    protected CtClass buildAbstractConfigExt(ClassPool pool) throws NotFoundException, CannotCompileException {
         //  复制类并重命名
         CtClass abstractConfigExtCtClass = pool.getAndRename(ABSTRACT_CONFIG, ABSTRACT_CONFIG_EXT);
         //  1.1、新增方法 getChangeListener
@@ -185,7 +181,17 @@ public class ConfigFactoryProxy {
         abstractRunnable.addMethod(runMethod);
         abstractRunnable.toClass();
 
-        CtMethod fireConfigChange = abstractConfigExtCtClass.getDeclaredMethod(SupportConstant.ABSTRACT_CONFIG_FIRE_CONFIG_CHANGE_METHOD);
+        //  1.7.0和1.9.2版本的 fireConfigChange 方法不同，如果要兼容需要适配修改：
+        //  TODO findMatchedConfigChangeListeners 方法，如果找到了，重命名；没找到就新增相同方法
+        //  TODO notifyAsync 方法，如果找到了，重命名；没找到就新增相同方法
+
+        //  修改 fireConfigChange 方法体：Javassist不支持 Runnable 内部类，所以需要修改方法体内容
+        //  在 onRepositoryChange 方法回调时会用到
+        CtMethod fireConfigChange = abstractConfigExtCtClass.getDeclaredMethod(
+                SupportConstant.ABSTRACT_CONFIG_FIRE_CONFIG_CHANGE_METHOD,
+                new CtClass[]{
+                        pool.get(SupportConstant.ABSTRACT_CONFIG_CONFIG_CHANGE_EVENT)
+                });
         fireConfigChange.setBody(FIRE_CONFIG_CHANGE_METHOD);
 
         //  将对象加载至JVM
