@@ -10,8 +10,9 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * 扩展Config：
+ * 扩展接口：
  *      开放某些 {@link com.ctrip.framework.apollo.internals.DefaultConfig} 接口权限
+ *      开放某些 {@link com.ctrip.framework.apollo.internals.AbstractConfig} 接口权限
  *
  * @author zlliu
  * @date 2021/7/6 22:52

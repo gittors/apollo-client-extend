@@ -67,17 +67,18 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         if (CollectionUtils.isEmpty(needAddNamespaceSet)) {
             return Maps.newHashMap();
         }
-        //  获得合并的配置项
-        Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, needAddNamespaceSet, ChangeType.ADD);
-
-        //  获得新增命名空间的propertySource
+        //  1获得新增命名空间的propertySource
         List<ConfigPropertySource> addPropertySourceList = doGetAddNamespace(needAddNamespaceSet);
+        ConfigurableEnvironment standardEnvironment = ApolloExtendUtils.mergeEnvironment(environment, addPropertySourceList);
 
-        //  过滤掉"apollo extend管理配置"之外的配置项【用户真正需要关心的配置项】
+        //  2获得合并的配置项
+        Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(standardEnvironment, needAddNamespaceSet, ChangeType.ADD);
+
+        //  3过滤掉"apollo extend管理配置"之外的配置项【用户真正需要关心的配置项】
         Map<String, Map<String, String>> addConfig = filter(addPropertySourceList, managerConfigMap);
 
-        //  新增配置项，刷新spring环境
-        refreshAddEnvironment(addPropertySourceList, managerConfigMap);
+        //  4新增配置项，刷新spring环境
+        refreshAddEnvironment(standardEnvironment, addPropertySourceList, managerConfigMap);
 
         return addConfig;
     }
@@ -178,7 +179,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         return addPropertySourceList;
     }
 
-    protected void refreshAddEnvironment(List<ConfigPropertySource> addPropertySourceList, Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap) {
+    protected void refreshAddEnvironment(ConfigurableEnvironment standardEnvironment, List<ConfigPropertySource> addPropertySourceList, Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap) {
         if (CollectionUtils.isEmpty(addPropertySourceList) || MapUtils.isEmpty(managerConfigMap)) {
             log.warn("#refreshAddEnvironmentPostHandler addPropertySourceList OR managerConfigMap is empty!");
             return;
@@ -189,7 +190,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getName()));
 
             //  获得命名空间对应的spring propertySource名称
-            String propertySourceName = ApolloExtendUtils.getPropertySourceName(environment, propertySource.getName());
+            String propertySourceName = ApolloExtendUtils.getPropertySourceName(standardEnvironment, propertySource.getName());
 
             CompositePropertySource composite = new CompositePropertySource(propertySourceName);
             composite.addPropertySource(propertySource);
@@ -245,8 +246,9 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
 
             //  获得命名空间对应的spring propertySource名称
             String propertySourceName = ApolloExtendUtils.getPropertySourceName(environment, propertySource.getName());
+            String propertySourceBackupName = ApolloExtendStringUtils.format(propertySourceName, null, CommonConstant.PROPERTY_SOURCE_NAME_SUFFIX);
             mutablePropertySources.remove(propertySourceName);
-            mutablePropertySources.remove(ApolloExtendStringUtils.format(propertySourceName, null, CommonConstant.PROPERTY_SOURCE_NAME_SUFFIX));
+            mutablePropertySources.remove(propertySourceBackupName);
 
             Map.Entry<Boolean, Set<String>> configEntry = managerConfigMap.get(propertySource.getName());
             Properties properties = new Properties();
@@ -274,7 +276,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             });
 
             //  4.1刷新 Spring环境配置
-            CompositePropertySource composite = new CompositePropertySource(ApolloExtendStringUtils.format(propertySourceName, null, CommonConstant.PROPERTY_SOURCE_NAME_SUFFIX));
+            CompositePropertySource composite = new CompositePropertySource(propertySourceBackupName);
             composite.addPropertySource(propertySource);
             mutablePropertySources.addLast(composite);
         });

@@ -14,18 +14,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 扩展： {@link DefaultConfigFactory}
+ * 静态扩展： {@link DefaultConfigFactory}
  * 修改：
  * 1、{@link #create(String)} 方法对
  *      {@link com.ctrip.framework.apollo.internals.DefaultConfig}
  *      的创建：DefaultConfig --> DefaultConfigExt
- * 2、{@link #determineFileFormat(String)} --> protected
- * 3、{@link #createPropertiesCompatibleFileConfigRepository(String, ConfigFileFormat)} --> protected
- * 4、{@link #createLocalConfigRepository(String)} --> protected
+ *
+ * 此类仅供参考：实际使用 {@link ConfigFactoryProxy} 动态扩展
  *
  * @author zlliu
  * @date 2020/7/26 18:12
  */
+@Deprecated
 public class DefaultConfigFactoryExt extends DefaultConfigFactory {
     private static final Logger logger = LoggerFactory.getLogger(DefaultConfigFactoryExt.class);
 

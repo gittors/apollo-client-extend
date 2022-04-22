@@ -26,18 +26,22 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * 扩展: {@link com.ctrip.framework.apollo.internals.DefaultConfig}
+ * 静态扩展: {@link com.ctrip.framework.apollo.internals.DefaultConfig}
  *    1、开放 {@link #updateConfig(Properties, ConfigSourceType)} 方法权限： private --> public synchronized
  *    2、开放 {@link #initialize()} 方法权限： private --> public
  *    3、新增回调 {@link propertiesCallBack} + {@link #addPropertiesCallBack(PropertiesCallBack)} 方法: 配置删除时用
  *    4、新增属性更新方法 {@link #setProperty(String, String)}
  *    5、新增属性 m_configRepository GET方法 {@link #getConfigRepository()}
+ *    6、方法 {@link #onRepositoryChange(String, Properties)}} 新增配置回调逻辑
  *
  *    注意：如果要扩展此类，请务必实现上述的扩展点
+ *
+ * 此类仅供参考：实际使用 {@link ConfigFactoryProxy} 动态扩展
  *
  * @author zlliu
  * @date 2020/7/25 11:18
  */
+@Deprecated
 public class DefaultConfigExt extends AbstractConfigExt implements RepositoryChangeListener {
   private static final Logger logger = LoggerFactory.getLogger(DefaultConfigExt.class);
   private final String m_namespace;

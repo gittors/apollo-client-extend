@@ -13,16 +13,20 @@ import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 /**
  * @author zlliu
@@ -51,7 +55,7 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
             //  当前更新的key, 如： listen.key.addMap.application-test
             String key = (String) objects[0];
             ConfigChangeEvent changeEvent = (ConfigChangeEvent) objects[1];
-            //  当前更新的命名空间
+            //  当前更新操作的命名空间
             String namespace = changeEvent.getNamespace();
             //  截取当前更新key的命名空间,如： listen.key.addMap.application-test ==> application-test
             String managerNamespace = key.substring(key.lastIndexOf(".") + 1);
@@ -75,7 +79,8 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
                 return;
             }
             //  获得 管理配置：apollo.extend.namespace 的配置值校验
-            String managerNamespaceConfig = (String) propertySource.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE);
+            //  管理配置应该包含两部分：自身命名空间的 + application命名空间的
+            String managerNamespaceConfig = getManagerConfig();
             if (check(managerNamespaceConfig, managerNamespace)) {
                 return;
             }
@@ -88,6 +93,7 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
             }
             Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, newNamespaceSet, changeType);
 
+            //  获取当前更新key对应的命名空间
             //  获得propertySource, 相同的取最后一个
             Optional<ConfigPropertySource> optional = configPropertySourceFactory.getAllConfigPropertySources()
                     .stream()
@@ -113,6 +119,25 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
         }
     }
 
+    private String getManagerConfig() {
+        MutablePropertySources mutablePropertySources = environment.getPropertySources();
+        //  获得所有命名空间包含 "apollo.extend.namespace" 配置的值(用","号分隔)
+        String namespaceConfig = mutablePropertySources.stream()
+                .filter(pro -> !ConfigurationPropertySources.isAttachedConfigurationPropertySource(pro))
+                .filter(pro -> pro.containsProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE))
+                .map(pro -> (String) pro.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE))
+                .distinct().collect(Collectors.joining(CommonApolloConstant.DEFAULT_SEPARATOR));
+        List<String> managerConfigList = NAMESPACE_SPLITTER.splitToList(namespaceConfig);
+        if (CollectionUtils.isEmpty(managerConfigList)) {
+            return StringUtils.EMPTY;
+        }
+        //  去重 + 拼接
+        String managerNamespaceConfig = managerConfigList.stream().distinct()
+                .filter(config -> !"null".equals(config))
+                .collect(Collectors.joining(CommonApolloConstant.DEFAULT_SEPARATOR));
+        return managerNamespaceConfig;
+    }
+
     /**
      * 并发限制
      * @return
@@ -122,7 +147,10 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
     }
 
     /**
-     * 校验命名空间
+     * 校验命名空间：
+     * 1、新增时，必须存在"listen.key"对应命名空间
+     * 2、删除时，必须不存在"listen.key"对应命名空间
+     *
      * @param managerNamespaceConfig    {@link CommonApolloConstant.APOLLO_EXTEND_NAMESPACE} 配置的命名空间
      * @param managerNamespace  {@link CommonApolloConstant.APOLLO_EXTEND_ADD_CALLBACK_CONFIG} 配置的命名空间
      * @return

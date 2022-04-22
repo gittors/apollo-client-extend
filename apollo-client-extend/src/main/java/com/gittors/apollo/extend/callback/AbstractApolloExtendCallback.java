@@ -16,10 +16,8 @@ import java.util.stream.Collectors;
  * @date 2020/7/8 11:29
  */
 public abstract class AbstractApolloExtendCallback implements ApolloExtendCallback {
-    /**
-     * 分割器
-     */
-    protected static final Splitter NAMESPACE_SPLITTER =
+    //  分割器
+    public static final Splitter NAMESPACE_SPLITTER =
             Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR).omitEmptyStrings().trimResults();
 
     @Override

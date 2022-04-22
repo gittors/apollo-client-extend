@@ -27,7 +27,9 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.StandardEnvironment;
 
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -164,7 +166,7 @@ public final class ApolloExtendUtils {
             return true;
         }
         return configEntry.getValue().stream()
-                .filter(prefix -> StringUtils.isNotBlank(prefix))
+                .filter(StringUtils::isNotBlank)
                 .anyMatch(prefix -> key.startsWith(prefix));
     }
 
@@ -189,15 +191,14 @@ public final class ApolloExtendUtils {
      */
     public static Map<String, Map.Entry<Boolean, Set<String>>> getManagerConfig(ConfigurableEnvironment environment,
                                                                    Set<String> namespaceSet, ChangeType changeType) {
+        Binder binder = Binder.get(environment);
         //  全局配置项：listen.key.global.map.application2 = my.map
         ApolloExtendGlobalListenKeyProperties globalListenKeyProperties =
-                Binder.get(environment)
-                        .bind(CommonApolloConstant.APOLLO_EXTEND_GLOBAL_LISTEN_KEY_SUFFIX, Bindable.of(ApolloExtendGlobalListenKeyProperties.class))
+                binder.bind(CommonApolloConstant.APOLLO_EXTEND_GLOBAL_LISTEN_KEY_SUFFIX, Bindable.of(ApolloExtendGlobalListenKeyProperties.class))
                         .orElse(new ApolloExtendGlobalListenKeyProperties());
         //  局部配置项：listen.key.addMap.application2 = my.map2
         ApolloExtendListenKeyProperties listenKeyProperties =
-                Binder.get(environment)
-                        .bind(CommonApolloConstant.APOLLO_EXTEND_LISTEN_KEY_SUFFIX, Bindable.of(ApolloExtendListenKeyProperties.class))
+                binder.bind(CommonApolloConstant.APOLLO_EXTEND_LISTEN_KEY_SUFFIX, Bindable.of(ApolloExtendListenKeyProperties.class))
                         .orElse(new ApolloExtendListenKeyProperties());
 
         //  合并全局+局部配置项：{key:application2,value:[my.map,my.map2]}
@@ -258,6 +259,22 @@ public final class ApolloExtendUtils {
                 return filterProperties;
             });
         }
+    }
+
+    /**
+     * 合并环境
+     * @param environment
+     * @param configPropertySourceList
+     * @return
+     */
+    public static ConfigurableEnvironment mergeEnvironment(ConfigurableEnvironment environment, List<ConfigPropertySource> configPropertySourceList) {
+        ConfigurableEnvironment standardEnvironment = new StandardEnvironment();
+        standardEnvironment.merge(environment);
+
+        configPropertySourceList.forEach(standardEnvironment.getPropertySources()::addLast);
+
+        ConfigurationPropertySources.attach(standardEnvironment);
+        return standardEnvironment;
     }
 
 }

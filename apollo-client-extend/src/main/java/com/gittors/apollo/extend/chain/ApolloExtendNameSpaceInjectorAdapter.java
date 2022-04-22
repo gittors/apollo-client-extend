@@ -19,12 +19,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.StandardEnvironment;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -116,11 +113,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
 
         //  合并当前 Spring环境，并添加配置项用于查找
         ConfigPropertySource configPropertySource = configPropertySourceFactory.getConfigPropertySource(namespaceConfigClass.getNamespace(), config);
-        ConfigurableEnvironment standardEnvironment = new StandardEnvironment();
-        standardEnvironment.merge(environment);
-        standardEnvironment.getPropertySources().addLast(configPropertySource);
-
-        ConfigurationPropertySources.attach(standardEnvironment);
+        ConfigurableEnvironment standardEnvironment = ApolloExtendUtils.mergeEnvironment(environment, Lists.newArrayList(configPropertySource));
 
         namespaceConfigClass.setCompositePropertySourceName(ApolloExtendUtils.getPropertySourceName(standardEnvironment, namespaceConfigClass.getNamespace()));
         namespaceConfigClass.setConfigPropertySource(configPropertySource);
@@ -135,12 +128,9 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
      */
     protected Set<String> parseNamespace(String namespaceKey) {
         List<String> extensionNamespaceList = NAMESPACE_SPLITTER.splitToList(namespaceKey);
-        extensionNamespaceList = extensionNamespaceList.stream()
+        return extensionNamespaceList.stream()
                 .filter(namespace -> !ConfigConsts.NAMESPACE_APPLICATION.equals(namespace))
-                .collect(Collectors.toList());
-        Set<String> namespaceSet = new HashSet<>();
-        namespaceSet.addAll(extensionNamespaceList);
-        return namespaceSet;
+                .collect(Collectors.toSet());
     }
 
 }

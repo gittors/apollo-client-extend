@@ -33,16 +33,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 扩展:
+ * 静态扩展:
  *    {@link com.ctrip.framework.apollo.internals.AbstractConfig}
  *    1、提供 m_listeners 属性GET方法: @see {@link #getChangeListener()}
  *    2、开放 {@link #calcPropertyChanges(String, Properties, Properties)} 权限 default --> public
  *
  *    注意：如果要扩展此类，请务必实现上述扩展点
  *
+ * 此类仅供参考：实际使用 {@link ConfigFactoryProxy} 动态扩展
+ *
  * @author zlliu
  * @date 2020/7/25 11:18
  */
+@Deprecated
 public abstract class AbstractConfigExt implements ApolloClientExtendConfig {
   private static final Logger logger = LoggerFactory.getLogger(AbstractConfigExt.class);
 
