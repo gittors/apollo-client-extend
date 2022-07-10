@@ -3,13 +3,14 @@ package com.gittors.apollo.extend.binder.event;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapper;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapperRegistry;
 import com.gittors.apollo.extend.binder.utils.BinderObjectInjector;
-import com.gittors.apollo.extend.binder.utils.BinderUtils;
 import com.gittors.apollo.extend.common.event.BinderRefreshBinderEvent;
 import com.google.common.eventbus.Subscribe;
 import com.nepxion.eventbus.annotation.EventBus;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.core.env.Environment;
 
 import java.util.Collection;
@@ -65,11 +66,20 @@ public class BinderEventSubscriber {
                             .collect(Collectors.toList())
             );
         }
+        Binder binder = Binder.get(environment);
         for (String binderPrefix : keyPrefixSet) {
             //  根据配置key前缀，获得bean绑定对象wrapper
             Collection<HolderBeanWrapper> targetValues = registry.get(binderPrefix);
             for (HolderBeanWrapper propertiesWrapper : targetValues) {
-                BinderUtils.binder(environment, propertiesWrapper, binderPrefix);
+                Object value = binder.bind(binderPrefix, Bindable.of(propertiesWrapper.getField().getType()))
+                        .orElse(null);
+                if (value != null) {
+                    try {
+                        propertiesWrapper.update(value);
+                    } catch (Throwable ex) {
+                        log.warn("#refreshBinder binder failed: ", ex);
+                    }
+                }
             }
         }
     }
