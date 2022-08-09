@@ -5,8 +5,10 @@ import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapper;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapperRegistry;
 import com.gittors.apollo.extend.binder.utils.BinderObjectInjector;
-import com.gittors.apollo.extend.binder.utils.BinderUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.core.env.Environment;
 import org.springframework.util.CollectionUtils;
 
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
  * @author zlliu
  * @date 2020/8/10 21:39
  */
+@Slf4j
 public class AutoBinderConfigChangeListener implements ConfigChangeListener {
 
     private final Environment environment;
@@ -54,10 +57,19 @@ public class AutoBinderConfigChangeListener implements ConfigChangeListener {
                             .collect(Collectors.toList())
             );
         }
+        Binder binder = Binder.get(environment);
         for (String binderPrefix : keySet) {
             Collection<HolderBeanWrapper> targetValues = registry.get(binderPrefix);
             for (HolderBeanWrapper holderBeanWrapper : targetValues) {
-                BinderUtils.binder(environment, holderBeanWrapper, binderPrefix);
+                Object value = binder.bind(binderPrefix, Bindable.of(holderBeanWrapper.getField().getType()))
+                        .orElse(null);
+                if (value != null) {
+                    try {
+                        holderBeanWrapper.update(value);
+                    } catch (Throwable ex) {
+                        log.warn("#refreshBinder binder failed: ", ex);
+                    }
+                }
             }
         }
     }
