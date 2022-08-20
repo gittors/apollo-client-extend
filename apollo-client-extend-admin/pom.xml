@@ -18,6 +18,12 @@
     </modules>
 
     <dependencies>
+        <!--   caffeine cache    -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>apollo-client-extend-starter</artifactId>

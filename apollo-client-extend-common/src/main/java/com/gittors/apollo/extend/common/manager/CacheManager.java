@@ -1,12 +1,10 @@
 package com.gittors.apollo.extend.common.manager;
 
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
 import com.gittors.apollo.extend.common.enums.TimeUnitEnum;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 
@@ -53,19 +51,13 @@ public class CacheManager {
         try {
             String timeUnitStr = environment.getProperty(ApolloExtendAdminConstant.TIME_UNIT_STR, TimeUnitEnum.MINUTES.getTimeUnitStr());
             TimeUnit timeUnit = TimeUnitEnum.getTimeUnit(timeUnitStr);
-            cache = loadCache(new CacheLoader<String, Object>() {
-                @Override
-                public Object load(String key) throws Exception {
-                    // 处理缓存键不存在缓存值时的处理逻辑
-                    return null;
-                }
-            }, timeUnit);
+            cache = loadCache(key -> null, timeUnit);
         } catch (Exception e) {
         }
     }
 
     private LoadingCache<String, Object> loadCache(CacheLoader<String, Object> cacheLoader, TimeUnit timeUnit) throws Exception {
-        LoadingCache<String, Object> cache = CacheBuilder.newBuilder()
+        LoadingCache<String, Object> cache = Caffeine.newBuilder()
                 //  缓存池大小，在缓存项接近该大小时， Guava开始回收旧的缓存项
                 .maximumSize(cacheSize)
                 //  设置时间对象没有被读/写访问则对象从内存中删除
@@ -73,11 +65,7 @@ public class CacheManager {
                 //  设置缓存在写入之后 设定时间 后失效
                 .expireAfterWrite(cacheDuration, timeUnit)
                 //  移除监听器,缓存项被移除时会触发
-                .removalListener(new RemovalListener<String, Object>() {
-                    @Override
-                    public void onRemoval(RemovalNotification<String, Object> rn) {
-                        //  逻辑操作
-                    }
+                .removalListener((o, o2, removalCause) -> {
                 })
                 //  开启Guava Cache的统计功能
                 .recordStats()
@@ -202,13 +190,9 @@ public class CacheManager {
      */
     public long size() {
         long size = 0;
-        final ReentrantLock lock = this.lock;
-        lock.lock();
         try {
-            size = cache.size();
+            size = ((Map) cache).size();
         } catch (Exception e) {
-        } finally {
-            lock.unlock();
         }
         return size;
     }

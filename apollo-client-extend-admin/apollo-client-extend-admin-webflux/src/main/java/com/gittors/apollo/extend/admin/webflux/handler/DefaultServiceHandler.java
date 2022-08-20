@@ -3,6 +3,7 @@ package com.gittors.apollo.extend.admin.webflux.handler;
 import com.gittors.apollo.extend.admin.webflux.entity.ApiResponse;
 import com.gittors.apollo.extend.admin.webflux.entity.DataEntity;
 import com.gittors.apollo.extend.admin.webflux.spi.ApolloExtendAdminWebfluxProcessor;
+import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.manager.CacheManager;
 import com.gittors.apollo.extend.common.spi.ServiceLookUp;
@@ -55,7 +56,7 @@ public class DefaultServiceHandler implements ServiceHandler {
             ServiceLookUp.loadPrimary(ApolloExtendNameSpaceManager.class);
 
     @Autowired
-    @Qualifier("extendAdminWebFluxCacheManager")
+    @Qualifier(ApolloExtendAdminConstant.EXTEND_ADMIN_WEB_FLUX_CACHE_MANAGER)
     private CacheManager cacheManager;
 
     @Autowired
