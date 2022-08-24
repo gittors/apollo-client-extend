@@ -3,7 +3,7 @@ package com.gittors.apollo.extend.chain;
 import com.gittors.apollo.extend.chain.chain.DefaultProcessorChain;
 import com.gittors.apollo.extend.chain.chain.ProcessorChain;
 import com.gittors.apollo.extend.chain.spi.ChainBuilder;
-import com.gittors.apollo.extend.common.spi.Ordered;
+import com.gittors.apollo.extend.common.service.Ordered;
 
 /**
  * @author zlliu

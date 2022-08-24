@@ -9,12 +9,13 @@ import com.ctrip.framework.apollo.spring.property.AutoUpdateConfigChangeListener
 import com.gittors.apollo.extend.callback.ApolloExtendCallback;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.enums.ChangeType;
-import com.gittors.apollo.extend.common.internals.ApolloExtendListenerInjector;
-import com.gittors.apollo.extend.common.spi.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.common.spi.ApolloExtendListenerInjector;
 import com.gittors.apollo.extend.context.ApolloExtendContext;
 import com.gittors.apollo.extend.properties.ApolloExtendGlobalListenKeyProperties;
 import com.gittors.apollo.extend.properties.ApolloExtendListenKeyProperties;
-import com.gittors.apollo.extend.properties.ApolloExtendPropertySourceProperties;
+import com.gittors.apollo.extend.spi.ApolloConfigChangeCallBack;
+import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.support.ApolloExtendStringMapEntry;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.google.common.collect.Lists;
@@ -28,7 +29,10 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
+import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
 import java.util.AbstractMap;
@@ -47,6 +51,9 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public final class ApolloExtendUtils {
+    private static final ApolloConfigChangeCallBack apolloConfigChangeCallBack =
+            ServiceLookUp.loadPrimary(ApolloConfigChangeCallBack.class);
+
     private ApolloExtendUtils() {
     }
 
@@ -57,17 +64,8 @@ public final class ApolloExtendUtils {
     public static ConfigChangeListener getChangeListener(Map<String, ApolloExtendCallback> callbackMap) {
         return changeEvent -> {
             log.info("ApolloConfig onchange... namespace: {}", changeEvent.getNamespace());
-            for (String key : changeEvent.changedKeys()) {
-                // 精确匹配和模糊查询
-                for (Map.Entry<String, ApolloExtendCallback> entry : callbackMap.entrySet()) {
-                    if (key.equals(entry.getKey()) ||
-                            (entry.getKey().indexOf("*") > 0 && key.indexOf(entry.getKey().replace("*","")) >= 0)) {
-                        ApolloExtendCallback callback = entry.getValue();
-                        if (callback != null) {
-                            callback.callback(changeEvent.getChange(key).getOldValue(), changeEvent.getChange(key).getNewValue(), key, changeEvent);
-                        }
-                    }
-                }
+            if (apolloConfigChangeCallBack != null) {
+                apolloConfigChangeCallBack.callBack(callbackMap, changeEvent);
             }
         };
     }
@@ -96,10 +94,10 @@ public final class ApolloExtendUtils {
             configPropertySource.addChangeListener(getChangeListener(ApolloExtendContext.INSTANCE.getCallbackMap()));
 
             List<ConfigChangeListener> changeListenerList = Lists.newLinkedList();
-            Iterator<ApolloExtendListenerInjector> list = ServiceLookUp.loadAll(ApolloExtendListenerInjector.class);
-            for (Iterator<ApolloExtendListenerInjector> iterator = list; list.hasNext();) {
-                ApolloExtendListenerInjector apolloExtendListenerInjector = iterator.next();
-                apolloExtendListenerInjector.injector(changeListenerList, environment, beanFactory);
+            Iterator<ApolloExtendListenerInjector> loadAll = ServiceLookUp.loadAll(ApolloExtendListenerInjector.class);
+            for (Iterator<ApolloExtendListenerInjector> iterator = loadAll; iterator.hasNext();) {
+                ApolloExtendListenerInjector listenerInjector = iterator.next();
+                listenerInjector.injector(changeListenerList, environment, beanFactory);
             }
 
             for (ConfigChangeListener changeListener : changeListenerList) {
@@ -139,20 +137,11 @@ public final class ApolloExtendUtils {
 
     /**
      * 根据配置前缀拼接 propertySource 名称
-     * @param environment
      * @param namespaceName 命名空间名称
      * @return
      */
-    public static String getPropertySourceName(ConfigurableEnvironment environment, String namespaceName) {
-        //  获得命名空间对应的spring propertySource名称
-        String configPrefix = environment.getProperty(CommonApolloConstant.PROPERTY_SOURCE_CONFIG_SUFFIX, CommonApolloConstant.PROPERTY_SOURCE_CONFIG_DEFAULT_SUFFIX);
-        ApolloExtendPropertySourceProperties propertySourceConfig =
-                Binder.get(environment)
-                        .bind(configPrefix, Bindable.of(ApolloExtendPropertySourceProperties.class))
-                        .orElse(new ApolloExtendPropertySourceProperties());
-        String propertySourceCnfSuffix = propertySourceConfig.getPropertyMap().get(namespaceName);
-        String propertySourceSuffix = StringUtils.isNotBlank(propertySourceCnfSuffix) ? propertySourceCnfSuffix : PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME;
-        return ApolloExtendStringUtils.format(namespaceName, null, propertySourceSuffix);
+    public static String getPropertySourceName(String namespaceName) {
+        return ApolloExtendStringUtils.format(namespaceName, null, CommonApolloConstant.APOLLO_EXTEND_PROPERTY_SOURCE_NAME);
     }
 
     /**
@@ -162,6 +151,7 @@ public final class ApolloExtendUtils {
      * @return
      */
     public static boolean predicateMatch(String key, Map.Entry<Boolean, Set<String>> configEntry) {
+        //  FALSE 代表不用过滤
         if (!configEntry.getKey() || CollectionUtils.isEmpty(configEntry.getValue())) {
             return true;
         }
@@ -176,7 +166,6 @@ public final class ApolloExtendUtils {
      */
     public static Map.Entry<Boolean, Set<String>> skipMatchConfig() {
         Set<String> skipMatchConfig = Sets.newHashSet();
-        skipMatchConfig.add(CommonApolloConstant.PROPERTY_SOURCE_CONFIG_DEFAULT_SUFFIX);
         skipMatchConfig.add(CommonApolloConstant.APOLLO_EXTEND_LISTEN_KEY_SUFFIX);
 
         return new AbstractMap.SimpleEntry<>(Boolean.TRUE, skipMatchConfig);
@@ -229,19 +218,19 @@ public final class ApolloExtendUtils {
      * @param propertySource
      * @param configEntry
      */
-    public static void configValidHandler(ConfigPropertySource propertySource, Map.Entry<Boolean, Set<String>> configEntry) {
-        //  如果是FALSE全部生效，就不用设置回调
+    public static void configValidHandler(ConfigPropertySource propertySource, Map.Entry<Boolean, Set<String>> configEntry,
+                                          ApolloExtendFactory.FilterPredicate filterPredicate) {
+        //  如果是FALSE全部生效，不用设置回调
         if (configEntry.getKey()) {
-            ApolloClientExtendConfig defaultConfig = (ApolloClientExtendConfig) propertySource.getSource();
-
             Properties sourceProperties = ((ApolloClientExtendConfig) propertySource.getSource()).getConfigRepository().getConfig();
             Properties properties = new Properties();
             //  1根据配置监听Key 筛选生效属性
             sourceProperties.stringPropertyNames()
                     .stream()
-                    .filter(configKey -> ApolloExtendUtils.predicateMatch(configKey, configEntry) || ApolloExtendUtils.predicateMatch(configKey, ApolloExtendUtils.skipMatchConfig()))
+                    .filter(configKey -> filterPredicate.match(configKey, configEntry))
                     .forEach(configKey -> properties.setProperty(configKey, sourceProperties.getProperty(configKey, "")));
 
+            ApolloClientExtendConfig defaultConfig = (ApolloClientExtendConfig) propertySource.getSource();
             //  2刷新对象
             defaultConfig.updateConfig(properties, propertySource.getSource().getSourceType());
 
@@ -254,11 +243,24 @@ public final class ApolloExtendUtils {
                 Properties property = (Properties) updateProperties;
                 property.entrySet().stream()
                         .map(objectEntry -> new ApolloExtendStringMapEntry(String.valueOf(objectEntry.getKey()), String.valueOf(objectEntry.getValue())))
-                        .filter(stringEntry -> ApolloExtendUtils.predicateMatch(stringEntry.getKey(), configEntry) || ApolloExtendUtils.predicateMatch(stringEntry.getKey(), ApolloExtendUtils.skipMatchConfig()))
+                        .filter(stringEntry -> filterPredicate.match(stringEntry.getKey(), configEntry))
                         .forEach(stringEntry -> filterProperties.setProperty(stringEntry.getKey(), stringEntry.getValue()));
                 return filterProperties;
             });
         }
+    }
+
+    public static ApolloExtendFactory.FilterPredicate getFilterPredicate(boolean flag) {
+        return (key, configEntry) -> {
+            //  flag: TRUE- 新增 FALSE-删除
+            if (flag) {
+                return ApolloExtendUtils.predicateMatch(key, configEntry) ||
+                        ApolloExtendUtils.predicateMatch(key, ApolloExtendUtils.skipMatchConfig());
+            } else {
+                return !ApolloExtendUtils.predicateMatch(key, configEntry) ||
+                        ApolloExtendUtils.predicateMatch(key, ApolloExtendUtils.skipMatchConfig());
+            }
+        };
     }
 
     /**
@@ -275,6 +277,45 @@ public final class ApolloExtendUtils {
 
         ConfigurationPropertySources.attach(standardEnvironment);
         return standardEnvironment;
+    }
+
+    /**
+     * 判断是否存在 propertySource
+     * @param propertySources
+     * @param propertySourceName
+     * @return
+     */
+    public static boolean contains(Collection<PropertySource<?>> propertySources, String propertySourceName) {
+        return propertySources.stream()
+                .anyMatch(propertySource -> propertySourceName.equals(propertySource.getName()));
+    }
+
+    /**
+     * 从环境中删除对应的 propertySource
+     * @param propertySources
+     * @param propertySourceNameList
+     */
+    public static void removePropertySource(Collection<PropertySource<?>> propertySources, List<String> propertySourceNameList) {
+        for (Iterator<PropertySource<?>> iterator = propertySources.iterator(); iterator.hasNext();) {
+            PropertySource<?> propertySource = iterator.next();
+            boolean match = propertySourceNameList.stream()
+                    .anyMatch(propertySourceName -> propertySourceName.equals(propertySource.getName()));
+            if (match) {
+                iterator.remove();
+            }
+        }
+    }
+
+    public static CompositePropertySource getCompositePropertySource(ConfigurableEnvironment environment) {
+        MutablePropertySources mutablePropertySources = environment.getPropertySources();
+        CompositePropertySource bootstrapComposite;
+        if (!mutablePropertySources.contains(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
+            bootstrapComposite = new CompositePropertySource(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
+            mutablePropertySources.addAfter(PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME, bootstrapComposite);
+        } else {
+            bootstrapComposite = (CompositePropertySource) mutablePropertySources.get(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
+        }
+        return bootstrapComposite;
     }
 
 }

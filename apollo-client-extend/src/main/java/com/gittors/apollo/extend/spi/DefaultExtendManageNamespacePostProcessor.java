@@ -2,7 +2,8 @@ package com.gittors.apollo.extend.spi;
 
 import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
 import com.gittors.apollo.extend.common.enums.ChangeType;
-import com.gittors.apollo.extend.common.spi.Ordered;
+import com.gittors.apollo.extend.common.service.Ordered;
+import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 
@@ -39,10 +40,11 @@ public class DefaultExtendManageNamespacePostProcessor implements ApolloExtendMa
         List<ConfigPropertySource> addPropertySourceList = configClasses.stream()
                         .map(configClass -> (ConfigPropertySource) configClass.getConfigPropertySource())
                         .collect(Collectors.toList());
+        ApolloExtendFactory.FilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(true);
 
         //  过滤Apollo配置，使其部分生效
         addPropertySourceList.forEach(propertySource ->
-                ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getName()))
+                ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getName()), filterPredicate)
         );
 
     }

@@ -39,6 +39,7 @@ public class BinderDemoCallback extends ApolloExtendCallbackAdapter {
         }
         BinderRefreshBinderEvent binderEvent = BinderRefreshBinderEvent.getInstance();
         binderEvent.setData(configMap);
+        binderEvent.setSource("BinderDemoCallback#changeProcess");
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
         eventPublisher.asyncPublish(binderEvent);
     }

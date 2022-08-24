@@ -4,7 +4,7 @@ import com.gittors.apollo.extend.chain.chain.AbstractLinkedProcessor;
 import com.gittors.apollo.extend.chain.chain.DefaultProcessorChain;
 import com.gittors.apollo.extend.chain.chain.ProcessorChain;
 import com.gittors.apollo.extend.chain.context.Context;
-import com.gittors.apollo.extend.common.spi.Ordered;
+import com.gittors.apollo.extend.common.service.Ordered;
 
 import java.util.Map;
 

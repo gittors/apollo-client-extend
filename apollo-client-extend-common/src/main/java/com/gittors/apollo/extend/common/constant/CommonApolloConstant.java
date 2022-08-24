@@ -18,14 +18,9 @@ public class CommonApolloConstant {
     public static final String APOLLO_EXTEND_NAMESPACE = "apollo.extend.namespace";
 
     /**
-     * propertySource配置前缀
+     * propertySource 名称后缀缺省值
      */
-    public static final String PROPERTY_SOURCE_CONFIG_SUFFIX = "apollo.extend.propertyMap.prefix";
-
-    /**
-     * propertySource 名称后缀配置Key
-     */
-    public static final String PROPERTY_SOURCE_CONFIG_DEFAULT_SUFFIX = "apollo.extend";
+    public static final String APOLLO_EXTEND_PROPERTY_SOURCE_NAME = "PropertySource";
 
     /**
      * 全局监听Key 配置前缀
@@ -68,5 +63,12 @@ public class CommonApolloConstant {
      * 管理配置：删除命名空间时，失效的配置属性
      */
     public static final String APOLLO_EXTEND_DELETE_CALLBACK_CONFIG = APOLLO_EXTEND_LISTEN_KEY_SUFFIX + ".delMap";
+
+    /**
+     * 配置的 PropertySources
+     */
+    public static final String APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME = "ApolloExtendBootstrapPropertySources";
+
+    public static final String ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME = "AdminEndpointPropertySources";
 
 }

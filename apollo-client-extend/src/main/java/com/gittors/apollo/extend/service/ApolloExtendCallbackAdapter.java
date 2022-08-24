@@ -4,7 +4,7 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.gittors.apollo.extend.callback.AbstractApolloExtendCallback;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.enums.ChangeType;
-import com.gittors.apollo.extend.common.spi.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.gittors.apollo.extend.spi.ApolloExtendNameSpaceManager;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;

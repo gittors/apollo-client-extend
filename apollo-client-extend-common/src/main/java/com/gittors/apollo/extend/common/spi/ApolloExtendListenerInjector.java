@@ -1,4 +1,4 @@
-package com.gittors.apollo.extend.common.internals;
+package com.gittors.apollo.extend.common.spi;
 
 import java.util.List;
 

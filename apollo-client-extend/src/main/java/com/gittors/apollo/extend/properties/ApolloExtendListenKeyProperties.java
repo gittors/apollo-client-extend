@@ -17,16 +17,12 @@ import java.util.Set;
 public class ApolloExtendListenKeyProperties {
 
     /**
-     * 监听Key配置：ADD 操作: {Key: 命名空间名称， value: 监听Key集合}
-     * 备注：此配置的作用是，当 {@link com.gittors.apollo.extend.common.constant.CommonApolloConstant#APOLLO_EXTEND_NAMESPACE}
-     * 的管理配置“新增”时，所管理命名空间的配置生效
+     * 配置命名空间的哪些配置生效
      */
     private Map<String, Set<String>> addMap = Maps.newLinkedHashMap();
 
     /**
-     * 监听Key配置：DELETE 操作：{key: 命名空间名称， value: 监听Key集合}
-     * 备注：此配置的作用是，当 {@link com.gittors.apollo.extend.common.constant.CommonApolloConstant#APOLLO_EXTEND_NAMESPACE}
-     * 的管理配置“删除”时，所管理命名空间的配置生效
+     * 配置命名空间的哪些配置失效
      */
     private Map<String, Set<String>> delMap = Maps.newLinkedHashMap();
 }

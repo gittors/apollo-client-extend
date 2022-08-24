@@ -91,6 +91,7 @@ public class AdminConfigEndpoint {
         }
         BinderRefreshBinderEvent binderRefreshBinderEvent = BinderRefreshBinderEvent.getInstance();
         binderRefreshBinderEvent.setData(data);
+        binderRefreshBinderEvent.setSource("AdminConfigEndpoint#update");
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
         eventPublisher.asyncPublish(binderRefreshBinderEvent);
     }

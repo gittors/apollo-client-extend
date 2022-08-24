@@ -1,6 +1,6 @@
 package com.gittors.apollo.extend.binder.spi;
 
-import com.gittors.apollo.extend.common.spi.Ordered;
+import com.gittors.apollo.extend.common.service.Ordered;
 
 /**
  * @author zlliu

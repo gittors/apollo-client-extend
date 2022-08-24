@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.chain.spi;
 
 import com.gittors.apollo.extend.chain.chain.ProcessorChain;
-import com.gittors.apollo.extend.common.spi.Ordered;
+import com.gittors.apollo.extend.common.service.Ordered;
 
 /**
  * @author zlliu

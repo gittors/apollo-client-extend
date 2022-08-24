@@ -2,6 +2,7 @@ package com.gittors.apollo.extend.admin.web.config;
 
 import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -18,6 +19,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @date 2020/8/24 16:27
  */
 @Configuration
+@ConditionalOnProperty(
+        name = "knife4j.swagger.enable",
+        havingValue = "true",
+        matchIfMissing = true
+)
 @EnableSwagger2
 @EnableKnife4j
 public class SwaggerConfiguration {

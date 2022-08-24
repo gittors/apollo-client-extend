@@ -19,10 +19,13 @@ public class BinderRefreshBinderEvent {
      */
     private Map<String, String> data = Maps.newHashMap();
 
-    private static BinderRefreshBinderEvent INSTANCE = new BinderRefreshBinderEvent();
+    /**
+     * 消息来源
+     */
+    private String source = "UNKNOWN";
 
     public static BinderRefreshBinderEvent getInstance() {
-        return INSTANCE;
+        return new BinderRefreshBinderEvent();
     }
 
 }

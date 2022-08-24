@@ -6,9 +6,13 @@ import com.gittors.apollo.extend.admin.webflux.spi.ApolloExtendAdminWebfluxProce
 import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.manager.CacheManager;
-import com.gittors.apollo.extend.common.spi.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.gittors.apollo.extend.spi.ApolloExtendNameSpaceManager;
+import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
+import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -16,14 +20,19 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.CompositePropertySource;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MapPropertySource;
 import org.springframework.http.HttpStatus;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author zlliu
@@ -128,7 +137,8 @@ public class DefaultServiceHandler implements ServiceHandler {
 
             Map<String, Map<String, String>> configMap = extendNameSpaceManager.getAddNamespaceConfig(newNamespaceSet);
 
-            extendAdminWebfluxProcessor.process(applicationContext, configMap);
+            extendAdminWebfluxProcessor.process(applicationContext, configMap, "ApolloExtendAdminWebFlux.DefaultServiceHandler#namespaceinject");
+            injectPostHandler(newNamespaceSet);
             return null;
         }
 
@@ -145,8 +155,77 @@ public class DefaultServiceHandler implements ServiceHandler {
 
             Map<String, Map<String, String>> configMap = extendNameSpaceManager.getDeleteNamespaceConfig(newNamespaceSet);
 
-            extendAdminWebfluxProcessor.process(applicationContext, configMap);
+            extendAdminWebfluxProcessor.process(applicationContext, configMap, "ApolloExtendAdminWebFlux.DefaultServiceHandler#namespacedelete");
+            deletePostHandler(newNamespaceSet);
             return null;
+        }
+
+        private void injectPostHandler(Set<String> namespaceSet) {
+            ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
+            CompositePropertySource compositePropertySource = ApolloExtendUtils.getCompositePropertySource(environment);
+
+            boolean contains = ApolloExtendUtils.contains(compositePropertySource.getPropertySources(), CommonApolloConstant.ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME);
+            if (contains) {
+                List<MapPropertySource> list = compositePropertySource.getPropertySources().stream()
+                        .filter(propertySource -> CommonApolloConstant.ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME.equals(propertySource.getName()))
+                        .map(propertySource -> (MapPropertySource) propertySource)
+                        .collect(Collectors.toList());
+                for (MapPropertySource mapPropertySource : list) {
+                    Map<String, Object> source = mapPropertySource.getSource();
+                    String str = (String) source.get(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE);
+                    Set<String> oldNamespaceSet = Sets.newHashSet(NAMESPACE_SPLITTER.splitToList(str));
+                    oldNamespaceSet.addAll(namespaceSet);
+                    String collect = oldNamespaceSet.stream().collect(Collectors.joining(CommonApolloConstant.DEFAULT_SEPARATOR));
+                    source.put(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE, collect);
+                }
+            } else {
+                String collect = namespaceSet.stream().collect(Collectors.joining(CommonApolloConstant.DEFAULT_SEPARATOR));
+                Map<String, Object> map = Maps.newHashMap();
+                map.put(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE, collect);
+
+                compositePropertySource.addPropertySource(new MapPropertySource(CommonApolloConstant.ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME, map));
+            }
+        }
+
+        private void deletePostHandler(Set<String> namespaceSet) {
+            ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
+            CompositePropertySource compositePropertySource = ApolloExtendUtils.getCompositePropertySource(environment);
+            List<ApolloClientExtendConfig> list = compositePropertySource.getPropertySources().stream()
+                    .filter(propertySource -> propertySource instanceof CompositePropertySource)
+                    .filter(p -> p.containsProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE))
+                    .map(propertySource -> ((CompositePropertySource) propertySource).getPropertySources())
+                    .flatMap(Collection::stream)
+                    .map(p -> (ApolloClientExtendConfig) p.getSource())
+                    .collect(Collectors.toList());
+            for (ApolloClientExtendConfig apolloClientExtendConfig : list) {
+                String nameSpaceConfig = apolloClientExtendConfig.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE, CommonApolloConstant.NAMESPACE_APPLICATION);
+                Set<String> oldNamespaceSet = Sets.newHashSet(NAMESPACE_SPLITTER.splitToList(nameSpaceConfig));
+                Set<String> commonSet = Sets.intersection(oldNamespaceSet, namespaceSet);
+                if (CollectionUtils.isNotEmpty(commonSet)) {
+                    String collect = Sets.difference(oldNamespaceSet, commonSet).stream().collect(Collectors.joining(CommonApolloConstant.DEFAULT_SEPARATOR));
+                    apolloClientExtendConfig.setProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE, collect);
+                }
+            }
+            //  如果没有配置，则找 MapPropertySource
+            if (CollectionUtils.isEmpty(list)) {
+                List<Map<String, Object>> propertySourceList = compositePropertySource.getPropertySources().stream()
+                        .filter(propertySource -> propertySource instanceof MapPropertySource)
+                        .filter(p -> p.containsProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE))
+                        .map(propertySource -> ((MapPropertySource) propertySource).getSource())
+                        .collect(Collectors.toList())
+                        ;
+                if (CollectionUtils.isNotEmpty(propertySourceList)) {
+                    for (Map<String, Object> propertySourceMap : propertySourceList) {
+                        String nameSpaceConfig = (String) propertySourceMap.get(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE);
+                        Set<String> oldNamespaceSet = Sets.newHashSet(NAMESPACE_SPLITTER.splitToList(nameSpaceConfig));
+                        Set<String> commonSet = Sets.intersection(oldNamespaceSet, namespaceSet);
+                        if (CollectionUtils.isNotEmpty(commonSet)) {
+                            String collect = Sets.difference(oldNamespaceSet, commonSet).stream().collect(Collectors.joining(CommonApolloConstant.DEFAULT_SEPARATOR));
+                            propertySourceMap.put(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE, collect);
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -8,7 +8,7 @@ import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.context.ApplicationContext;
 
 import java.util.List;
 import java.util.Map;
@@ -31,8 +31,8 @@ public class ApolloExtendDeleteListenCallback extends AbstractApolloExtendListen
      */
     private Semaphore semaphore = new Semaphore(1);
 
-    public ApolloExtendDeleteListenCallback(ConfigurableEnvironment environment) {
-        super(environment);
+    public ApolloExtendDeleteListenCallback(ApplicationContext applicationContext) {
+        super(applicationContext);
     }
 
     @Override

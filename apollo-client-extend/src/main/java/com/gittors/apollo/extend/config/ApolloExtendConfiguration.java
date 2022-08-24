@@ -10,10 +10,9 @@ import com.gittors.apollo.extend.service.ApolloExtendDeleteListenCallback;
 import com.gittors.apollo.extend.service.ApolloExtendGlobalListenCallback;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Environment;
 
 /**
  * @author zlliu
@@ -40,8 +39,8 @@ public class ApolloExtendConfiguration {
             matchIfMissing = true,
             havingValue = "true"
     )
-    public ApolloExtendCallback apolloExtendAddCallback(Environment environment) {
-        return new ApolloExtendAddListenCallback((ConfigurableEnvironment) environment);
+    public ApolloExtendCallback apolloExtendAddCallback(ApplicationContext applicationContext) {
+        return new ApolloExtendAddListenCallback(applicationContext);
     }
 
     @Bean(ApolloExtendDeleteListenCallback.BEAN_NAME)
@@ -51,8 +50,8 @@ public class ApolloExtendConfiguration {
             matchIfMissing = true,
             havingValue = "true"
     )
-    public ApolloExtendCallback apolloExtendDeleteCallback(Environment environment) {
-        return new ApolloExtendDeleteListenCallback((ConfigurableEnvironment) environment);
+    public ApolloExtendCallback apolloExtendDeleteCallback(ApplicationContext applicationContext) {
+        return new ApolloExtendDeleteListenCallback(applicationContext);
     }
 
     @Bean(ApolloExtendGlobalListenCallback.BEAN_NAME)
@@ -62,8 +61,8 @@ public class ApolloExtendConfiguration {
             matchIfMissing = true,
             havingValue = "true"
     )
-    public ApolloExtendCallback apolloExtendGlobalListenCallback(Environment environment) {
-        return new ApolloExtendGlobalListenCallback((ConfigurableEnvironment) environment);
+    public ApolloExtendCallback apolloExtendGlobalListenCallback(ApplicationContext applicationContext) {
+        return new ApolloExtendGlobalListenCallback(applicationContext);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.gittors.apollo.extend.common.spi;
+package com.gittors.apollo.extend.common.service;
 
 /**
  * @author zlliu

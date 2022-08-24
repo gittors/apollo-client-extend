@@ -15,7 +15,7 @@ import java.util.Map;
 public class DefaultApolloExtendAdminWebfluxProcessor implements ApolloExtendAdminWebfluxProcessor<ApplicationContext> {
     @Override
     public void process(ApplicationContext request, Object... objects) {
-        pushBinder(request, (Map<String, Map<String, String>>) objects[0]);
+        pushBinder(request, (Map<String, Map<String, String>>) objects[0], (String) objects[1]);
     }
 
     /**
@@ -23,12 +23,13 @@ public class DefaultApolloExtendAdminWebfluxProcessor implements ApolloExtendAdm
      * @param context
      * @param config
      */
-    protected void pushBinder(ApplicationContext context, Map<String, Map<String, String>> config) {
+    protected void pushBinder(ApplicationContext context, Map<String, Map<String, String>> config, String source) {
         Map<String, String> data = Maps.newHashMap();
         config.values().forEach(map -> data.putAll(map));
 
         BinderRefreshBinderEvent binderRefreshBinderEvent = BinderRefreshBinderEvent.getInstance();
         binderRefreshBinderEvent.setData(data);
+        binderRefreshBinderEvent.setSource(source);
         EventPublisher eventPublisher = context.getBean(EventPublisher.class);
         eventPublisher.asyncPublish(binderRefreshBinderEvent);
     }

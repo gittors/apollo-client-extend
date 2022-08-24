@@ -3,8 +3,8 @@ package com.gittors.apollo.extend.chain.chain;
 import com.gittors.apollo.extend.chain.spi.ChainBuilder;
 import com.gittors.apollo.extend.chain.spi.DefaultChainBuilder;
 import com.gittors.apollo.extend.chain.utils.AssertUtils;
-import com.gittors.apollo.extend.common.spi.Ordered;
-import com.gittors.apollo.extend.common.spi.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.Ordered;
+import com.gittors.apollo.extend.common.service.ServiceLookUp;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

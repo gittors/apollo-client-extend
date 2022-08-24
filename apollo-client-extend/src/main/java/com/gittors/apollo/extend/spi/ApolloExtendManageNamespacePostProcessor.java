@@ -1,6 +1,6 @@
 package com.gittors.apollo.extend.spi;
 
-import com.gittors.apollo.extend.common.spi.Ordered;
+import com.gittors.apollo.extend.common.service.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.List;

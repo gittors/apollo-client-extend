@@ -4,7 +4,7 @@ import com.ctrip.framework.apollo.spring.boot.ApolloApplicationContextInitialize
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.gittors.apollo.extend.chain.spi.ChainProcessor;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
-import com.gittors.apollo.extend.common.spi.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -29,35 +29,47 @@ import org.springframework.core.env.ConfigurableEnvironment;
 public class ApolloExtendApplicationContextInitializer implements
         ApplicationContextInitializer<ConfigurableApplicationContext>, EnvironmentPostProcessor, Ordered {
 
-    private static final String APOLLO_PLUGIN_ENABLED = "apollo.client.extension.plugin.enabled";
+    private static final String APOLLO_PLUGIN_ENABLED = "apollo.client.extend.plugin.enabled";
 
     private static final String[] APOLLO_SYSTEM_PROPERTIES = {"env"};
 
     private static final ChainProcessor chainProcessor = ServiceLookUp.loadPrimary(ChainProcessor.class);
 
+    public static final int DEFAULT_ORDER = ApolloApplicationContextInitializer.DEFAULT_ORDER + 100;
+
+    private int order = DEFAULT_ORDER;
+
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
-        Boolean enabled = environment.getProperty(APOLLO_PLUGIN_ENABLED, Boolean.class, Boolean.TRUE);
-        if (!enabled) {
+        if (!environment.getProperty(APOLLO_PLUGIN_ENABLED, Boolean.class, Boolean.TRUE)) {
             log.debug("Apollo config is not enabled for context {}, see property: ${{}}", applicationContext, APOLLO_PLUGIN_ENABLED);
             return;
         }
+        //  之所以用Apollo Bootstrap配置，是因为不配置这个开关，则意味着不会加载远端的application配置，注册NameSpace就无从谈起了
         if (!environment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED, Boolean.class, false)) {
             log.debug("Apollo bootstrap config is not enabled for context {}, see property: ${{}}", applicationContext, PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED);
             return;
         }
-        try {
-            //  解析管理命名空间并注册到Spring环境
-            chainProcessor.process(environment, "namespace injector", null);
-        } catch (Throwable throwable) {
-            log.error("#initialize error: ", throwable.getMessage());
+        if (environment.getPropertySources().contains(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
+            //  already initialized
+            return;
         }
+        initialize(environment);
     }
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment configurableEnvironment, SpringApplication springApplication) {
         initializeSystemProperty(configurableEnvironment);
+    }
+
+    private void initialize(ConfigurableEnvironment environment) {
+        try {
+            //  解析管理命名空间并注册到Spring环境
+            chainProcessor.process(environment, "namespace injector", null);
+        } catch (Throwable throwable) {
+            log.error("#initialize error: ", throwable);
+        }
     }
 
     void initializeSystemProperty(ConfigurableEnvironment environment) {
@@ -79,6 +91,6 @@ public class ApolloExtendApplicationContextInitializer implements
 
     @Override
     public int getOrder() {
-        return ApolloApplicationContextInitializer.DEFAULT_ORDER + 100;
+        return order;
     }
 }

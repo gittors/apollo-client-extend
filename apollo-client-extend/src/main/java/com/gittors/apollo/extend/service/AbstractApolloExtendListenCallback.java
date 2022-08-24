@@ -4,21 +4,23 @@ import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
 import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
-import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.gittors.apollo.extend.callback.AbstractApolloExtendCallback;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.enums.ChangeType;
+import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.spi.ApolloExtendListenPublish;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
 
 import java.util.List;
 import java.util.Map;
@@ -38,9 +40,11 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
             SpringInjector.getInstance(ConfigPropertySourceFactory.class);
 
     private ConfigurableEnvironment environment;
+    private BeanFactory beanFactory;
 
-    public AbstractApolloExtendListenCallback(ConfigurableEnvironment environment) {
-        this.environment = environment;
+    public AbstractApolloExtendListenCallback(ApplicationContext applicationContext) {
+        this.environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
+        this.beanFactory = applicationContext.getAutowireCapableBeanFactory();
     }
 
     @Override
@@ -52,9 +56,9 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
             return;
         }
         try {
+            ConfigChangeEvent changeEvent = (ConfigChangeEvent) objects[0];
             //  当前更新的key, 如： listen.key.addMap.application-test
-            String key = (String) objects[0];
-            ConfigChangeEvent changeEvent = (ConfigChangeEvent) objects[1];
+            String key = changeEvent.changedKeys().stream().findFirst().get();
             //  当前更新操作的命名空间
             String namespace = changeEvent.getNamespace();
             //  截取当前更新key的命名空间,如： listen.key.addMap.application-test ==> application-test
@@ -64,21 +68,7 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
                 return;
             }
 
-            //  1、根据当前命名空间key，找到对应管理配置：apollo.extend.namespace 的值
-            String propertySourceName = null;
-            //  application 命名空间
-            if (CommonApolloConstant.NAMESPACE_APPLICATION.equals(namespace)) {
-                propertySourceName = PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME;
-            } else {
-                propertySourceName = ApolloExtendUtils.getPropertySourceName(environment, namespace);
-            }
-            MutablePropertySources mutablePropertySources = environment.getPropertySources();
-            PropertySource propertySource = mutablePropertySources.get(propertySourceName);
-            if (propertySource == null) {
-                log.warn("#callback propertySource is null");
-                return;
-            }
-            //  获得 管理配置：apollo.extend.namespace 的配置值校验
+            //  1、获得 管理配置：apollo.extend.namespace 的配置值校验
             //  管理配置应该包含两部分：自身命名空间的 + application命名空间的
             String managerNamespaceConfig = getManagerConfig();
             if (check(managerNamespaceConfig, managerNamespace)) {
@@ -112,11 +102,18 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
             propertiesBeforeHandler(properties, defaultConfig, managerConfigMap.get(configPropertySource.getName()), changeType);
             //  刷新对象
             defaultConfig.updateConfig(properties, configPropertySource.getSource().getSourceType());
-            //  后置处理
+            //  后置处理-设置回调
             propertiesAfterHandler(defaultConfig, managerConfigMap.get(configPropertySource.getName()), changeType);
+            //  发布更新事件
+            publish(properties);
         } finally {
             semaphore.release();
         }
+    }
+
+    private void publish(Properties properties) {
+        ApolloExtendListenPublish publish = ServiceLookUp.loadPrimary(ApolloExtendListenPublish.class);
+        publish.doPublish(beanFactory, properties);
     }
 
     private String getManagerConfig() {

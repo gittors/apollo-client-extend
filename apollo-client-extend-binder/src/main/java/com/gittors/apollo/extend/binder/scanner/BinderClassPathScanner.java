@@ -3,7 +3,7 @@ package com.gittors.apollo.extend.binder.scanner;
 import com.gittors.apollo.extend.binder.context.BinderContext;
 import com.gittors.apollo.extend.binder.spi.BinderAnnotationProcessor;
 import com.gittors.apollo.extend.common.constant.CommonBinderConstant;
-import com.gittors.apollo.extend.common.spi.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanDefinitionStoreException;

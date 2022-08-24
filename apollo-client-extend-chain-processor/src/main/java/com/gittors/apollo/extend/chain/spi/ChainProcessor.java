@@ -3,7 +3,7 @@ package com.gittors.apollo.extend.chain.spi;
 import com.gittors.apollo.extend.chain.chain.ChainProvider;
 import com.gittors.apollo.extend.chain.chain.Processor;
 import com.gittors.apollo.extend.chain.context.Context;
-import com.gittors.apollo.extend.common.spi.Ordered;
+import com.gittors.apollo.extend.common.service.Ordered;
 
 import java.util.Map;
 

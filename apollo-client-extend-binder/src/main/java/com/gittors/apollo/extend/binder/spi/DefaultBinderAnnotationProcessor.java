@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.binder.spi;
 
 import com.gittors.apollo.extend.common.constant.CommonBinderConstant;
-import com.gittors.apollo.extend.common.spi.Ordered;
+import com.gittors.apollo.extend.common.service.Ordered;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.util.ClassUtils;

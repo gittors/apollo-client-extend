@@ -2,7 +2,7 @@ package com.gittors.apollo.extend.binder.internals;
 
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.gittors.apollo.extend.binder.listener.AutoBinderConfigChangeListener;
-import com.gittors.apollo.extend.common.internals.ApolloExtendListenerInjector;
+import com.gittors.apollo.extend.common.spi.ApolloExtendListenerInjector;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.env.Environment;
 

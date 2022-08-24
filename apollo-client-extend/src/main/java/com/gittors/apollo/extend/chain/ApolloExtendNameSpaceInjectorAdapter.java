@@ -6,10 +6,11 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
 import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
+import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.gittors.apollo.extend.chain.chain.AbstractLinkedProcessor;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
-import com.gittors.apollo.extend.common.spi.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.gittors.apollo.extend.spi.ApolloExtendManageNamespacePostProcessor;
 import com.gittors.apollo.extend.spi.ManageNamespaceConfigClass;
 import com.gittors.apollo.extend.support.ApolloExtendPostProcessorDelegate;
@@ -54,13 +55,21 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
             parse(environment, namespace);
         }
         if (MapUtils.isNotEmpty(this.configClassMap)) {
-            CompositePropertySource composite;
+            CompositePropertySource bootstrapComposite = new CompositePropertySource(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
             for (ManageNamespaceConfigClass configClass : configClassMap.values()) {
                 if (configClass.getConfigPropertySource() != null) {
-                    composite = new CompositePropertySource(configClass.getCompositePropertySourceName());
+                    CompositePropertySource composite = new CompositePropertySource(configClass.getCompositePropertySourceName());
                     composite.addPropertySource(configClass.getConfigPropertySource());
-                    environment.getPropertySources().addLast(composite);
+
+                    bootstrapComposite.addPropertySource(composite);
                 }
+            }
+            if (environment.getPropertySources().contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
+                environment.getPropertySources()
+                        .addAfter(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME, bootstrapComposite);
+            } else {
+                environment.getPropertySources()
+                        .addAfter(PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME, bootstrapComposite);
             }
             // invoke post processor
             ApolloExtendPostProcessorDelegate.invokeManageNamespacePostProcessor(environment, postProcessors, Lists.newArrayList(configClassMap.values()));
@@ -113,9 +122,8 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
 
         //  合并当前 Spring环境，并添加配置项用于查找
         ConfigPropertySource configPropertySource = configPropertySourceFactory.getConfigPropertySource(namespaceConfigClass.getNamespace(), config);
-        ConfigurableEnvironment standardEnvironment = ApolloExtendUtils.mergeEnvironment(environment, Lists.newArrayList(configPropertySource));
 
-        namespaceConfigClass.setCompositePropertySourceName(ApolloExtendUtils.getPropertySourceName(standardEnvironment, namespaceConfigClass.getNamespace()));
+        namespaceConfigClass.setCompositePropertySourceName(ApolloExtendUtils.getPropertySourceName(namespaceConfigClass.getNamespace()));
         namespaceConfigClass.setConfigPropertySource(configPropertySource);
 
         return null;
