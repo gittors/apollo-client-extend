@@ -17,5 +17,5 @@ public interface ApolloExtendManageNamespacePostProcessor extends Ordered {
      * @param environment
      * @param configClasses     代注册的命名空间配置
      */
-    void postProcessManageNamespace(ConfigurableEnvironment environment, List<ManageNamespaceConfigClass> configClasses);
+    void postProcessNamespaceManager(ConfigurableEnvironment environment, List<ManageNamespaceConfigClass> configClasses);
 }

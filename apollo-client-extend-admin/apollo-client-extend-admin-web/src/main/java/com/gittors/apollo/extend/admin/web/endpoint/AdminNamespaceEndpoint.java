@@ -5,6 +5,8 @@ import com.gittors.apollo.extend.admin.web.spi.ApolloExtendAdminProcessor;
 import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
+import com.gittors.apollo.extend.env.SimplePropertySource;
 import com.gittors.apollo.extend.spi.ApolloExtendNameSpaceManager;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
@@ -18,7 +20,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -99,22 +99,16 @@ public class AdminNamespaceEndpoint {
 
     private void injectPostHandler(Set<String> namespaceSet) {
         ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
-        CompositePropertySource compositePropertySource = ApolloExtendUtils.getCompositePropertySource(environment);
+        SimpleCompositePropertySource compositePropertySource = ApolloExtendUtils.getCompositePropertySource(environment);
 
-        boolean contains = ApolloExtendUtils.contains(compositePropertySource.getPropertySources(), CommonApolloConstant.ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME);
-        if (contains) {
-            List<MapPropertySource> list = compositePropertySource.getPropertySources().stream()
-                    .filter(propertySource -> CommonApolloConstant.ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME.equals(propertySource.getName()))
-                    .map(propertySource -> (MapPropertySource) propertySource)
-                    .collect(Collectors.toList());
-            for (MapPropertySource mapPropertySource : list) {
-                Map<String, Object> source = mapPropertySource.getSource();
-                String str = (String) source.get(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE);
-                Set<String> oldNamespaceSet = Sets.newHashSet(NAMESPACE_SPLITTER.splitToList(str));
-                oldNamespaceSet.addAll(namespaceSet);
-                String collect = oldNamespaceSet.stream().collect(Collectors.joining(CommonApolloConstant.DEFAULT_SEPARATOR));
-                source.put(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE, collect);
-            }
+        if (compositePropertySource.contains(CommonApolloConstant.ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME)) {
+            MapPropertySource mapPropertySource = (MapPropertySource) compositePropertySource.get(CommonApolloConstant.ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME);
+            Map<String, Object> source = mapPropertySource.getSource();
+            String str = (String) source.get(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE);
+            Set<String> oldNamespaceSet = Sets.newHashSet(NAMESPACE_SPLITTER.splitToList(str));
+            oldNamespaceSet.addAll(namespaceSet);
+            String collect = oldNamespaceSet.stream().collect(Collectors.joining(CommonApolloConstant.DEFAULT_SEPARATOR));
+            source.put(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE, collect);
         } else {
             String collect = namespaceSet.stream().collect(Collectors.joining(CommonApolloConstant.DEFAULT_SEPARATOR));
             Map<String, Object> map = Maps.newHashMap();
@@ -126,13 +120,12 @@ public class AdminNamespaceEndpoint {
 
     private void deletePostHandler(Set<String> namespaceSet) {
         ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
-        CompositePropertySource compositePropertySource = ApolloExtendUtils.getCompositePropertySource(environment);
+        SimpleCompositePropertySource compositePropertySource = ApolloExtendUtils.getCompositePropertySource(environment);
         List<ApolloClientExtendConfig> list = compositePropertySource.getPropertySources().stream()
-                .filter(propertySource -> propertySource instanceof CompositePropertySource)
-                .filter(p -> p.containsProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE))
-                .map(propertySource -> ((CompositePropertySource) propertySource).getPropertySources())
-                .flatMap(Collection::stream)
-                .map(p -> (ApolloClientExtendConfig) p.getSource())
+                .filter(propertySource -> propertySource instanceof SimplePropertySource)
+                .filter(propertySource -> propertySource.containsProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE))
+                .map(propertySource -> ((SimplePropertySource) propertySource))
+                .map(config -> (ApolloClientExtendConfig) config)
                 .collect(Collectors.toList());
         for (ApolloClientExtendConfig apolloClientExtendConfig : list) {
             String nameSpaceConfig = apolloClientExtendConfig.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE, CommonApolloConstant.NAMESPACE_APPLICATION);

@@ -1,12 +1,7 @@
 package com.gittors.apollo.extend.admin.web.handler;
 
-import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
-import com.gittors.apollo.extend.common.manager.CacheManager;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,17 +15,13 @@ import java.util.Map;
  * @date 2020/8/25 18:51
  */
 @Slf4j
-public class RequestInterceptor extends HandlerInterceptorAdapter {
+public class RequestInterceptor extends AbstractInterceptor {
 
     public static final String BEAN_NAME = "requestInterceptor";
 
-    @Autowired
-    @Qualifier(ApolloExtendAdminConstant.EXTEND_ADMIN_CACHE_MANAGER)
-    private CacheManager cacheManager;
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (cacheManager.get(request.getRequestURI()) != null) {
+        if (getHandlerPredicate().match(request)) {
             fail(response, "Request too Frequently!");
             return false;
         }

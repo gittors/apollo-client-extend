@@ -1,9 +1,9 @@
 package com.gittors.apollo.extend.spi;
 
 import com.ctrip.framework.apollo.Config;
+import com.gittors.apollo.extend.env.SimplePropertySource;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.core.env.PropertySource;
 
 import java.util.Objects;
 
@@ -22,16 +22,11 @@ public class ManageNamespaceConfigClass {
     private Config config;
 
     /**
-     * PropertySource configuration suffix
-     */
-    private String compositePropertySourceName;
-
-    private PropertySource configPropertySource;
-
-    /**
      * 管理配置前缀
      */
     private String manageConfigPrefix;
+
+    private SimplePropertySource simplePropertySource;
 
     public ManageNamespaceConfigClass() {
     }
@@ -41,9 +36,8 @@ public class ManageNamespaceConfigClass {
         this.config = config;
     }
 
-    public ManageNamespaceConfigClass(Config config, String compositePropertySourceName) {
+    public ManageNamespaceConfigClass(Config config, String propertySourceName) {
         this.config = config;
-        this.compositePropertySourceName = compositePropertySourceName;
     }
 
     @Override
@@ -67,7 +61,6 @@ public class ManageNamespaceConfigClass {
     public String toString() {
         return "ManageNamespaceConfigClass{" +
                 "namespace='" + namespace + '\'' +
-                ", compositePropertySourceName='" + compositePropertySourceName + '\'' +
                 '}';
     }
 }

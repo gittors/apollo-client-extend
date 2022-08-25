@@ -21,11 +21,11 @@ public final class ApolloExtendPostProcessorDelegate {
      * @param postProcessors
      * @param configClasses
      */
-    public static void invokeManageNamespacePostProcessor(ConfigurableEnvironment environment,
-                                                          List<ApolloExtendManageNamespacePostProcessor> postProcessors,
-                                                          List<ManageNamespaceConfigClass> configClasses) {
+    public static void invokeManagerPostProcessor(ConfigurableEnvironment environment,
+                                                  List<ApolloExtendManageNamespacePostProcessor> postProcessors,
+                                                  List<ManageNamespaceConfigClass> configClasses) {
         for (ApolloExtendManageNamespacePostProcessor processor : postProcessors) {
-            processor.postProcessManageNamespace(environment, configClasses);
+            processor.postProcessNamespaceManager(environment, configClasses);
         }
     }
 }

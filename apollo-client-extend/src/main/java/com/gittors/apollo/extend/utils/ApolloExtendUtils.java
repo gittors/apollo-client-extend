@@ -3,7 +3,6 @@ package com.gittors.apollo.extend.utils;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.ctrip.framework.apollo.spring.property.AutoUpdateConfigChangeListener;
 import com.gittors.apollo.extend.callback.ApolloExtendCallback;
@@ -12,6 +11,8 @@ import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.gittors.apollo.extend.common.spi.ApolloExtendListenerInjector;
 import com.gittors.apollo.extend.context.ApolloExtendContext;
+import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
+import com.gittors.apollo.extend.env.SimplePropertySource;
 import com.gittors.apollo.extend.properties.ApolloExtendGlobalListenKeyProperties;
 import com.gittors.apollo.extend.properties.ApolloExtendListenKeyProperties;
 import com.gittors.apollo.extend.spi.ApolloConfigChangeCallBack;
@@ -29,10 +30,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
-import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
 import java.util.AbstractMap;
@@ -88,7 +87,7 @@ public final class ApolloExtendUtils {
      * @param environment
      * @param beanFactory
      */
-    public static void addListener(ConfigPropertySource configPropertySource,
+    public static void addListener(SimplePropertySource configPropertySource,
                                    ConfigurableEnvironment environment, BeanFactory beanFactory) {
         if (configPropertySource != null) {
             configPropertySource.addChangeListener(getChangeListener(ApolloExtendContext.INSTANCE.getCallbackMap()));
@@ -112,7 +111,7 @@ public final class ApolloExtendUtils {
      * @param environment
      * @param beanFactory
      */
-    public static void addAutoUpdateListener(ConfigPropertySource configPropertySource,
+    public static void addAutoUpdateListener(SimplePropertySource configPropertySource,
                                               ConfigurableEnvironment environment, BeanFactory beanFactory) {
         if (configPropertySource != null) {
             AutoUpdateConfigChangeListener autoUpdateConfigChangeListener = new AutoUpdateConfigChangeListener(
@@ -218,7 +217,7 @@ public final class ApolloExtendUtils {
      * @param propertySource
      * @param configEntry
      */
-    public static void configValidHandler(ConfigPropertySource propertySource, Map.Entry<Boolean, Set<String>> configEntry,
+    public static void configValidHandler(SimplePropertySource propertySource, Map.Entry<Boolean, Set<String>> configEntry,
                                           ApolloExtendFactory.FilterPredicate filterPredicate) {
         //  如果是FALSE全部生效，不用设置回调
         if (configEntry.getKey()) {
@@ -269,7 +268,7 @@ public final class ApolloExtendUtils {
      * @param configPropertySourceList
      * @return
      */
-    public static ConfigurableEnvironment mergeEnvironment(ConfigurableEnvironment environment, List<ConfigPropertySource> configPropertySourceList) {
+    public static ConfigurableEnvironment mergeEnvironment(ConfigurableEnvironment environment, List<SimplePropertySource> configPropertySourceList) {
         ConfigurableEnvironment standardEnvironment = new StandardEnvironment();
         standardEnvironment.merge(environment);
 
@@ -279,41 +278,14 @@ public final class ApolloExtendUtils {
         return standardEnvironment;
     }
 
-    /**
-     * 判断是否存在 propertySource
-     * @param propertySources
-     * @param propertySourceName
-     * @return
-     */
-    public static boolean contains(Collection<PropertySource<?>> propertySources, String propertySourceName) {
-        return propertySources.stream()
-                .anyMatch(propertySource -> propertySourceName.equals(propertySource.getName()));
-    }
-
-    /**
-     * 从环境中删除对应的 propertySource
-     * @param propertySources
-     * @param propertySourceNameList
-     */
-    public static void removePropertySource(Collection<PropertySource<?>> propertySources, List<String> propertySourceNameList) {
-        for (Iterator<PropertySource<?>> iterator = propertySources.iterator(); iterator.hasNext();) {
-            PropertySource<?> propertySource = iterator.next();
-            boolean match = propertySourceNameList.stream()
-                    .anyMatch(propertySourceName -> propertySourceName.equals(propertySource.getName()));
-            if (match) {
-                iterator.remove();
-            }
-        }
-    }
-
-    public static CompositePropertySource getCompositePropertySource(ConfigurableEnvironment environment) {
+    public static SimpleCompositePropertySource getCompositePropertySource(ConfigurableEnvironment environment) {
         MutablePropertySources mutablePropertySources = environment.getPropertySources();
-        CompositePropertySource bootstrapComposite;
+        SimpleCompositePropertySource bootstrapComposite;
         if (!mutablePropertySources.contains(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
-            bootstrapComposite = new CompositePropertySource(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
+            bootstrapComposite = new SimpleCompositePropertySource(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
             mutablePropertySources.addAfter(PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME, bootstrapComposite);
         } else {
-            bootstrapComposite = (CompositePropertySource) mutablePropertySources.get(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
+            bootstrapComposite = (SimpleCompositePropertySource) mutablePropertySources.get(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
         }
         return bootstrapComposite;
     }
