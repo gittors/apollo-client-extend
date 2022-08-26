@@ -1,8 +1,7 @@
-package com.gittors.apollo.extend.env;
+package com.gittors.apollo.extend.common.env;
 
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
 import org.springframework.core.env.EnumerablePropertySource;
 
 import java.util.Set;
@@ -23,6 +22,11 @@ public class SimplePropertySource extends EnumerablePropertySource<Config> {
         super(name, source);
     }
 
+    public SimplePropertySource(String name, String namespace, Config source) {
+        super(name, source);
+        this.namespace = namespace;
+    }
+
     @Override
     public String[] getPropertyNames() {
         Set<String> propertyNames = this.source.getPropertyNames();
@@ -41,21 +45,9 @@ public class SimplePropertySource extends EnumerablePropertySource<Config> {
         this.source.addChangeListener(listener);
     }
 
-    public static SimplePropertySource copy(ConfigPropertySource configPropertySource) {
-        SimplePropertySource simplePropertySource = new SimplePropertySource(configPropertySource.getName(), configPropertySource.getSource());
-        simplePropertySource.setNamespace(configPropertySource.getName());
-        return simplePropertySource;
-    }
-
     public static SimplePropertySource of(String name, SimplePropertySource propertySource) {
         SimplePropertySource simplePropertySource = new SimplePropertySource(name, propertySource.getSource());
         simplePropertySource.setNamespace(propertySource.getNamespace());
-        return simplePropertySource;
-    }
-
-    public static SimplePropertySource ofConfig(String name, ConfigPropertySource configPropertySource) {
-        SimplePropertySource simplePropertySource = new SimplePropertySource(name, configPropertySource.getSource());
-        simplePropertySource.setNamespace(configPropertySource.getName());
         return simplePropertySource;
     }
 

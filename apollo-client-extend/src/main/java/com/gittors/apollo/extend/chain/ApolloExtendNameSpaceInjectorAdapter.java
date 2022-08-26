@@ -4,17 +4,15 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
-import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.gittors.apollo.extend.chain.chain.AbstractLinkedProcessor;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
+import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
-import com.gittors.apollo.extend.env.SimplePropertySource;
 import com.gittors.apollo.extend.spi.ApolloExtendManageNamespacePostProcessor;
 import com.gittors.apollo.extend.spi.ManageNamespaceConfigClass;
+import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.support.ApolloExtendPostProcessorDelegate;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import com.google.common.base.Splitter;
@@ -37,9 +35,6 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
 
     private static final Splitter NAMESPACE_SPLITTER = Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR)
             .omitEmptyStrings().trimResults();
-
-    private final ConfigPropertySourceFactory configPropertySourceFactory = SpringInjector
-            .getInstance(ConfigPropertySourceFactory.class);
 
     protected final Map<String, ManageNamespaceConfigClass> configClassMap = Maps.newLinkedHashMap();
 
@@ -115,9 +110,11 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
                 parse(environment, namespace);
             }
         }
-        ConfigPropertySource propertySource = configPropertySourceFactory.getConfigPropertySource(configClass.getNamespace(), config);
         String propertySourceName = ApolloExtendUtils.getPropertySourceName(configClass.getNamespace());
-        configClass.setSimplePropertySource(SimplePropertySource.ofConfig(propertySourceName, propertySource));
+        ApolloExtendFactory.PropertySourceFactory factory =
+                ApolloExtendUtils.getPropertySourceFactory(propertySourceName, configClass.getNamespace(), config);
+        SimplePropertySource simplePropertySource = factory.createPropertySource(true, true, null);
+        configClass.setSimplePropertySource(simplePropertySource);
         return null;
     }
 

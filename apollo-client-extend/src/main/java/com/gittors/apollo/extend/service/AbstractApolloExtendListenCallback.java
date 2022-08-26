@@ -1,17 +1,16 @@
 package com.gittors.apollo.extend.service;
 
-import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
-import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.gittors.apollo.extend.callback.AbstractApolloExtendCallback;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
+import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
 import com.gittors.apollo.extend.common.enums.ChangeType;
+import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.gittors.apollo.extend.spi.ApolloExtendListenPublish;
-import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
+import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -24,8 +23,6 @@ import org.springframework.core.env.MutablePropertySources;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
@@ -36,9 +33,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public abstract class AbstractApolloExtendListenCallback extends AbstractApolloExtendCallback {
-    private final ConfigPropertySourceFactory configPropertySourceFactory =
-            SpringInjector.getInstance(ConfigPropertySourceFactory.class);
-
     private ConfigurableEnvironment environment;
     private BeanFactory beanFactory;
 
@@ -59,8 +53,6 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
             ConfigChangeEvent changeEvent = (ConfigChangeEvent) objects[0];
             //  当前更新的key, 如： listen.key.addMap.application-test
             String key = changeEvent.changedKeys().stream().findFirst().get();
-            //  当前更新操作的命名空间
-            String namespace = changeEvent.getNamespace();
             //  截取当前更新key的命名空间,如： listen.key.addMap.application-test ==> application-test
             String managerNamespace = key.substring(key.lastIndexOf(".") + 1);
             if (StringUtils.isBlank(managerNamespace)) {
@@ -84,36 +76,31 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
             Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, newNamespaceSet, changeType);
 
             //  获取当前更新key对应的命名空间
-            //  获得propertySource, 相同的取最后一个
-            Optional<ConfigPropertySource> optional = configPropertySourceFactory.getAllConfigPropertySources()
-                    .stream()
-                    .filter(configPropertySource -> configPropertySource.getSource().getSourceType() != ConfigSourceType.NONE)
-                    .filter(configPropertySource -> managerNamespace.equals(configPropertySource.getName()))
-                    .reduce((first, second) -> second)
-                    ;
-            if (!optional.isPresent()) {
+            SimplePropertySource propertySource = ApolloExtendUtils.findPropertySource(ApolloPropertySourceContext.INSTANCE.getPropertySources(),
+                    (source) -> source.getNamespace().equals(managerNamespace));
+            if (propertySource == null) {
                 log.warn("#callback configPropertySource can't be find");
                 return;
             }
-            ConfigPropertySource configPropertySource = optional.get();
-            ApolloClientExtendConfig defaultConfig = (ApolloClientExtendConfig) configPropertySource.getSource();
-            Properties properties = new Properties();
-            //  前置处理
-            propertiesBeforeHandler(properties, defaultConfig, managerConfigMap.get(configPropertySource.getName()), changeType);
-            //  刷新对象
-            defaultConfig.updateConfig(properties, configPropertySource.getSource().getSourceType());
-            //  后置处理-设置回调
-            propertiesAfterHandler(defaultConfig, managerConfigMap.get(configPropertySource.getName()), changeType);
+            ApolloExtendFactory.DataFilter dataFilter = ApolloExtendUtils.getDataFilterPredicate();
+            Map<String, String> map = dataFilter.filter(propertySource, managerConfigMap.get(propertySource.getNamespace()));
+            ApolloExtendFactory.PropertyFilterPredicate filterPredicate = getPropertySourcePredicate(changeType);
+            //  设置配置部分生效
+            ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getNamespace()), filterPredicate);
             //  发布更新事件
-            publish(properties);
+            publish(managerNamespace, map);
+        } catch (Exception exception) {
+            log.error("#callback error: ", exception);
         } finally {
             semaphore.release();
         }
     }
 
-    private void publish(Properties properties) {
+    private void publish(String namespace, Map<String, String> map) {
         ApolloExtendListenPublish publish = ServiceLookUp.loadPrimary(ApolloExtendListenPublish.class);
-        publish.doPublish(beanFactory, properties);
+        Map<String, Map<String, String>> data = Maps.newHashMap();
+        data.put(namespace, map);
+        publish.doPublish(beanFactory, data);
     }
 
     private String getManagerConfig() {
@@ -164,22 +151,8 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
         throw new RuntimeException("changeType not supported");
     }
 
-    /**
-     * 配置前置处理：新增或删除配置
-     * @param sourceProperties
-     * @param defaultConfig
-     * @param configEntry
-     */
-    protected void propertiesBeforeHandler(final Properties sourceProperties, final ApolloClientExtendConfig defaultConfig,
-                                           final Map.Entry<Boolean, Set<String>> configEntry, final ChangeType changeType) {
-        throw new RuntimeException("propertiesPostHandler not supported");
+    protected ApolloExtendFactory.PropertyFilterPredicate getPropertySourcePredicate(ChangeType changeType) {
+        throw new RuntimeException("getPropertySourcePredicate not supported");
     }
 
-    /**
-     * 配置后置处理：添加配置回调等
-     * @param defaultConfig
-     * @param configEntry
-     */
-    protected void propertiesAfterHandler(final ApolloClientExtendConfig defaultConfig, final Map.Entry<Boolean, Set<String>> configEntry, final ChangeType changeType) {
-    }
 }

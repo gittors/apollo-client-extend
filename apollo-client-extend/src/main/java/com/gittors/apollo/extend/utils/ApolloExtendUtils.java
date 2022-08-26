@@ -7,12 +7,13 @@ import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.ctrip.framework.apollo.spring.property.AutoUpdateConfigChangeListener;
 import com.gittors.apollo.extend.callback.ApolloExtendCallback;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
+import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
 import com.gittors.apollo.extend.common.enums.ChangeType;
+import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.gittors.apollo.extend.common.spi.ApolloExtendListenerInjector;
 import com.gittors.apollo.extend.context.ApolloExtendContext;
 import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
-import com.gittors.apollo.extend.env.SimplePropertySource;
 import com.gittors.apollo.extend.properties.ApolloExtendGlobalListenKeyProperties;
 import com.gittors.apollo.extend.properties.ApolloExtendListenKeyProperties;
 import com.gittors.apollo.extend.spi.ApolloConfigChangeCallBack;
@@ -205,6 +206,7 @@ public final class ApolloExtendUtils {
             if (CollectionUtils.isNotEmpty(listenKeyAll)) {
                 managerConfigPrefix = new AbstractMap.SimpleEntry<>(Boolean.TRUE, listenKeyAll);
             } else {
+                //  没有找到管理配置
                 managerConfigPrefix = new AbstractMap.SimpleEntry<>(Boolean.FALSE, null);
             }
             map.put(namespace, managerConfigPrefix);
@@ -218,22 +220,23 @@ public final class ApolloExtendUtils {
      * @param configEntry
      */
     public static void configValidHandler(SimplePropertySource propertySource, Map.Entry<Boolean, Set<String>> configEntry,
-                                          ApolloExtendFactory.FilterPredicate filterPredicate) {
+                                          ApolloExtendFactory.PropertyFilterPredicate filterPredicate) {
         //  如果是FALSE全部生效，不用设置回调
+        //  configEntry.getKey()==FALSE, 代表没有找到管理配置
         if (configEntry.getKey()) {
             Properties sourceProperties = ((ApolloClientExtendConfig) propertySource.getSource()).getConfigRepository().getConfig();
             Properties properties = new Properties();
-            //  1根据配置监听Key 筛选生效属性
+            //  1.根据配置监听Key 筛选生效属性
             sourceProperties.stringPropertyNames()
                     .stream()
                     .filter(configKey -> filterPredicate.match(configKey, configEntry))
                     .forEach(configKey -> properties.setProperty(configKey, sourceProperties.getProperty(configKey, "")));
 
             ApolloClientExtendConfig defaultConfig = (ApolloClientExtendConfig) propertySource.getSource();
-            //  2刷新对象
+            //  2.刷新对象
             defaultConfig.updateConfig(properties, propertySource.getSource().getSourceType());
 
-            //  3设置回调
+            //  3.设置回调
             //  回调的作用是每次apollo命名空间的配置动态刷新时，利用这个回调过滤掉一些配置：
             //  由于动态失效或生效是利用更新了apollo的内存对象DefaultConfigExt的原理，真正的apollo WEB界面这个配置是存在的，所以这个回调显得很重要~
             //  比如：设置了某些key失效了【listen.key.delMap.application2 = my.key】，apollo更新配置发布后，这些失效的key还会带过来，利用这个回调过滤掉即可
@@ -249,7 +252,7 @@ public final class ApolloExtendUtils {
         }
     }
 
-    public static ApolloExtendFactory.FilterPredicate getFilterPredicate(boolean flag) {
+    public static ApolloExtendFactory.PropertyFilterPredicate getFilterPredicate(boolean flag) {
         return (key, configEntry) -> {
             //  flag: TRUE- 新增 FALSE-删除
             if (flag) {
@@ -259,6 +262,19 @@ public final class ApolloExtendUtils {
                 return !ApolloExtendUtils.predicateMatch(key, configEntry) ||
                         ApolloExtendUtils.predicateMatch(key, ApolloExtendUtils.skipMatchConfig());
             }
+        };
+    }
+
+    public static ApolloExtendFactory.DataFilter getDataFilterPredicate() {
+        return (propertySource, configEntry) -> {
+            Map<String, String> map = Maps.newHashMap();
+            propertySource.getSource()
+                    .getPropertyNames()
+                    .stream()
+                    .filter(configKey -> ApolloExtendUtils.predicateMatch(configKey, configEntry)
+                            && !ApolloExtendUtils.predicateMatch(configKey, ApolloExtendUtils.skipMatchConfig()))
+                    .forEach(configKey -> map.put(configKey, propertySource.getSource().getProperty(configKey, "")));
+            return map;
         };
     }
 
@@ -288,6 +304,37 @@ public final class ApolloExtendUtils {
             bootstrapComposite = (SimpleCompositePropertySource) mutablePropertySources.get(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
         }
         return bootstrapComposite;
+    }
+
+    public static SimplePropertySource findPropertySource(Collection<SimplePropertySource> collection,
+                                                          ApolloExtendFactory.PropertySourceFilterPredicate predicate) {
+        if (CollectionUtils.isEmpty(collection) || predicate == null) {
+            return null;
+        }
+        for (SimplePropertySource propertySource : collection) {
+            if (predicate.match(propertySource)) {
+                return propertySource;
+            }
+        }
+        return null;
+    }
+
+    public static ApolloExtendFactory.PropertySourceFactory getPropertySourceFactory(String name, String namespace, Config source) {
+        return (created, cached, propertySource) -> {
+            if (created && cached) {
+                SimplePropertySource simplePropertySource = new SimplePropertySource(name, namespace, source);
+                ApolloPropertySourceContext.INSTANCE.getPropertySources().add(simplePropertySource);
+                return simplePropertySource;
+            } else if (created && !cached) {
+                SimplePropertySource simplePropertySource = new SimplePropertySource(name, namespace, source);
+                return simplePropertySource;
+            } else if (!created && cached) {
+                ApolloPropertySourceContext.INSTANCE.getPropertySources().add(propertySource);
+                return null;
+            } else {
+                return null;
+            }
+        };
     }
 
 }

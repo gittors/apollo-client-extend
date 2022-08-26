@@ -10,7 +10,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -27,12 +26,8 @@ public class BinderDemoCallback extends ApolloExtendCallbackAdapter {
 
     @Override
     protected void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data) {
-        Map<String, String> configMap = Maps.newHashMap();
-        data.values()
-                .stream()
-                .map(Map::values)
-                .flatMap(Collection::stream)
-                .forEach(map -> configMap.putAll(map));
+        Map<String, Map<String, String>> configMap = Maps.newHashMap();
+        data.values().forEach(map -> configMap.putAll(map));
         if (MapUtils.isEmpty(configMap)) {
             log.warn("#changeProcess configMap is empty!");
             return;

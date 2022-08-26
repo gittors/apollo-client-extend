@@ -6,7 +6,7 @@ package com.gittors.apollo.extend.common.constant;
  */
 public class CommonConstant {
 
-    public static final String PROPERTY_SOURCE_NAME_SUFFIX = "@U";
+    public static final String PROPERTY_SOURCE_NAME_SUFFIX = "@DEL";
 
     /**
      * 缺省格式字符串

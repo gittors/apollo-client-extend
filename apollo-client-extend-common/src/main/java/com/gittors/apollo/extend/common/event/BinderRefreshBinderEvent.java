@@ -15,9 +15,9 @@ public class BinderRefreshBinderEvent {
     }
 
     /**
-     * {Key：配置Key，Value：配置Value}
+     * {Key：命名空间，Value：{配置Key=配置Value}
      */
-    private Map<String, String> data = Maps.newHashMap();
+    private Map<String, Map<String, String>> data = Maps.newHashMap();
 
     /**
      * 消息来源

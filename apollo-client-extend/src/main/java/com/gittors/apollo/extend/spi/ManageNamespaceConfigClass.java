@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.spi;
 
 import com.ctrip.framework.apollo.Config;
-import com.gittors.apollo.extend.env.SimplePropertySource;
+import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import lombok.Getter;
 import lombok.Setter;
 

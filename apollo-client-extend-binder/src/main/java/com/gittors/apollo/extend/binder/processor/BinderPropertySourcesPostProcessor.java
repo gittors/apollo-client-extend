@@ -1,10 +1,9 @@
 package com.gittors.apollo.extend.binder.processor;
 
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
-import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.ctrip.framework.foundation.Foundation;
 import com.gittors.apollo.extend.binder.listener.AutoBinderConfigChangeListener;
+import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
+import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import org.springframework.beans.BeansException;
@@ -17,7 +16,7 @@ import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -31,9 +30,6 @@ public class BinderPropertySourcesPostProcessor implements BeanFactoryPostProces
      * 配置属性
      */
     private static final String AUTO_BINDER_CONFIG_KEY = "apollo.autoBinder.injected.enabled";
-
-    private final ConfigPropertySourceFactory configPropertySourceFactory = SpringInjector
-            .getInstance(ConfigPropertySourceFactory.class);
 
     private boolean autoBinderInjectedSpringProperties = true;
 
@@ -54,8 +50,8 @@ public class BinderPropertySourcesPostProcessor implements BeanFactoryPostProces
       AutoBinderConfigChangeListener autoBinderConfigChangeListener = new AutoBinderConfigChangeListener(
                 environment, beanFactory);
 
-        List<ConfigPropertySource> configPropertySources = configPropertySourceFactory.getAllConfigPropertySources();
-        for (ConfigPropertySource configPropertySource : configPropertySources) {
+        Collection<SimplePropertySource> configPropertySources = ApolloPropertySourceContext.INSTANCE.getPropertySources();
+        for (SimplePropertySource configPropertySource : configPropertySources) {
             configPropertySource.addChangeListener(autoBinderConfigChangeListener);
         }
     }

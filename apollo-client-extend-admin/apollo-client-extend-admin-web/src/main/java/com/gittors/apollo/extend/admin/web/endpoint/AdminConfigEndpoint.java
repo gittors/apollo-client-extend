@@ -1,13 +1,13 @@
 package com.gittors.apollo.extend.admin.web.endpoint;
 
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
-import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
+import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
+import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.gittors.apollo.extend.common.event.BinderRefreshBinderEvent;
 import com.gittors.apollo.extend.event.EventPublisher;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
-import com.google.common.collect.Lists;
+import com.gittors.apollo.extend.utils.ApolloExtendUtils;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,10 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
 
 /**
  * @author zlliu
@@ -38,9 +35,6 @@ import java.util.Properties;
 @ApiIgnore
 @Deprecated
 public class AdminConfigEndpoint {
-
-    private final ConfigPropertySourceFactory configPropertySourceFactory = SpringInjector
-            .getInstance(ConfigPropertySourceFactory.class);
 
     @Autowired
     private BeanFactory beanFactory;
@@ -57,38 +51,31 @@ public class AdminConfigEndpoint {
                                               @RequestParam("configKey") String configKey,
                                           @ApiParam(value = "配置value", required = true)
                                           @RequestParam("configValue") String configValue) {
-        Optional<ConfigPropertySource> search =
-                configPropertySourceFactory.getAllConfigPropertySources()
-                        .stream()
-                        .filter(cps -> cps.getName().equalsIgnoreCase(namespace))
-                        .findFirst();
-        if (!search.isPresent()) {
+        SimplePropertySource simplePropertySource = ApolloExtendUtils.findPropertySource(ApolloPropertySourceContext.INSTANCE.getPropertySources(),
+                (propertySource) -> propertySource.getNamespace().equals(namespace));
+        if (simplePropertySource == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Namespace Didn't Find!");
         }
-        return update(search.get(), configKey, configValue);
+        return update(simplePropertySource, configKey, configValue);
     }
 
-    private ResponseEntity<?> update(ConfigPropertySource cps, String key, String value) {
-        ApolloClientExtendConfig configExt = (ApolloClientExtendConfig) cps.getSource();
-        configExt.setProperty(key, value);
+    private ResponseEntity<?> update(SimplePropertySource propertySource, String key, String value) {
+        ApolloClientExtendConfig config = (ApolloClientExtendConfig) propertySource.getSource();
+        config.setProperty(key, value);
 
         //  发送绑定事件
-        Properties properties = new Properties();
-        properties.setProperty(key, value);
-        pushBinder(Lists.newArrayList(properties));
+        Map<String, Map<String, String>> data = Maps.newHashMap();
+        data.put(propertySource.getNamespace(), ImmutableMap.of(key, value));
+        pushBinder(data);
 
         return ResponseEntity.ok().body(ApolloExtendAdminConstant.OK);
     }
 
     /**
      * 发送binder事件
-     * @param propertiesList
+     * @param data
      */
-    public void pushBinder(List<Properties> propertiesList) {
-        Map<String, String> data = Maps.newHashMap();
-        for (Properties properties : propertiesList) {
-            data.putAll(Maps.fromProperties(properties));
-        }
+    public void pushBinder(Map<String, Map<String, String>> data) {
         BinderRefreshBinderEvent binderRefreshBinderEvent = BinderRefreshBinderEvent.getInstance();
         binderRefreshBinderEvent.setData(data);
         binderRefreshBinderEvent.setSource("AdminConfigEndpoint#update");

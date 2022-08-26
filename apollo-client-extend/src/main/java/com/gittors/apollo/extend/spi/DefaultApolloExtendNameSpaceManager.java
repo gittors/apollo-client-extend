@@ -4,16 +4,13 @@ import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
-import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.constant.CommonConstant;
+import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
 import com.gittors.apollo.extend.common.enums.ChangeType;
+import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.gittors.apollo.extend.common.service.Ordered;
-import com.gittors.apollo.extend.common.utils.ListUtils;
 import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
-import com.gittors.apollo.extend.env.SimplePropertySource;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.gittors.apollo.extend.utils.ApolloExtendStringUtils;
@@ -26,7 +23,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.PropertySource;
 
 import java.util.List;
 import java.util.Map;
@@ -43,8 +39,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpaceManager {
-    private final ConfigPropertySourceFactory configPropertySourceFactory =
-            SpringInjector.getInstance(ConfigPropertySourceFactory.class);
 
     private ConfigurableEnvironment environment;
     private BeanFactory beanFactory;
@@ -64,17 +58,20 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         if (CollectionUtils.isEmpty(needAddNamespaceSet)) {
             return Maps.newHashMap();
         }
-        //  1获得新增命名空间的propertySource
+        //  1.获得新增命名空间的propertySource
         List<SimplePropertySource> addPropertySourceList = doGetAddNamespace(needAddNamespaceSet);
+        if (CollectionUtils.isEmpty(addPropertySourceList)) {
+            return Maps.newHashMap();
+        }
         ConfigurableEnvironment standardEnvironment = ApolloExtendUtils.mergeEnvironment(environment, addPropertySourceList);
 
-        //  2获得合并的配置项
+        //  2.获得合并的配置项
         Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(standardEnvironment, needAddNamespaceSet, ChangeType.ADD);
 
-        //  3过滤掉"apollo extend管理配置"之外的配置项【用户真正需要关心的配置项】
+        //  3.过滤掉"apollo extend管理配置"之外的配置项【用户真正需要关心的配置项】
         Map<String, Map<String, String>> addConfig = filter(addPropertySourceList, managerConfigMap);
 
-        //  4新增配置项，刷新spring环境
+        //  4.新增配置项，刷新spring环境
         refreshAddEnvironment(addPropertySourceList, managerConfigMap);
 
         return addConfig;
@@ -85,17 +82,19 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         if (CollectionUtils.isEmpty(needDeleteNamespaceSet)) {
             return Maps.newHashMap();
         }
-        //  获得合并的配置项
+        //  1.获得需删除的命名空间的propertySource
+        List<SimplePropertySource> deletePropertySourceList = doGetDeleteNamespace(needDeleteNamespaceSet);
+        if (CollectionUtils.isEmpty(deletePropertySourceList)) {
+            return Maps.newHashMap();
+        }
+        //  2.获得合并的配置项
         Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, needDeleteNamespaceSet, ChangeType.DELETE);
 
-        //  获得需删除的命名空间的propertySource
-        List<SimplePropertySource> deletePropertySourceList = doGetDeleteNamespace(needDeleteNamespaceSet);
-
-        //  过滤掉"apollo extend管理配置"之外的配置项【用户真正需要关心的配置项】
+        //  3.过滤掉"apollo extend管理配置"之外的配置项【用户真正需要关心的配置项】
         //  筛选出需删除的配置项，用于返回
         Map<String, Map<String, String>> deleteConfig = filter(deletePropertySourceList, managerConfigMap);
 
-        //  删除配置项，刷新spring环境
+        //  4.删除配置项，刷新spring环境
         refreshDelEnvironment(deletePropertySourceList, managerConfigMap);
 
         return deleteConfig;
@@ -114,14 +113,8 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         }
 
         for (SimplePropertySource propertySource : propertySourceList) {
-            Map<String, String> map = Maps.newHashMap();
-            propertySource.getSource()
-                    .getPropertyNames()
-                    .stream()
-                    .filter(configKey -> ApolloExtendUtils.predicateMatch(configKey, managerConfigMap.get(propertySource.getNamespace()))
-                            && !ApolloExtendUtils.predicateMatch(configKey, ApolloExtendUtils.skipMatchConfig()))
-                    .forEach(configKey -> map.put(configKey, propertySource.getSource().getProperty(configKey, "")));
-
+            ApolloExtendFactory.DataFilter dataFilter = ApolloExtendUtils.getDataFilterPredicate();
+            Map<String, String> map = dataFilter.filter(propertySource, managerConfigMap.get(propertySource.getNamespace()));
             propertiesMap.put(propertySource.getNamespace(), map);
         }
         return propertiesMap;
@@ -149,8 +142,9 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
                     //  删除备份的 PropertySource
                     bootstrapComposite.remove(backUpPropertySourceName);
                     if (simplePropertySource == null) {
-                        ConfigPropertySource configPropertySource = configPropertySourceFactory.getConfigPropertySource(routeNamespace, ConfigService.getConfig(routeNamespace));
-                        simplePropertySource = SimplePropertySource.copy(configPropertySource);
+                        ApolloExtendFactory.PropertySourceFactory factory =
+                                ApolloExtendUtils.getPropertySourceFactory(routeNamespace, routeNamespace, ConfigService.getConfig(routeNamespace));
+                        simplePropertySource = factory.createPropertySource(true, false, null);
                     } else {
                         ApolloClientExtendConfig defaultConfig = ((ApolloClientExtendConfig) simplePropertySource.getSource());
                         //  删除 listener
@@ -162,8 +156,9 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
                         defaultConfig.initialize();
                     }
                 } else {
-                    ConfigPropertySource configPropertySource = configPropertySourceFactory.getConfigPropertySource(routeNamespace, ConfigService.getConfig(routeNamespace));
-                    simplePropertySource = SimplePropertySource.copy(configPropertySource);
+                    ApolloExtendFactory.PropertySourceFactory factory =
+                            ApolloExtendUtils.getPropertySourceFactory(routeNamespace, routeNamespace, ConfigService.getConfig(routeNamespace));
+                    simplePropertySource = factory.createPropertySource(true, false, null);
                 }
                 //  Load failed skip
                 if (simplePropertySource != null && (simplePropertySource.getSource() == null ||
@@ -183,14 +178,16 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         }
         SimpleCompositePropertySource bootstrapComposite = ApolloExtendUtils.getCompositePropertySource(environment);
         for (SimplePropertySource propertySource : addPropertySourceList) {
-            ApolloExtendFactory.FilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(true);
+            ApolloExtendFactory.PropertyFilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(true);
             //  设置配置部分生效
             ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getNamespace()), filterPredicate);
 
             //  获得命名空间对应的spring propertySource名称
-            String propertySourceName = ApolloExtendUtils.getPropertySourceName(propertySource.getName());
+            String propertySourceName = ApolloExtendUtils.getPropertySourceName(propertySource.getNamespace());
 
             SimplePropertySource simplePropertySource = SimplePropertySource.of(propertySourceName, propertySource);
+            ApolloExtendFactory.PropertySourceFactory factory = ApolloExtendUtils.getPropertySourceFactory(null, null, null);
+            factory.createPropertySource(false, true, simplePropertySource);
 
             bootstrapComposite.addPropertySource(simplePropertySource);
             //  添加监听器
@@ -209,17 +206,14 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         if (CollectionUtils.isEmpty(needDeleteNamespaceSet)) {
             return Lists.newArrayList();
         }
-        //  1、去重
-        //  2、排除application
-        //  3、根据 "需要删除的命名空间" namespaceSet 筛选
-        //  4、判断是否包涵 "指定前缀" 的配置
-        List<SimplePropertySource> list = configPropertySourceFactory.getAllConfigPropertySources()
+        //  1.排除application
+        //  2.根据 "需要删除的命名空间" namespaceSet 筛选
+        //  3.判断是否包涵 "指定前缀" 的配置
+        List<SimplePropertySource> list = ApolloPropertySourceContext.INSTANCE.getPropertySources()
                 .stream()
-                .filter(configPropertySource -> configPropertySource.getSource().getSourceType() != ConfigSourceType.NONE)
-                .filter(ListUtils.distinctByKey(PropertySource::getName))
-                .filter(configPropertySource -> !ConfigConsts.NAMESPACE_APPLICATION.equalsIgnoreCase(configPropertySource.getName()))
-                .filter(configPropertySource -> needDeleteNamespaceSet.contains(configPropertySource.getName()))
-                .map(SimplePropertySource::copy)
+                .filter(propertySource -> propertySource.getSource().getSourceType() != ConfigSourceType.NONE)
+                .filter(propertySource -> !ConfigConsts.NAMESPACE_APPLICATION.equalsIgnoreCase(propertySource.getNamespace()))
+                .filter(propertySource -> needDeleteNamespaceSet.contains(propertySource.getNamespace()))
                 .collect(Collectors.toList())
                 ;
         if (CollectionUtils.isNotEmpty(list)) {
@@ -252,25 +246,24 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         //  3、刷新对象、移除监听器、设置回调
         //  4、刷新 Spring环境配置
         SimpleCompositePropertySource bootstrapComposite = ApolloExtendUtils.getCompositePropertySource(environment);
-        configPropertySourceList.forEach(propertySource -> {
+        for (SimplePropertySource propertySource : configPropertySourceList) {
             //  1.1删除 Spring环境配置
 
             //  获得命名空间对应的spring propertySource名称
-            String propertySourceName = ApolloExtendUtils.getPropertySourceName(propertySource.getName());
-            String propertySourceBackupName = ApolloExtendStringUtils.format(propertySourceName, null, CommonConstant.PROPERTY_SOURCE_NAME_SUFFIX);
+            String propertySourceBackupName = ApolloExtendStringUtils.format(propertySource.getNamespace(), null, CommonConstant.PROPERTY_SOURCE_NAME_SUFFIX);
 
             //  删除 propertySource 和 备份 propertySource
-            bootstrapComposite.remove(propertySourceName);
+            bootstrapComposite.remove(propertySource.getNamespace());
             bootstrapComposite.remove(propertySourceBackupName);
 
-            ApolloExtendFactory.FilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(false);
+            ApolloExtendFactory.PropertyFilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(false);
             //  设置回调+更新对象
             ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getNamespace()), filterPredicate);
 
             //  4.1刷新 Spring环境配置
             SimplePropertySource simplePropertySource = SimplePropertySource.of(propertySourceBackupName, propertySource);
             bootstrapComposite.addPropertySource(simplePropertySource);
-        });
+        }
     }
 
     @Override

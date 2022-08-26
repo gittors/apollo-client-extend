@@ -49,36 +49,43 @@ public class BinderEventSubscriber {
     @Subscribe
     public void refreshBinder(BinderRefreshBinderEvent event) {
         //  所有待刷新的配置：{key:配置key,value:配置value}
-        Map<String, String> dataMap = event.getData();
+        Map<String, Map<String, String>> dataMap = event.getData();
 
         //  根据bean工厂获得注册工厂
         Map<String, Collection<HolderBeanWrapper>> registry = holderBeanWrapperRegistry.getRegistry(beanFactory);
         if (MapUtils.isEmpty(registry) || MapUtils.isEmpty(dataMap)) {
-            log.error("#refreshBinder skip refreshBinder,source: [{}] registry OR dataMap is empty!", event.getSource());
+            log.warn("#refreshBinder skip refreshBinder,source: [{}] registry OR dataMap is empty!", event.getSource());
             return;
         }
         Set<String> keyPrefixSet = new HashSet<>();
-        //  循环待刷新的key,获得待刷新的key前缀配置
-        for (String key : dataMap.keySet()) {
-            keyPrefixSet.addAll(registry.keySet().parallelStream()
-                    .filter(bindPrefix -> key.startsWith(bindPrefix) || bindPrefix.startsWith(key))
-                    .collect(Collectors.toList())
-            );
+        for (Map.Entry<String, Map<String, String>> dataEntry : dataMap.entrySet()) {
+            Set<String> prefixSet = new HashSet<>();
+            //  循环待刷新的key,获得待刷新的key前缀配置
+            for (String key : dataEntry.getValue().keySet()) {
+                prefixSet.addAll(registry.keySet().parallelStream()
+                        .filter(bindPrefix -> key.startsWith(bindPrefix) || bindPrefix.startsWith(key))
+                        .collect(Collectors.toList())
+                );
+            }
+            log.info("#refreshBinder namespace:[{}], listener key set: {}", dataEntry.getKey(), prefixSet);
+            keyPrefixSet.addAll(prefixSet);
         }
-        if (CollectionUtils.isNotEmpty(keyPrefixSet)) {
-            Binder binder = Binder.get(environment);
-            for (String binderPrefix : keyPrefixSet) {
-                //  根据配置key前缀，获得bean绑定对象wrapper
-                Collection<HolderBeanWrapper> targetValues = registry.get(binderPrefix);
-                for (HolderBeanWrapper propertiesWrapper : targetValues) {
-                    Object value = binder.bind(binderPrefix, Bindable.of(propertiesWrapper.getField().getType()))
-                            .orElse(null);
-                    if (value != null) {
-                        try {
-                            propertiesWrapper.update(value);
-                        } catch (Throwable ex) {
-                            log.error("#refreshBinder binder failed, source: [{}] : ", event.getSource(), ex);
-                        }
+        if (CollectionUtils.isEmpty(keyPrefixSet)) {
+            log.warn("#refreshBinder skip refreshBinder,source: [{}] keyPrefixSet is empty!", event.getSource());
+            return;
+        }
+        Binder binder = Binder.get(environment);
+        for (String binderPrefix : keyPrefixSet) {
+            //  根据配置key前缀，获得bean绑定对象wrapper
+            Collection<HolderBeanWrapper> targetValues = registry.get(binderPrefix);
+            for (HolderBeanWrapper propertiesWrapper : targetValues) {
+                Object value = binder.bind(binderPrefix, Bindable.of(propertiesWrapper.getField().getType()))
+                        .orElse(null);
+                if (value != null) {
+                    try {
+                        propertiesWrapper.update(value);
+                    } catch (Throwable ex) {
+                        log.error("#refreshBinder binder failed, source: [{}] : ", event.getSource(), ex);
                     }
                 }
             }

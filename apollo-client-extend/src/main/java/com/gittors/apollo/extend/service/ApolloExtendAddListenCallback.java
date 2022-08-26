@@ -2,8 +2,7 @@ package com.gittors.apollo.extend.service;
 
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.enums.ChangeType;
-import com.gittors.apollo.extend.support.ApolloExtendStringMapEntry;
-import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
+import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -11,9 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -64,27 +60,7 @@ public class ApolloExtendAddListenCallback extends AbstractApolloExtendListenCal
     }
 
     @Override
-    protected void propertiesBeforeHandler(final Properties properties, final ApolloClientExtendConfig defaultConfig, Map.Entry<Boolean, Set<String>> configEntry,
-                                           final ChangeType changeType) {
-        //  筛选生效属性
-        Properties sourceProperties = defaultConfig.getConfigRepository().getConfig();
-        sourceProperties.stringPropertyNames()
-                .stream()
-                .filter(configKey -> ApolloExtendUtils.predicateMatch(configKey, configEntry) || ApolloExtendUtils.predicateMatch(configKey, ApolloExtendUtils.skipMatchConfig()))
-                .forEach(configKey -> properties.setProperty(configKey, sourceProperties.getProperty(configKey, "")));
-    }
-
-    @Override
-    protected void propertiesAfterHandler(ApolloClientExtendConfig defaultConfig, Map.Entry<Boolean, Set<String>> configEntry, final ChangeType changeType) {
-        //  设置属性部分生效
-        defaultConfig.addPropertiesCallBack(updateProperties -> {
-            Properties filterProperties = new Properties();
-            Properties property = (Properties) updateProperties;
-            property.entrySet().stream()
-                    .map(objectEntry -> new ApolloExtendStringMapEntry(String.valueOf(objectEntry.getKey()), String.valueOf(objectEntry.getValue())))
-                    .filter(stringEntry -> ApolloExtendUtils.predicateMatch(stringEntry.getKey(), configEntry) || ApolloExtendUtils.predicateMatch(stringEntry.getKey(), ApolloExtendUtils.skipMatchConfig()))
-                    .forEach(stringEntry -> filterProperties.setProperty(stringEntry.getKey(), stringEntry.getValue()));
-            return filterProperties;
-        });
+    protected ApolloExtendFactory.PropertyFilterPredicate getPropertySourcePredicate(ChangeType changeType) {
+        return ApolloExtendUtils.getFilterPredicate(true);
     }
 }

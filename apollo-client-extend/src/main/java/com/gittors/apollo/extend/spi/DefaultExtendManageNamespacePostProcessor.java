@@ -1,11 +1,10 @@
 package com.gittors.apollo.extend.spi;
 
-import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
-import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
+import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
 import com.gittors.apollo.extend.common.enums.ChangeType;
+import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.gittors.apollo.extend.common.service.Ordered;
-import com.gittors.apollo.extend.env.SimplePropertySource;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -31,8 +30,6 @@ import java.util.stream.Collectors;
  * @date 2020/9/3 11:19
  */
 public class DefaultExtendManageNamespacePostProcessor implements ApolloExtendManageNamespacePostProcessor {
-    private final ConfigPropertySourceFactory configPropertySourceFactory = SpringInjector
-            .getInstance(ConfigPropertySourceFactory.class);
 
     @Override
     public void postProcessNamespaceManager(ConfigurableEnvironment environment, List<ManageNamespaceConfigClass> configClasses) {
@@ -42,11 +39,10 @@ public class DefaultExtendManageNamespacePostProcessor implements ApolloExtendMa
         Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap =
                 ApolloExtendUtils.getManagerConfig(environment, namespaceSet, ChangeType.ADD);
 
-        List<SimplePropertySource> addPropertySourceList = configPropertySourceFactory.getAllConfigPropertySources().stream()
-                .filter(propertySource -> !CommonApolloConstant.NAMESPACE_APPLICATION.equals(propertySource.getName()))
-                .map(SimplePropertySource::copy)
+        List<SimplePropertySource> addPropertySourceList = ApolloPropertySourceContext.INSTANCE.getPropertySources().stream()
+                .filter(propertySource -> !CommonApolloConstant.NAMESPACE_APPLICATION.equals(propertySource.getNamespace()))
                 .collect(Collectors.toList());
-        ApolloExtendFactory.FilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(true);
+        ApolloExtendFactory.PropertyFilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(true);
 
         //  过滤Apollo配置，使其部分生效
         addPropertySourceList.forEach(propertySource ->
