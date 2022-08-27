@@ -19,9 +19,7 @@ public class RouteRefreshEvent {
      */
     private Map<String, String> data = new HashMap<>();
 
-    private static RouteRefreshEvent INSTANCE = new RouteRefreshEvent();
-
     public static RouteRefreshEvent getInstance() {
-        return INSTANCE;
+        return new RouteRefreshEvent();
     }
 }

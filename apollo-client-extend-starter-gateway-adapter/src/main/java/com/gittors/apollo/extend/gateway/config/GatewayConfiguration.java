@@ -4,6 +4,7 @@ import com.gittors.apollo.extend.callback.ApolloExtendCallback;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.config.ApolloExtendConfiguration;
 import com.gittors.apollo.extend.gateway.service.GatewayApolloExtendCallback;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -19,8 +20,8 @@ public class GatewayConfiguration {
 
     @Bean(CommonApolloConstant.DEFAULT_APOLLO_EXTEND_CALLBACK_ADAPTER)
     @ConditionalOnMissingBean(name = CommonApolloConstant.DEFAULT_APOLLO_EXTEND_CALLBACK_ADAPTER)
-    public ApolloExtendCallback gatewayExtensionCallback() {
-        return new GatewayApolloExtendCallback();
+    public ApolloExtendCallback gatewayExtensionCallback(ConfigurableListableBeanFactory beanFactory) {
+        return new GatewayApolloExtendCallback(beanFactory);
     }
 
 }

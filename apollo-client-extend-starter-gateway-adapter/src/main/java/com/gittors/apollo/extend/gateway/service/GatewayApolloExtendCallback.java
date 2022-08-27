@@ -5,12 +5,8 @@ import com.gittors.apollo.extend.event.EventPublisher;
 import com.gittors.apollo.extend.gateway.event.RouteRefreshEvent;
 import com.gittors.apollo.extend.service.ApolloExtendCallbackAdapter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,27 +15,16 @@ import java.util.Map;
  */
 @Slf4j
 public class GatewayApolloExtendCallback extends ApolloExtendCallbackAdapter {
-    @Autowired
-    private BeanFactory beanFactory;
+    private ConfigurableListableBeanFactory beanFactory;
 
-    public GatewayApolloExtendCallback() {
+    public GatewayApolloExtendCallback(ConfigurableListableBeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
     @Override
     protected void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data) {
-        Map<String, String> configMap = new HashMap<>();
-        data.values()
-                .stream()
-                .map(Map::values)
-                .flatMap(Collection::stream)
-                .forEach(map -> configMap.putAll(map));
-        if (MapUtils.isEmpty(configMap)) {
-            log.warn("#changeProcess configMap is empty!");
-            return;
-        }
+        //  网关的路由配置一般是多个，不关心具体的KEY，所以直接发送事件通知即可
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
-        RouteRefreshEvent routeRefreshEvent = RouteRefreshEvent.getInstance();
-        routeRefreshEvent.setData(configMap);
-        eventPublisher.asyncPublish(routeRefreshEvent);
+        eventPublisher.asyncPublish(RouteRefreshEvent.getInstance());
     }
 }
