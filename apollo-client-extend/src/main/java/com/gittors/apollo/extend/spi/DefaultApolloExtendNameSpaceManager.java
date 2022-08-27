@@ -20,8 +20,8 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.List;
@@ -41,15 +41,15 @@ import java.util.stream.Collectors;
 public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpaceManager {
 
     private ConfigurableEnvironment environment;
-    private BeanFactory beanFactory;
+    private ConfigurableListableBeanFactory beanFactory;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
+    public void setApplicationContext(ConfigurableApplicationContext applicationContext) {
         if (this.environment == null) {
-            this.environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
+            this.environment = applicationContext.getEnvironment();
         }
         if (this.beanFactory == null) {
-            this.beanFactory = applicationContext.getAutowireCapableBeanFactory();
+            this.beanFactory = applicationContext.getBeanFactory();
         }
     }
 

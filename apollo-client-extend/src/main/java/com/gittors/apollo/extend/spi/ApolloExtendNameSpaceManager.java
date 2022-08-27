@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.spi;
 
 import com.gittors.apollo.extend.common.service.Ordered;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +16,7 @@ public interface ApolloExtendNameSpaceManager extends Ordered {
      * 设置环境
      * @param applicationContext
      */
-    void setApplicationContext(ApplicationContext applicationContext);
+    void setApplicationContext(ConfigurableApplicationContext applicationContext);
 
     /**
      * 得到新增命名空间配置：{key: 命名空间名称, value: {key: 配置key, value: 配置key的值}}

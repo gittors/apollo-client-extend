@@ -26,7 +26,6 @@ import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -90,7 +89,7 @@ public final class ApolloExtendUtils {
      * @param beanFactory
      */
     public static void addListener(SimplePropertySource configPropertySource,
-                                   ConfigurableEnvironment environment, BeanFactory beanFactory) {
+                                   ConfigurableEnvironment environment, ConfigurableListableBeanFactory beanFactory) {
         if (configPropertySource != null) {
             configPropertySource.addChangeListener(getChangeListener(ApolloExtendContext.INSTANCE.getCallbackMap()));
 
@@ -114,10 +113,9 @@ public final class ApolloExtendUtils {
      * @param beanFactory
      */
     public static void addAutoUpdateListener(SimplePropertySource configPropertySource,
-                                              ConfigurableEnvironment environment, BeanFactory beanFactory) {
+                                              ConfigurableEnvironment environment, ConfigurableListableBeanFactory beanFactory) {
         if (configPropertySource != null) {
-            AutoUpdateConfigChangeListener autoUpdateConfigChangeListener = new AutoUpdateConfigChangeListener(
-                    environment, (ConfigurableListableBeanFactory) beanFactory);
+            AutoUpdateConfigChangeListener autoUpdateConfigChangeListener = new AutoUpdateConfigChangeListener(environment, beanFactory);
             configPropertySource.addChangeListener(autoUpdateConfigChangeListener);
         }
     }

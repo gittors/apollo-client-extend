@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 
 import java.util.Collections;
@@ -37,7 +37,7 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
     private Semaphore semaphore = new Semaphore(1);
 
     @Autowired
-    private ApplicationContext applicationContext;
+    private ConfigurableApplicationContext applicationContext;
 
     public ApolloExtendCallbackAdapter() {
     }

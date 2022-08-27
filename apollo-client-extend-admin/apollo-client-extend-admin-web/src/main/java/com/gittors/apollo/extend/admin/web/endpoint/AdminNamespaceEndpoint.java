@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiParam;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +53,7 @@ public class AdminNamespaceEndpoint {
             ServiceLookUp.loadPrimary(ApolloExtendAdminProcessor.class);
 
     @Autowired
-    private ApplicationContext applicationContext;
+    private ConfigurableApplicationContext applicationContext;
 
     @RequestMapping(path = "/inject-namespace", method = RequestMethod.POST)
     @ApiOperationSupport(order = 1)

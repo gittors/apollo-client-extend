@@ -6,10 +6,10 @@ import com.gittors.apollo.extend.binder.registry.HolderBeanWrapper;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapperRegistry;
 import com.gittors.apollo.extend.binder.utils.BinderObjectInjector;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AutoBinderConfigChangeListener implements ConfigChangeListener {
 
-    private final Environment environment;
-    private final BeanFactory beanFactory;
+    private final ConfigurableEnvironment environment;
+    private final ConfigurableListableBeanFactory beanFactory;
     private final HolderBeanWrapperRegistry holderBeanWrapperRegistry;
 
-    public AutoBinderConfigChangeListener(Environment environment,
-                                          BeanFactory beanFactory) {
+    public AutoBinderConfigChangeListener(ConfigurableEnvironment environment,
+                                          ConfigurableListableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
         this.environment = environment;
         this.holderBeanWrapperRegistry =
