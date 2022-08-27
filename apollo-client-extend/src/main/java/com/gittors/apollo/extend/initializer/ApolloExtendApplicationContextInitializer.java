@@ -47,7 +47,7 @@ public class ApolloExtendApplicationContextInitializer implements
             return;
         }
         //  之所以用Apollo Bootstrap配置，是因为不配置这个开关，则意味着不会加载远端的application配置，注册NameSpace就无从谈起了
-        if (!environment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED, Boolean.class, false)) {
+        if (!environment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED, Boolean.class, Boolean.FALSE)) {
             log.debug("Apollo bootstrap config is not enabled for context {}, see property: ${{}}", applicationContext, PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED);
             return;
         }

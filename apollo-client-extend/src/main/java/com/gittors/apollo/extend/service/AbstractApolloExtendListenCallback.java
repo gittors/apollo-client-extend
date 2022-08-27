@@ -9,6 +9,7 @@ import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.gittors.apollo.extend.spi.ApolloExtendListenPublish;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
+import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -82,7 +83,9 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
                 log.warn("#callback configPropertySource can't be find");
                 return;
             }
-            ApolloExtendFactory.DataFilter dataFilter = ApolloExtendUtils.getDataFilterPredicate();
+            ApolloClientExtendConfig defaultConfig = ((ApolloClientExtendConfig) propertySource.getSource());
+            defaultConfig.initialize();
+            ApolloExtendFactory.DataFilter dataFilter = ApolloExtendUtils.getDataFilterPredicate(environment);
             Map<String, String> map = dataFilter.filter(propertySource, managerConfigMap.get(propertySource.getNamespace()));
             ApolloExtendFactory.PropertyFilterPredicate filterPredicate = getPropertySourcePredicate(changeType);
             //  设置配置部分生效

@@ -34,16 +34,6 @@ public interface ApolloExtendFactory {
     }
 
     @FunctionalInterface
-    interface PropertySourceFilterPredicate {
-        /**
-         * propertySource 断言
-         * @param propertySource
-         * @return
-         */
-        boolean match(SimplePropertySource propertySource);
-    }
-
-    @FunctionalInterface
     interface PropertySourceFactory {
         /**
          * 创建 propertySource

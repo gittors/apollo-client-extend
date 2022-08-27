@@ -111,9 +111,8 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         if (CollectionUtils.isEmpty(propertySourceList) || MapUtils.isEmpty(managerConfigMap)) {
             return propertiesMap;
         }
-
+        ApolloExtendFactory.DataFilter dataFilter = ApolloExtendUtils.getDataFilterPredicate(environment);
         for (SimplePropertySource propertySource : propertySourceList) {
-            ApolloExtendFactory.DataFilter dataFilter = ApolloExtendUtils.getDataFilterPredicate();
             Map<String, String> map = dataFilter.filter(propertySource, managerConfigMap.get(propertySource.getNamespace()));
             propertiesMap.put(propertySource.getNamespace(), map);
         }
@@ -250,10 +249,10 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             //  1.1删除 Spring环境配置
 
             //  获得命名空间对应的spring propertySource名称
-            String propertySourceBackupName = ApolloExtendStringUtils.format(propertySource.getNamespace(), null, CommonConstant.PROPERTY_SOURCE_NAME_SUFFIX);
+            String propertySourceBackupName = ApolloExtendStringUtils.format(propertySource.getName(), null, CommonConstant.PROPERTY_SOURCE_NAME_SUFFIX);
 
             //  删除 propertySource 和 备份 propertySource
-            bootstrapComposite.remove(propertySource.getNamespace());
+            bootstrapComposite.remove(propertySource.getName());
             bootstrapComposite.remove(propertySourceBackupName);
 
             ApolloExtendFactory.PropertyFilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(false);

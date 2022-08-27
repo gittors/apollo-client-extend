@@ -69,7 +69,7 @@ public class ApolloExtendGlobalListenCallback extends AbstractApolloExtendListen
                 predicate = ApolloExtendUtils.getFilterPredicate(false);
                 break;
             default:
-                predicate = (key, configEntry) -> false;
+                predicate = (key, configEntry) -> true;
                 break;
         }
         return predicate;

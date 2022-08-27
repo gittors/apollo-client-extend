@@ -71,4 +71,9 @@ public class CommonApolloConstant {
 
     public static final String ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME = "AdminEndpointPropertySources";
 
+    /**
+     * 精确属性过滤开关
+     */
+    public static final String APOLLO_PROPERTY_FILTER_ENABLE = "apollo.property.filter.enabled";
+
 }

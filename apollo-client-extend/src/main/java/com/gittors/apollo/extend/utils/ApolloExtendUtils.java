@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -151,7 +152,7 @@ public final class ApolloExtendUtils {
      * @return
      */
     public static boolean predicateMatch(String key, Map.Entry<Boolean, Set<String>> configEntry) {
-        //  FALSE 代表不用过滤
+        //  FALSE 代表没有找到管理配置, 不用过滤
         if (!configEntry.getKey() || CollectionUtils.isEmpty(configEntry.getValue())) {
             return true;
         }
@@ -222,8 +223,7 @@ public final class ApolloExtendUtils {
     public static void configValidHandler(SimplePropertySource propertySource, Map.Entry<Boolean, Set<String>> configEntry,
                                           ApolloExtendFactory.PropertyFilterPredicate filterPredicate) {
         //  如果是FALSE全部生效，不用设置回调
-        //  configEntry.getKey()==FALSE, 代表没有找到管理配置
-        if (configEntry.getKey()) {
+        if (configEntry.getKey() && validConfigKey(propertySource, configEntry.getValue())) {
             Properties sourceProperties = ((ApolloClientExtendConfig) propertySource.getSource()).getConfigRepository().getConfig();
             Properties properties = new Properties();
             //  1.根据配置监听Key 筛选生效属性
@@ -256,23 +256,51 @@ public final class ApolloExtendUtils {
         return (key, configEntry) -> {
             //  flag: TRUE- 新增 FALSE-删除
             if (flag) {
+                //  满足配置KEY的保留 + 管理配置的KEY保留
                 return ApolloExtendUtils.predicateMatch(key, configEntry) ||
                         ApolloExtendUtils.predicateMatch(key, ApolloExtendUtils.skipMatchConfig());
             } else {
+                //  不满足配置KEY的保留 + 管理配置的KEY保留
                 return !ApolloExtendUtils.predicateMatch(key, configEntry) ||
                         ApolloExtendUtils.predicateMatch(key, ApolloExtendUtils.skipMatchConfig());
             }
         };
     }
 
-    public static ApolloExtendFactory.DataFilter getDataFilterPredicate() {
+    /**
+     * 判断管理的KEY是否是有效的
+     * @param propertySource
+     * @param keySet
+     * @return FALSE-不是有效的KEY，TRUE-有效的KEY
+     */
+    private static boolean validConfigKey(SimplePropertySource propertySource, Set<String> keySet) {
+        Properties sourceProperties = ((ApolloClientExtendConfig) propertySource.getSource()).getConfigRepository().getConfig();
+        Set<String> propertyNames = sourceProperties.stringPropertyNames();
+        for (String propertyName : propertyNames) {
+            boolean match = keySet.stream().anyMatch(key -> propertyName.startsWith(key));
+            if (match) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static ApolloExtendFactory.DataFilter getDataFilterPredicate(ConfigurableEnvironment environment) {
+        BiPredicate<String, Map.Entry<Boolean, Set<String>>> predicate = null;
+        //  没有配置属性过滤开关，默认返回所有KEY; 配置了开关则返回精确匹配的KEY
+        if (!environment.getProperty(CommonApolloConstant.APOLLO_PROPERTY_FILTER_ENABLE, Boolean.class, Boolean.FALSE)) {
+            predicate = (configKey, configEntry) -> true;
+        } else {
+            predicate = (configKey, configEntry) -> ApolloExtendUtils.predicateMatch(configKey, configEntry);
+        }
+        BiPredicate<String, Map.Entry<Boolean, Set<String>>> biPredicate = predicate;
         return (propertySource, configEntry) -> {
             Map<String, String> map = Maps.newHashMap();
             propertySource.getSource()
                     .getPropertyNames()
                     .stream()
-                    .filter(configKey -> ApolloExtendUtils.predicateMatch(configKey, configEntry)
-                            && !ApolloExtendUtils.predicateMatch(configKey, ApolloExtendUtils.skipMatchConfig()))
+                    .filter(configKey -> !ApolloExtendUtils.predicateMatch(configKey, ApolloExtendUtils.skipMatchConfig()))
+                    .filter(configKey -> biPredicate.test(configKey, configEntry))
                     .forEach(configKey -> map.put(configKey, propertySource.getSource().getProperty(configKey, "")));
             return map;
         };
@@ -307,12 +335,12 @@ public final class ApolloExtendUtils {
     }
 
     public static SimplePropertySource findPropertySource(Collection<SimplePropertySource> collection,
-                                                          ApolloExtendFactory.PropertySourceFilterPredicate predicate) {
+                                                          Predicate<SimplePropertySource> predicate) {
         if (CollectionUtils.isEmpty(collection) || predicate == null) {
             return null;
         }
         for (SimplePropertySource propertySource : collection) {
-            if (predicate.match(propertySource)) {
+            if (predicate.test(propertySource)) {
                 return propertySource;
             }
         }
