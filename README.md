@@ -8,7 +8,7 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/3da0bc583b1d439586401f2469d9ac5e)](https://www.codacy.com/manual/gittors/apollo-client-extend?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gittors/apollo-client-extend&amp;utm_campaign=Badge_Grade)
 
 ## 前言
-```textmate
+```
 在微服务架构流行的当下，每个服务或多或少会有一些属于应用的配置需要管理，尤其在灰度场景下，对于配置热更新的需求显得尤为迫切，在这种背景下，分布式配置中心应运而生。
 当下可供选择的分布式配置中心的开源组件有：SpringCloud Config、Apollo、Nacos等。
 本项目以 Apollo 为技术选型，在使用者的角度做了一些扩展及思考。
@@ -18,7 +18,7 @@
 https://github.com/ctripcorp/apollo
 
 ## Apollo的一些使用场景：
-```textmate
+```
 一、用 Apollo做分布式配置中心时，配置的新增和删除操作可以通过其 WEB界面【Apollo Portal】操作，并且配置的更改 Apollo会联动推送给每个客户端。
 前提是：在 WEB管理的命名空间要纳入 Apollo "运行时态"的管理范围，方式是通过 启动参数/配置参数或者 Apollo 的一些API来实现。
 比如通过 @EnableApolloConfig 注解：
@@ -62,7 +62,7 @@ apollo.bootstrap.namespaces: application,application2
 
 * **实现配置管理**
   * 新增了命名空间无须重启服务
-```textmate
+```
 例如：application 命名空间新增配置项：apollo.extend.namespace=application2
 则 application 可管理 application2 的配置项, 可以管理多个命名空间, 配置多个值: "," 号分隔。
 新增或者删除上述的配置,即代表相应的配置生效或失效。
@@ -108,7 +108,7 @@ apollo.bootstrap.namespaces: application,application2
 ```
 
 ## 依赖版本：
-```textmate
+```
 Apollo：1.7.0
 Guava：30.0-jre
 SpringBoot：2.2.9.RELEASE
@@ -121,7 +121,7 @@ SpringBoot：2.2.9.RELEASE
 
  **细则1实现：**
 
-```textmate
+```
 1、在Apollo application 命名空间新增一个配置项：
 apollo.extend.namespace = dynamic-config
 
@@ -147,7 +147,7 @@ dynamic-config2 命名空间的配置会失效
 ```
 
  **细则2实现：**
-```textmate
+```
 控制管理的命名空间的配置, 部分生效或失效：
 增加配置项：
 ## 配置当前命名空间所管理命名空间的监听key - 新增
@@ -172,12 +172,12 @@ listen.key.global.map.application2 = my.map3
 参考：apollo-client-extend-binder 模块
 
 ## Apollo Client 版本适配：
-```textmate
-参考：apollo-client-extend-adapter 模块说明
+```
+参考：apollo-client-extend-support 模块说明
 ```
 
 ## 使用
-```textmate
+```
 参考：apollo-client-extend-binder-demo
 网关使用参考：apollo-client-extend-starter-gateway-demo
 ```

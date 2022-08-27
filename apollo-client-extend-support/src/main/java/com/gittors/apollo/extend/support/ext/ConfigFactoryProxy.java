@@ -182,8 +182,8 @@ public class ConfigFactoryProxy {
         abstractRunnable.toClass();
 
         //  1.7.0和1.9.2版本的 fireConfigChange 方法不同，如果要兼容需要适配修改：
-        //  TODO findMatchedConfigChangeListeners 方法，如果找到了，重命名；没找到就新增相同方法
-        //  TODO notifyAsync 方法，如果找到了，重命名；没找到就新增相同方法
+        //  findMatchedConfigChangeListeners 方法，如果找到了，重命名；没找到就新增相同方法
+        //  notifyAsync 方法，如果找到了，重命名；没找到就新增相同方法
 
         //  修改 fireConfigChange 方法体：Javassist不支持 Runnable 内部类，所以需要修改方法体内容
         //  在 onRepositoryChange 方法回调时会用到
