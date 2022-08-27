@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.github.gittors</groupId>
         <artifactId>apollo-client-extend-parent</artifactId>
-        <version>1.4.3</version>
+        <version>1.5.0</version>
     </parent>
 
     <artifactId>apollo-client-extend</artifactId>
