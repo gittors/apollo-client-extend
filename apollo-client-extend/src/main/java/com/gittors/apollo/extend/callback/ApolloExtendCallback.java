@@ -1,7 +1,5 @@
 package com.gittors.apollo.extend.callback;
 
-import java.util.List;
-
 /**
  *
  * @author zlliu
@@ -17,8 +15,8 @@ public interface ApolloExtendCallback {
     void callback(String oldValue, String newValue, Object... objects);
 
     /**
-     * 监听key集合
+     * 监听key
      * @return
      */
-    List<String> keyList();
+    String listenKey();
 }

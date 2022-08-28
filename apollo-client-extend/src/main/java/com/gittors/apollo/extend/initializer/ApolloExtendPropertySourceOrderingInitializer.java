@@ -2,12 +2,15 @@ package com.gittors.apollo.extend.initializer;
 
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
+import com.google.common.collect.Sets;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
+
+import java.util.Set;
 
 /**
  * 将 Apollo Extend的 PropertySources排序
@@ -18,6 +21,9 @@ import org.springframework.core.env.MutablePropertySources;
 public class ApolloExtendPropertySourceOrderingInitializer implements
         ApplicationContextInitializer<ConfigurableApplicationContext>, Ordered {
 
+    public static final Set<String> PROPERTY_SOURCE_ORDERING_INITIALIZER = Sets.newHashSet();
+    public static final String NAME = ApolloExtendPropertySourceOrderingInitializer.class.getName();
+
     public static final int DEFAULT_ORDER = ApolloExtendApplicationContextInitializer.DEFAULT_ORDER + 100;
 
     private int order = DEFAULT_ORDER;
@@ -26,7 +32,8 @@ public class ApolloExtendPropertySourceOrderingInitializer implements
     public void initialize(ConfigurableApplicationContext applicationContext) {
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
         MutablePropertySources propertySources = environment.getPropertySources();
-        if (!propertySources.contains(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
+        if (!PROPERTY_SOURCE_ORDERING_INITIALIZER.add(NAME) ||
+                !propertySources.contains(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
             return;
         }
         //  将PropertySources 排序在 ApolloBootstrapPropertySources 后面

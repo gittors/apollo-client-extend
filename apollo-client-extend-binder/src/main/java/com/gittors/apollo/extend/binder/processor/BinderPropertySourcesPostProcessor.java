@@ -1,5 +1,8 @@
 package com.gittors.apollo.extend.binder.processor;
 
+import com.ctrip.framework.apollo.spring.config.ConfigPropertySource;
+import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
+import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.ctrip.framework.foundation.Foundation;
 import com.gittors.apollo.extend.binder.listener.AutoBinderConfigChangeListener;
 import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
@@ -17,6 +20,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,9 +30,9 @@ import java.util.Set;
 public class BinderPropertySourcesPostProcessor implements BeanFactoryPostProcessor, EnvironmentAware, PriorityOrdered {
     private static final Set<BeanFactory> AUTO_BINDER_INITIALIZED_BEAN_FACTORIES = Sets.newConcurrentHashSet();
 
-    /**
-     * 配置属性
-     */
+    private final ConfigPropertySourceFactory configPropertySourceFactory =
+            SpringInjector.getInstance(ConfigPropertySourceFactory.class);
+
     private static final String AUTO_BINDER_CONFIG_KEY = "apollo.autoBinder.injected.enabled";
 
     private boolean autoBinderInjectedSpringProperties = true;
@@ -46,13 +50,15 @@ public class BinderPropertySourcesPostProcessor implements BeanFactoryPostProces
                 !AUTO_BINDER_INITIALIZED_BEAN_FACTORIES.add(beanFactory)) {
             return;
         }
-
-      AutoBinderConfigChangeListener autoBinderConfigChangeListener = new AutoBinderConfigChangeListener(
+        AutoBinderConfigChangeListener binderConfigChangeListener = new AutoBinderConfigChangeListener(
                 environment, beanFactory);
-
         Collection<SimplePropertySource> configPropertySources = ApolloPropertySourceContext.INSTANCE.getPropertySources();
         for (SimplePropertySource configPropertySource : configPropertySources) {
-            configPropertySource.addChangeListener(autoBinderConfigChangeListener);
+            configPropertySource.addChangeListener(binderConfigChangeListener);
+        }
+        List<ConfigPropertySource> propertySources = configPropertySourceFactory.getAllConfigPropertySources();
+        for (ConfigPropertySource propertySource : propertySources) {
+            propertySource.addChangeListener(binderConfigChangeListener);
         }
     }
 

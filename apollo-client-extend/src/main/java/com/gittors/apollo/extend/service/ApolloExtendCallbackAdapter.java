@@ -3,18 +3,16 @@ package com.gittors.apollo.extend.service;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.gittors.apollo.extend.callback.AbstractApolloExtendCallback;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
-import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.gittors.apollo.extend.spi.ApolloExtendNameSpaceManager;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.Environment;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +24,7 @@ import java.util.concurrent.Semaphore;
  * @date 2020/7/8 20:29
  */
 @Slf4j
-public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
+public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback implements ApplicationContextAware {
 
     private final ApolloExtendNameSpaceManager extendNameSpaceManager =
             ServiceLookUp.loadPrimary(ApolloExtendNameSpaceManager.class);
@@ -36,7 +34,6 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
      */
     private Semaphore semaphore = new Semaphore(1);
 
-    @Autowired
     private ConfigurableApplicationContext applicationContext;
 
     public ApolloExtendCallbackAdapter() {
@@ -64,7 +61,7 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
             List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(manageNamespaces);
             Set<String> newNamespaceSet = new HashSet<>(namespaceList);
             newNamespaceSet.add(ConfigConsts.NAMESPACE_APPLICATION);
-
+            //  设置环境
             extendNameSpaceManager.setApplicationContext(applicationContext);
 
             //  如有新增配置项，刷新环境
@@ -74,22 +71,12 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
             //  如有删除配置项，刷新环境
             Map<String, Map<String, String>> deletePropertySourceList =
                     extendNameSpaceManager.getDeleteNamespaceConfig(getDifferentNamespace(oldValue, newNamespaceSet));
-            //  {Key: 新增/删除, Value: {Key: 命名空间, Value: 配置Key=配置Value}}
-            Map<String, Map<String, Map<String, String>>> data = Maps.newHashMap();
-            if (MapUtils.isNotEmpty(addPropertySourceList) && MapUtils.isNotEmpty(deletePropertySourceList)) {
-                data.put(ChangeType.ADD.name(), addPropertySourceList);
-                data.put(ChangeType.DELETE.name(), deletePropertySourceList);
-
-                changeProcess(ChangeType.BOTH, data);
-            } else if (MapUtils.isNotEmpty(addPropertySourceList) && MapUtils.isEmpty(deletePropertySourceList)) {
-                data.put(ChangeType.ADD.name(), addPropertySourceList);
-
-                changeProcess(ChangeType.ADD, data);
-            } else if (MapUtils.isEmpty(addPropertySourceList) && MapUtils.isNotEmpty(deletePropertySourceList)) {
-                data.put(ChangeType.DELETE.name(), deletePropertySourceList);
-
-                changeProcess(ChangeType.DELETE, data);
-            }
+            //  {Key: 命名空间, Value: {配置Key=配置Value}}
+            Map<String, Map<String, String>> data = Maps.newHashMap();
+            data.putAll(addPropertySourceList);
+            data.putAll(deletePropertySourceList);
+            //  配置更新回调
+            this.changeProcess(data);
         }
     }
 
@@ -105,21 +92,19 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
      * 配置有变更，客户端的处理
      * 备注：此时配置已经刷新至 Spring环境，此方法留待客户端回调后续处理
      *
-     * @param changeType    变更类型
-     * @param data  变更的数据 {Key: 新增/删除/新增删除都有, Value: {Key: 命名空间, Value: 配置Key=配置Value}}
+     * @param data  变更的数据 {Key: 命名空间, Value: {配置Key=配置Value}}
      */
-    protected void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data) {
+    protected void changeProcess(Map<String, Map<String, String>> data) {
     }
 
     @Override
-    public List<String> keyList() {
-        return Collections.singletonList(getConfigPrefix());
+    public String listenKey() {
+        return getConfigPrefix();
     }
 
     @Override
     protected String getConfigPrefix() {
-        Environment environment = this.applicationContext.getEnvironment();
-        String extNamespaceConfig = environment.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE_PREFIX);
+        String extNamespaceConfig = applicationContext.getEnvironment().getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE_PREFIX, "");
         if (StringUtils.isNotBlank(extNamespaceConfig)) {
             return extNamespaceConfig;
         } else {
@@ -127,4 +112,8 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback {
         }
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = (ConfigurableApplicationContext) applicationContext;
+    }
 }

@@ -6,6 +6,7 @@ import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.config.ApolloExtendConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,7 +22,7 @@ public class BinderDemoConfiguration {
     @ConditionalOnMissingBean(
             name = CommonApolloConstant.DEFAULT_APOLLO_EXTEND_CALLBACK_ADAPTER
     )
-    public ApolloExtendCallback apolloCallback() {
-        return new BinderDemoCallback();
+    public ApolloExtendCallback apolloCallback(ConfigurableApplicationContext context) {
+        return new BinderDemoCallback(context);
     }
 }

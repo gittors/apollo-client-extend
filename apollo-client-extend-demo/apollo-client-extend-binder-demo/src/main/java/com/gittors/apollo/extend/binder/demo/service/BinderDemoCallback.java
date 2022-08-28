@@ -1,14 +1,12 @@
 package com.gittors.apollo.extend.binder.demo.service;
 
-import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.common.event.BinderRefreshBinderEvent;
 import com.gittors.apollo.extend.event.EventPublisher;
 import com.gittors.apollo.extend.service.ApolloExtendCallbackAdapter;
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.Map;
 
@@ -18,22 +16,20 @@ import java.util.Map;
  */
 @Slf4j
 public class BinderDemoCallback extends ApolloExtendCallbackAdapter {
-    @Autowired
-    private BeanFactory beanFactory;
+    private ConfigurableListableBeanFactory beanFactory;
 
-    public BinderDemoCallback() {
+    public BinderDemoCallback(ConfigurableApplicationContext context) {
+        this.beanFactory = context.getBeanFactory();
     }
 
     @Override
-    protected void changeProcess(ChangeType changeType, Map<String, Map<String, Map<String, String>>> data) {
-        Map<String, Map<String, String>> configMap = Maps.newHashMap();
-        data.values().forEach(map -> configMap.putAll(map));
-        if (MapUtils.isEmpty(configMap)) {
+    protected void changeProcess(Map<String, Map<String, String>> data) {
+        if (MapUtils.isEmpty(data)) {
             log.warn("#changeProcess configMap is empty!");
             return;
         }
         BinderRefreshBinderEvent binderEvent = BinderRefreshBinderEvent.getInstance();
-        binderEvent.setData(configMap);
+        binderEvent.setData(data);
         binderEvent.setSource("BinderDemoCallback#changeProcess");
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
         eventPublisher.asyncPublish(binderEvent);

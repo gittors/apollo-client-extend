@@ -16,9 +16,9 @@ import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 
@@ -35,11 +35,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public abstract class AbstractApolloExtendListenCallback extends AbstractApolloExtendCallback {
     private ConfigurableEnvironment environment;
-    private BeanFactory beanFactory;
+    private ConfigurableListableBeanFactory beanFactory;
 
-    public AbstractApolloExtendListenCallback(ApplicationContext applicationContext) {
-        this.environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
-        this.beanFactory = applicationContext.getAutowireCapableBeanFactory();
+    public AbstractApolloExtendListenCallback(ConfigurableApplicationContext context) {
+        this.environment = context.getEnvironment();
+        this.beanFactory = context.getBeanFactory();
     }
 
     @Override

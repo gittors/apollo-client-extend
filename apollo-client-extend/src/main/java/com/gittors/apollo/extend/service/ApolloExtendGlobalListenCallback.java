@@ -7,7 +7,7 @@ import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -27,8 +27,8 @@ public class ApolloExtendGlobalListenCallback extends AbstractApolloExtendListen
      */
     private Semaphore semaphore = new Semaphore(1);
 
-    public ApolloExtendGlobalListenCallback(ApplicationContext applicationContext) {
-        super(applicationContext);
+    public ApolloExtendGlobalListenCallback(ConfigurableApplicationContext context) {
+        super(context);
     }
 
     @Override

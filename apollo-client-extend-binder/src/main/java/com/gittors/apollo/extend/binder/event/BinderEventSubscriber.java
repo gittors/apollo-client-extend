@@ -9,10 +9,11 @@ import com.nepxion.eventbus.annotation.EventBus;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.core.env.Environment;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -30,16 +31,16 @@ public class BinderEventSubscriber {
 
     public static final String BEAN_NAME = "binderEventSubscriber";
 
-    private final Environment environment;
-
     private final HolderBeanWrapperRegistry holderBeanWrapperRegistry;
-    private final BeanFactory beanFactory;
 
-    public BinderEventSubscriber(BeanFactory beanFactory, Environment environment) {
+    private final ConfigurableEnvironment environment;
+    private final ConfigurableListableBeanFactory beanFactory;
+
+    public BinderEventSubscriber(ConfigurableApplicationContext context) {
         this.holderBeanWrapperRegistry =
                 BinderObjectInjector.getInstance(HolderBeanWrapperRegistry.class);
-        this.beanFactory = beanFactory;
-        this.environment = environment;
+        this.environment = context.getEnvironment();
+        this.beanFactory = context.getBeanFactory();
     }
 
     /**

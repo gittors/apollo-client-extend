@@ -5,7 +5,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,8 +20,8 @@ public abstract class AbstractApolloExtendCallback implements ApolloExtendCallba
             Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR).omitEmptyStrings().trimResults();
 
     @Override
-    public List<String> keyList() {
-        return Collections.singletonList(getConfigPrefix() + ".*");
+    public String listenKey() {
+        return getConfigPrefix() + ".*";
     }
 
     /**
