@@ -61,6 +61,18 @@ public final class ApolloExtendUtils {
         addListener(namespaces, ApolloExtendContext.INSTANCE.getCallbackMap());
     }
 
+    /**
+     * 增加Apollo监听器
+     * @param namespace
+     * @param callbackMap
+     */
+    public static void addListener(String namespace, Map<String, ApolloExtendCallback> callbackMap) {
+        Config config = ConfigService.getConfig(namespace);
+        if (config != null) {
+            config.addChangeListener(getChangeListener(callbackMap));
+        }
+    }
+
     public static ConfigChangeListener getChangeListener(Map<String, ApolloExtendCallback> callbackMap) {
         return changeEvent -> {
             log.info("ApolloConfig onchange... namespace: {}", changeEvent.getNamespace());
@@ -71,19 +83,10 @@ public final class ApolloExtendUtils {
     }
 
     /**
-     * 增加Apollo监听器
-     * @param namespaces
-     * @param callbackMap
-     */
-    public static void addListener(String namespaces, Map<String, ApolloExtendCallback> callbackMap) {
-        Config config = ConfigService.getConfig(namespaces);
-        if (config != null) {
-            config.addChangeListener(getChangeListener(callbackMap));
-        }
-    }
-
-    /**
-     * 注入自定义监听器、自动绑定监听器等
+     * 注入监听器:
+     * 1.自动更新监听器
+     * 2.自定义监听器
+     * 3.自动绑定监听器等
      * @param configPropertySource
      * @param environment
      * @param beanFactory
@@ -91,6 +94,7 @@ public final class ApolloExtendUtils {
     public static void addListener(SimplePropertySource configPropertySource,
                                    ConfigurableEnvironment environment, ConfigurableListableBeanFactory beanFactory) {
         if (configPropertySource != null) {
+            configPropertySource.addChangeListener(new AutoUpdateConfigChangeListener(environment, beanFactory));
             configPropertySource.addChangeListener(getChangeListener(ApolloExtendContext.INSTANCE.getCallbackMap()));
 
             List<ConfigChangeListener> changeListenerList = Lists.newLinkedList();
@@ -103,20 +107,6 @@ public final class ApolloExtendUtils {
             for (ConfigChangeListener changeListener : changeListenerList) {
                 configPropertySource.addChangeListener(changeListener);
             }
-        }
-    }
-
-    /**
-     * 新增自动更新监听器
-     * @param configPropertySource
-     * @param environment
-     * @param beanFactory
-     */
-    public static void addAutoUpdateListener(SimplePropertySource configPropertySource,
-                                              ConfigurableEnvironment environment, ConfigurableListableBeanFactory beanFactory) {
-        if (configPropertySource != null) {
-            AutoUpdateConfigChangeListener autoUpdateConfigChangeListener = new AutoUpdateConfigChangeListener(environment, beanFactory);
-            configPropertySource.addChangeListener(autoUpdateConfigChangeListener);
         }
     }
 

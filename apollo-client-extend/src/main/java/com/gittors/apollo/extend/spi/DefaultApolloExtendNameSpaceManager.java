@@ -183,7 +183,6 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
 
             bootstrapComposite.addPropertySource(propertySource);
             //  添加监听器
-            ApolloExtendUtils.addAutoUpdateListener(propertySource, environment, beanFactory);
             ApolloExtendUtils.addListener(propertySource, environment, beanFactory);
         }
     }
