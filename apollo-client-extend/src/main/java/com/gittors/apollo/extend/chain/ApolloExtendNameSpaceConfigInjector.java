@@ -2,6 +2,7 @@ package com.gittors.apollo.extend.chain;
 
 import com.gittors.apollo.extend.chain.context.Context;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
+import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 
@@ -23,7 +24,7 @@ public class ApolloExtendNameSpaceConfigInjector extends ApolloExtendNameSpaceIn
         String managerNamespaces = environment.getProperty(listenerKey);
 
         if (StringUtils.isNotBlank(managerNamespaces)) {
-            doInjector(environment, parseNamespace(managerNamespaces));
+            doInjector(environment, ApolloExtendUtils.parseNamespace(managerNamespaces));
         }
 
         //  enter into next stream

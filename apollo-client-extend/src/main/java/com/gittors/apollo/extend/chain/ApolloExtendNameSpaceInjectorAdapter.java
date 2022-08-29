@@ -2,7 +2,6 @@ package com.gittors.apollo.extend.chain;
 
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigService;
-import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.gittors.apollo.extend.chain.chain.AbstractLinkedProcessor;
@@ -15,7 +14,6 @@ import com.gittors.apollo.extend.spi.ManageNamespaceConfigClass;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.support.ApolloExtendPostProcessorDelegate;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.MapUtils;
@@ -32,9 +30,6 @@ import java.util.stream.Collectors;
  * @date 2020/8/29 15:41
  */
 public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinkedProcessor<ConfigurableEnvironment> {
-
-    private static final Splitter NAMESPACE_SPLITTER = Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR)
-            .omitEmptyStrings().trimResults();
 
     protected final Map<String, ManageNamespaceConfigClass> configClassMap = Maps.newLinkedHashMap();
 
@@ -100,7 +95,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
         }
         String namespaceConfig = config.getProperty(configClass.getManageConfigPrefix(), null);
         if (StringUtils.isNotBlank(namespaceConfig)) {
-            Set<String> namespaceSet = parseNamespace(namespaceConfig);
+            Set<String> namespaceSet = ApolloExtendUtils.parseNamespace(namespaceConfig);
             //  过滤掉自己，避免死递归
             namespaceSet = namespaceSet.stream()
                     .filter(namespace -> !StringUtils.equalsIgnoreCase(namespace, configClass.getNamespace()))
@@ -116,18 +111,6 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
         SimplePropertySource simplePropertySource = factory.createPropertySource(true, true, null);
         configClass.setSimplePropertySource(simplePropertySource);
         return null;
-    }
-
-    /**
-     * 解析配置，","号分割
-     * @param namespaceKey
-     * @return
-     */
-    protected Set<String> parseNamespace(String namespaceKey) {
-        List<String> extensionNamespaceList = NAMESPACE_SPLITTER.splitToList(namespaceKey);
-        return extensionNamespaceList.stream()
-                .filter(namespace -> !ConfigConsts.NAMESPACE_APPLICATION.equals(namespace))
-                .collect(Collectors.toSet());
     }
 
 }

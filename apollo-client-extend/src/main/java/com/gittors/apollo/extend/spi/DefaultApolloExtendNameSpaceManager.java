@@ -2,7 +2,6 @@ package com.gittors.apollo.extend.spi;
 
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
-import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.constant.CommonConstant;
@@ -23,10 +22,12 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.PropertySource;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -59,14 +60,16 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             return Maps.newHashMap();
         }
         //  1.获得新增命名空间的propertySource
-        List<SimplePropertySource> addPropertySourceList = doGetAddNamespace(needAddNamespaceSet);
+        List<SimplePropertySource> addPropertySourceList = doGetAddNamespace(needAddNamespaceSet, Lists.newArrayList());
         if (CollectionUtils.isEmpty(addPropertySourceList)) {
             return Maps.newHashMap();
         }
         ConfigurableEnvironment standardEnvironment = ApolloExtendUtils.mergeEnvironment(environment, addPropertySourceList);
+        Set<String> namespaceSet = addPropertySourceList.stream()
+                .map(SimplePropertySource::getNamespace).collect(Collectors.toSet());
 
         //  2.获得合并的配置项
-        Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(standardEnvironment, needAddNamespaceSet, ChangeType.ADD);
+        Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(standardEnvironment, namespaceSet, ChangeType.ADD);
 
         //  3.过滤掉"apollo extend管理配置"之外的配置项【用户真正需要关心的配置项】
         Map<String, Map<String, String>> addConfig = filter(addPropertySourceList, managerConfigMap);
@@ -83,12 +86,14 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             return Maps.newHashMap();
         }
         //  1.获得需删除的命名空间的propertySource
-        List<SimplePropertySource> deletePropertySourceList = doGetDeleteNamespace(needDeleteNamespaceSet);
+        List<SimplePropertySource> deletePropertySourceList = doGetDeleteNamespace(needDeleteNamespaceSet, Lists.newArrayList());
         if (CollectionUtils.isEmpty(deletePropertySourceList)) {
             return Maps.newHashMap();
         }
+        Set<String> namespaceSet = deletePropertySourceList.stream()
+                .map(SimplePropertySource::getNamespace).collect(Collectors.toSet());
         //  2.获得合并的配置项
-        Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, needDeleteNamespaceSet, ChangeType.DELETE);
+        Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, namespaceSet, ChangeType.DELETE);
 
         //  3.过滤掉"apollo extend管理配置"之外的配置项【用户真正需要关心的配置项】
         //  筛选出需删除的配置项，用于返回
@@ -123,8 +128,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
      * 返回需新增的配置
      * @param needAddNamespaceSet
      */
-    protected List<SimplePropertySource> doGetAddNamespace(Set<String> needAddNamespaceSet) {
-        List<SimplePropertySource> addPropertySourceList = Lists.newArrayList();
+    protected List<SimplePropertySource> doGetAddNamespace(Set<String> needAddNamespaceSet, List<SimplePropertySource> list) {
         SimpleCompositePropertySource bootstrapComposite = ApolloExtendUtils.getCompositePropertySource(environment);
         for (String namespace : needAddNamespaceSet) {
             String propertySourceName = ApolloExtendUtils.getPropertySourceName(namespace);
@@ -164,10 +168,14 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
                         simplePropertySource.getSource().getSourceType() == ConfigSourceType.NONE)) {
                     continue;
                 }
-                addPropertySourceList.add(simplePropertySource);
+                if (simplePropertySource != null && simplePropertySource.containsProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE)) {
+                    String config = (String) simplePropertySource.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE);
+                    doGetAddNamespace(ApolloExtendUtils.parseNamespace(config), list);
+                }
+                list.add(simplePropertySource);
             }
         }
-        return addPropertySourceList;
+        return list;
     }
 
     protected void refreshAddEnvironment(List<SimplePropertySource> addPropertySourceList, Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap) {
@@ -193,28 +201,25 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
      * @param needDeleteNamespaceSet
      * @return
      */
-    protected List<SimplePropertySource> doGetDeleteNamespace(Set<String> needDeleteNamespaceSet) {
+    protected List<SimplePropertySource> doGetDeleteNamespace(Set<String> needDeleteNamespaceSet, List<SimplePropertySource> list) {
         if (CollectionUtils.isEmpty(needDeleteNamespaceSet)) {
             return Lists.newArrayList();
         }
-        //  1.排除application
-        //  2.根据 "需要删除的命名空间" namespaceSet 筛选
-        //  3.判断是否包涵 "指定前缀" 的配置
-        List<SimplePropertySource> list = ApolloPropertySourceContext.INSTANCE.getPropertySources()
-                .stream()
-                .filter(propertySource -> propertySource.getSource().getSourceType() != ConfigSourceType.NONE)
-                .filter(propertySource -> !ConfigConsts.NAMESPACE_APPLICATION.equalsIgnoreCase(propertySource.getNamespace()))
-                .filter(propertySource -> needDeleteNamespaceSet.contains(propertySource.getNamespace()))
-                .collect(Collectors.toList())
-                ;
-        if (CollectionUtils.isNotEmpty(list)) {
-            for (SimplePropertySource propertySource : list) {
+        for (String namespace : needDeleteNamespaceSet) {
+            Predicate<PropertySource> predicate = (propertySource -> ((SimplePropertySource) propertySource).getNamespace().equals(namespace));
+            boolean match = ApolloPropertySourceContext.INSTANCE.contains(predicate);
+            if (match) {
+                PropertySource propertySource = ApolloPropertySourceContext.INSTANCE.get(predicate);
                 ApolloClientExtendConfig source = (ApolloClientExtendConfig) propertySource.getSource();
                 source.initialize();
+                if (propertySource != null && propertySource.containsProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE)) {
+                    String config = (String) propertySource.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE);
+                    doGetDeleteNamespace(ApolloExtendUtils.parseNamespace(config), list);
+                }
+                list.add((SimplePropertySource) propertySource);
             }
-            return list;
         }
-        return Lists.newArrayList();
+        return list;
     }
 
     /**

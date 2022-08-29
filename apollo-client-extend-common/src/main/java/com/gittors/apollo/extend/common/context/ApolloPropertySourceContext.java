@@ -1,10 +1,12 @@
 package com.gittors.apollo.extend.common.context;
 
 import com.gittors.apollo.extend.common.env.SimplePropertySource;
+import org.springframework.core.env.PropertySource;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * @author zlliu
@@ -20,6 +22,24 @@ public enum ApolloPropertySourceContext {
 
     public Collection<SimplePropertySource> getPropertySources() {
         return this.propertySources;
+    }
+
+    public boolean contains(Predicate<PropertySource> predicate) {
+        for (PropertySource<?> propertySource : getPropertySources()) {
+            if (predicate.test(propertySource)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public PropertySource<?> get(Predicate<PropertySource> predicate) {
+        for (PropertySource<?> propertySource : getPropertySources()) {
+            if (predicate.test(propertySource)) {
+                return propertySource;
+            }
+        }
+        return null;
     }
 
 }

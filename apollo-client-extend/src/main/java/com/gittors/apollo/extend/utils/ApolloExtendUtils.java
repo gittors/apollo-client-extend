@@ -3,6 +3,7 @@ package com.gittors.apollo.extend.utils;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
+import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.ctrip.framework.apollo.spring.property.AutoUpdateConfigChangeListener;
 import com.gittors.apollo.extend.callback.ApolloExtendCallback;
@@ -20,6 +21,7 @@ import com.gittors.apollo.extend.spi.ApolloConfigChangeCallBack;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.support.ApolloExtendStringMapEntry;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -53,6 +55,9 @@ import java.util.stream.Collectors;
 public final class ApolloExtendUtils {
     private static final ApolloConfigChangeCallBack apolloConfigChangeCallBack =
             ServiceLookUp.loadPrimary(ApolloConfigChangeCallBack.class);
+
+    private static final Splitter NAMESPACE_SPLITTER = Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR)
+            .omitEmptyStrings().trimResults();
 
     private ApolloExtendUtils() {
     }
@@ -156,6 +161,7 @@ public final class ApolloExtendUtils {
     public static Map.Entry<Boolean, Set<String>> skipMatchConfig() {
         Set<String> skipMatchConfig = Sets.newHashSet();
         skipMatchConfig.add(CommonApolloConstant.APOLLO_EXTEND_LISTEN_KEY_SUFFIX);
+        skipMatchConfig.add(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE);
 
         return new AbstractMap.SimpleEntry<>(Boolean.TRUE, skipMatchConfig);
     }
@@ -351,6 +357,18 @@ public final class ApolloExtendUtils {
                 return null;
             }
         };
+    }
+
+    /**
+     * 解析配置: ","号分割
+     * @param config
+     * @return
+     */
+    public static Set<String> parseNamespace(String config) {
+        List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(config);
+        return namespaceList.stream()
+                .filter(namespace -> !ConfigConsts.NAMESPACE_APPLICATION.equals(namespace))
+                .collect(Collectors.toSet());
     }
 
 }

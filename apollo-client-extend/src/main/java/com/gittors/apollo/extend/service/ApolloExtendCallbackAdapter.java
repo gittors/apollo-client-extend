@@ -57,10 +57,10 @@ public class ApolloExtendCallbackAdapter extends AbstractApolloExtendCallback im
         //  管理命名空间
         String manageNamespaces = newValue;
         if (StringUtils.isNotBlank(manageNamespaces) ||
-                StringUtils.isBlank(manageNamespaces) && (manageNamespaces = ConfigConsts.NAMESPACE_APPLICATION) != null) {
+                StringUtils.isBlank(manageNamespaces) && (manageNamespaces = CommonApolloConstant.NAMESPACE_APPLICATION) != null) {
             List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(manageNamespaces);
             Set<String> newNamespaceSet = new HashSet<>(namespaceList);
-            newNamespaceSet.add(ConfigConsts.NAMESPACE_APPLICATION);
+            newNamespaceSet.add(CommonApolloConstant.NAMESPACE_APPLICATION);
             //  设置环境
             extendNameSpaceManager.setApplicationContext(applicationContext);
 
