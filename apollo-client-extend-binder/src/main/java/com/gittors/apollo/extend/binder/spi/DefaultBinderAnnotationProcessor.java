@@ -19,7 +19,7 @@ public class DefaultBinderAnnotationProcessor implements BinderAnnotationProcess
         AnnotationAttributes annAttrs = AnnotationAttributes.fromMap(metadataReader.getAnnotationMetadata()
                 .getAnnotationAttributes((String) objects[1]));
 
-        request.put(annAttrs.getString(CommonBinderConstant.CONFIGURATION_PROPERTIES_PREFIX_KEY),
+        request.put(annAttrs.getString(CommonBinderConstant.CONFIG_PROPERTY_PREFIX_KEY),
                 ClassUtils.resolveClassName(metadataReader.getClassMetadata().getClassName(), null));
     }
 

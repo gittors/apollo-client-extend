@@ -15,7 +15,7 @@ public class CommonBinderConstant {
     /**
      * 配置属性的前缀 Key
      */
-    public static final String CONFIGURATION_PROPERTIES_PREFIX_KEY = "prefix";
+    public static final String CONFIG_PROPERTY_PREFIX_KEY = "prefix";
 
     public static final String BINDER_SCAN_ANNOTATION_CLASS = "annotationClass";
 

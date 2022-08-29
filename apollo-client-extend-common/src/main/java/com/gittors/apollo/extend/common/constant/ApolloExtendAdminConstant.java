@@ -25,12 +25,12 @@ public class ApolloExtendAdminConstant {
     /**
      * webflux 配置开关
      */
-    public static final String ADMIN_WEBFLUX_AUTO_CONFIGURATION_ENABLED = "apollo.extend.admin.webflux.configuration.enabled";
+    public static final String ADMIN_WEBFLUX_AUTO_CONFIG_ENABLED = "apollo.extend.admin.webflux.enabled";
 
     /**
      * WEB 配置开关
      */
-    public static final String ADMIN_AUTO_CONFIGURATION_ENABLED = "apollo.extend.admin.web.configuration.enabled";
+    public static final String ADMIN_AUTO_CONFIGURATION_ENABLED = "apollo.extend.admin.web.enabled";
 
     /**
      * 请求拦截开关：缺省 TRUE

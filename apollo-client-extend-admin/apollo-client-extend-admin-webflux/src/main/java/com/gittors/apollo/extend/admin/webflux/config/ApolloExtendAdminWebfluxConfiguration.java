@@ -35,7 +35,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(
-        name = ApolloExtendAdminConstant.ADMIN_WEBFLUX_AUTO_CONFIGURATION_ENABLED,
+        name = ApolloExtendAdminConstant.ADMIN_WEBFLUX_AUTO_CONFIG_ENABLED,
         havingValue = "true"
 )
 @ConditionalOnWebApplication(type = Type.REACTIVE)

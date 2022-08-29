@@ -2,7 +2,6 @@ package com.gittors.apollo.extend.binder.annotation;
 
 import com.ctrip.framework.apollo.spring.util.BeanRegistrationUtil;
 import com.gittors.apollo.extend.binder.processor.BinderPropertySourcesPostProcessor;
-import com.gittors.apollo.extend.binder.scanner.BinderClassPathScanner;
 import com.gittors.apollo.extend.common.constant.CommonBinderConstant;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;

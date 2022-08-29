@@ -1,4 +1,4 @@
-package com.gittors.apollo.extend.binder.scanner;
+package com.gittors.apollo.extend.binder.annotation;
 
 import com.gittors.apollo.extend.binder.context.BinderContext;
 import com.gittors.apollo.extend.binder.spi.BinderAnnotationProcessor;
