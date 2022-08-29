@@ -98,7 +98,7 @@ public class AdminNamespaceEndpoint {
     }
 
     private void injectPostHandler(Set<String> namespaceSet) {
-        ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
         SimpleCompositePropertySource compositePropertySource = ApolloExtendUtils.getCompositePropertySource(environment);
 
         if (compositePropertySource.contains(CommonApolloConstant.ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME)) {
@@ -119,13 +119,13 @@ public class AdminNamespaceEndpoint {
     }
 
     private void deletePostHandler(Set<String> namespaceSet) {
-        ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
         SimpleCompositePropertySource compositePropertySource = ApolloExtendUtils.getCompositePropertySource(environment);
         List<ApolloClientExtendConfig> list = compositePropertySource.getPropertySources().stream()
                 .filter(propertySource -> propertySource instanceof SimplePropertySource)
                 .filter(propertySource -> propertySource.containsProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE))
                 .map(propertySource -> ((SimplePropertySource) propertySource))
-                .map(config -> (ApolloClientExtendConfig) config)
+                .map(configSource -> (ApolloClientExtendConfig) configSource.getSource())
                 .collect(Collectors.toList());
         for (ApolloClientExtendConfig apolloClientExtendConfig : list) {
             String nameSpaceConfig = apolloClientExtendConfig.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE, CommonApolloConstant.NAMESPACE_APPLICATION);
