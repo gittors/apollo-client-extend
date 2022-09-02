@@ -84,12 +84,12 @@ public class HolderBeanWrapperRegistry {
         Iterator<Multimap<String, HolderBeanWrapper>> iterator = registry.values().iterator();
         while (!Thread.currentThread().isInterrupted() && iterator.hasNext()) {
             Multimap<String, HolderBeanWrapper> wrapperMultimap = iterator.next();
-            Iterator<Entry<String, HolderBeanWrapper>> holdBeanWrapperWrapperIterator = wrapperMultimap.entries().iterator();
-            while (holdBeanWrapperWrapperIterator.hasNext()) {
-                Entry<String, HolderBeanWrapper> holdBeanWrapperEntry = holdBeanWrapperWrapperIterator.next();
+            Iterator<Entry<String, HolderBeanWrapper>> holdBeanWrapperIterator = wrapperMultimap.entries().iterator();
+            while (holdBeanWrapperIterator.hasNext()) {
+                Entry<String, HolderBeanWrapper> holdBeanWrapperEntry = holdBeanWrapperIterator.next();
                 if (!holdBeanWrapperEntry.getValue().isTargetBeanValid()) {
                     // clear unused spring values
-                    holdBeanWrapperWrapperIterator.remove();
+                    holdBeanWrapperIterator.remove();
                 }
             }
         }

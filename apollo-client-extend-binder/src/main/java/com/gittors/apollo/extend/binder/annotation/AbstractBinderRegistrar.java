@@ -1,7 +1,5 @@
 package com.gittors.apollo.extend.binder.annotation;
 
-import com.ctrip.framework.apollo.spring.util.BeanRegistrationUtil;
-import com.gittors.apollo.extend.binder.processor.BinderPropertySourcesPostProcessor;
 import com.gittors.apollo.extend.common.constant.CommonBinderConstant;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -27,8 +25,8 @@ public class AbstractBinderRegistrar implements ImportBeanDefinitionRegistrar, R
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, BinderPropertySourcesPostProcessor.class.getName(),
-                BinderPropertySourcesPostProcessor.class);
+        //  customize registry
+        registerCustomizeBeans(registry);
 
         AnnotationAttributes annAttrs =
                 AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(getAnnotationName()));
@@ -66,6 +64,9 @@ public class AbstractBinderRegistrar implements ImportBeanDefinitionRegistrar, R
 
         scanner.registerFilters();
         scanner.scanner(StringUtils.toStringArray(basePackages));
+    }
+
+    protected void registerCustomizeBeans(BeanDefinitionRegistry registry) {
     }
 
     /**
