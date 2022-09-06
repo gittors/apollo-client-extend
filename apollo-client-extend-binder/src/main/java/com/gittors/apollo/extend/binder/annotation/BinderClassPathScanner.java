@@ -76,12 +76,14 @@ public class BinderClassPathScanner extends ClassPathBeanDefinitionScanner {
         });
     }
 
-    public void scanner(String... basePackages) {
+    @Override
+    public int scan(String... basePackages) {
         Map<String, Class<?>> candidates = Maps.newLinkedHashMap();
         for (String basePackage : basePackages) {
             candidates.putAll(doScanner(basePackage));
         }
         BinderContext.INSTANCE.initBinderMap(candidates);
+        return 0;
     }
 
     /**
@@ -92,7 +94,7 @@ public class BinderClassPathScanner extends ClassPathBeanDefinitionScanner {
      * @param basePackage   扫描包路径
      * @return
      */
-    private Map<String, Class<?>> doScanner(String basePackage) {
+    protected Map<String, Class<?>> doScanner(String basePackage) {
         Map<String, Class<?>> candidates = new LinkedHashMap<>();
         try {
             String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +

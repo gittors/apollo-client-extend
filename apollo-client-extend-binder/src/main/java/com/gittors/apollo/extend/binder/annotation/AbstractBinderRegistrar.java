@@ -30,7 +30,7 @@ public class AbstractBinderRegistrar implements ImportBeanDefinitionRegistrar, R
 
         AnnotationAttributes annAttrs =
                 AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(getAnnotationName()));
-        BinderClassPathScanner scanner = new BinderClassPathScanner(registry);
+        BinderClassPathScanner scanner = getScanner(registry);
 
         if (resourceLoader != null) {
             scanner.setResourceLoader(resourceLoader);
@@ -63,10 +63,14 @@ public class AbstractBinderRegistrar implements ImportBeanDefinitionRegistrar, R
         scanner.setExcludeClass(excludeClass);
 
         scanner.registerFilters();
-        scanner.scanner(StringUtils.toStringArray(basePackages));
+        scanner.scan(StringUtils.toStringArray(basePackages));
     }
 
     protected void registerCustomizeBeans(BeanDefinitionRegistry registry) {
+    }
+
+    protected BinderClassPathScanner getScanner(BeanDefinitionRegistry registry) {
+        return new BinderClassPathScanner(registry);
     }
 
     /**
