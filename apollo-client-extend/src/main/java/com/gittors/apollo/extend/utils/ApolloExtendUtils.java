@@ -216,9 +216,11 @@ public final class ApolloExtendUtils {
      */
     public static void configValidHandler(SimplePropertySource propertySource, Map.Entry<Boolean, Set<String>> configEntry,
                                           ApolloExtendFactory.PropertyFilterPredicate filterPredicate) {
+        //  利用ConfigRepository的 m_fileProperties 配置没问题：因为如果远端Apollo配置更新，会先更新 LocalFileConfigRepository 的 m_fileProperties
+        //  参考：com.ctrip.framework.apollo.internals.LocalFileConfigRepository.onRepositoryChange
+        Properties sourceProperties = ((ApolloClientExtendConfig) propertySource.getSource()).getConfigRepository().getConfig();
         //  如果是FALSE全部生效，不用设置回调
-        if (configEntry.getKey() && validConfigKey(propertySource, configEntry.getValue())) {
-            Properties sourceProperties = ((ApolloClientExtendConfig) propertySource.getSource()).getConfigRepository().getConfig();
+        if (configEntry.getKey() && validConfigKey(sourceProperties, configEntry.getValue())) {
             Properties properties = new Properties();
             //  1.根据配置监听Key 筛选生效属性
             sourceProperties.stringPropertyNames()
@@ -263,14 +265,12 @@ public final class ApolloExtendUtils {
 
     /**
      * 判断管理的KEY是否是有效的
-     * @param propertySource
+     * @param sourceProperties
      * @param keySet
      * @return FALSE-不是有效的KEY，TRUE-有效的KEY
      */
-    private static boolean validConfigKey(SimplePropertySource propertySource, Set<String> keySet) {
-        Properties sourceProperties = ((ApolloClientExtendConfig) propertySource.getSource()).getConfigRepository().getConfig();
-        Set<String> propertyNames = sourceProperties.stringPropertyNames();
-        for (String propertyName : propertyNames) {
+    private static boolean validConfigKey(Properties sourceProperties, Set<String> keySet) {
+        for (String propertyName : sourceProperties.stringPropertyNames()) {
             boolean match = keySet.stream().anyMatch(key -> propertyName.startsWith(key));
             if (match) {
                 return true;
@@ -348,8 +348,7 @@ public final class ApolloExtendUtils {
                 ApolloPropertySourceContext.INSTANCE.getPropertySources().add(simplePropertySource);
                 return simplePropertySource;
             } else if (created && !cached) {
-                SimplePropertySource simplePropertySource = new SimplePropertySource(name, namespace, source);
-                return simplePropertySource;
+                return new SimplePropertySource(name, namespace, source);
             } else if (!created && cached) {
                 ApolloPropertySourceContext.INSTANCE.getPropertySources().add(propertySource);
                 return null;

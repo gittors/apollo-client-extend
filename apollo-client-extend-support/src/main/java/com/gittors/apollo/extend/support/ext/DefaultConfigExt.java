@@ -50,9 +50,7 @@ public class DefaultConfigExt extends AbstractConfigExt implements RepositoryCha
   private final ConfigRepository m_configRepository;
   private final RateLimiter m_warnLogRateLimiter;
 
-  /**
-   * 配置回调
-   */
+  //  +配置回调
   private final AtomicReference<PropertiesCallBack> propertiesCallBack;
 
 
@@ -176,7 +174,7 @@ public class DefaultConfigExt extends AbstractConfigExt implements RepositoryCha
       return;
     }
 
-    //  新增配置回调逻辑
+    //  +新增配置回调逻辑
     if (propertiesCallBack.get() != null) {
       newProperties = (Properties) propertiesCallBack.get().callBack(newProperties);
     }
