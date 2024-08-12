@@ -16,12 +16,15 @@ import javassist.NotFoundException;
 import java.util.Properties;
 
 /**
- * 此类通过 Javassist 创建Ext扩展对象，取代静态扩展
+ * 此类通过 Javassist 创建Ext扩展对象，达到动态扩展目的
  * 静态扩展：
  *      {@link AbstractConfigExt}
  *      {@link DefaultConfigExt}
  *      {@link DefaultConfigFactoryExt}
- * 静态扩展缺陷：如果依赖的Apollo client相应类修改，则需要手动修改扩展点
+ * 静态扩展缺陷：如果依赖的Apollo client相应类修改，则需要手动修改扩展点！
+ *
+ * 注意：动态扩展是动态生成字节码原理，所以动态扩展的前提是“原类的方法不能有太大的改动或改动频繁的情况”，否则动态扩展的代码也要修改，从而就丧失了动态扩展的意义了！！！
+ *      比如动态扩展的方法体是写死的：{@link INITIALIZE_METHOD} , 如果原扩展类的方法改动频繁，则 {@link INITIALIZE_METHOD} 方法体内容也得修改。
  *
  * @author zlliu
  * @date 2022/03/29 12:02

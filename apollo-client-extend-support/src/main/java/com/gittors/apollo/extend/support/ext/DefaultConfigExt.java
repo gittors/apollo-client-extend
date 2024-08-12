@@ -26,17 +26,21 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * 静态扩展: {@link com.ctrip.framework.apollo.internals.DefaultConfig}
+ * 【静态扩展点】
  *    1、开放 {@link #updateConfig(Properties, ConfigSourceType)} 方法权限： private --> public synchronized
  *    2、开放 {@link #initialize()} 方法权限： private --> public
- *    3、新增回调 {@link propertiesCallBack} + {@link #addPropertiesCallBack(PropertiesCallBack)} 方法: 配置删除时用
+ *          新增回调属性 {@link propertiesCallBack} 的 finally 设置为空的逻辑
+ *    3、新增回调属性 {@link propertiesCallBack} + {@link #addPropertiesCallBack(PropertiesCallBack)} 方法: 配置删除时用
  *    4、新增属性更新方法 {@link #setProperty(String, String)}
  *    5、新增属性 m_configRepository GET方法 {@link #getConfigRepository()}
  *    6、方法 {@link #onRepositoryChange(String, Properties)}} 新增配置回调逻辑
  *
- *    注意：如果要扩展此类，请务必实现上述的扩展点
+ *    注意：
+ *        1.如果要扩展，请在 {@link com.ctrip.framework.apollo.internals.DefaultConfig} 基础上做扩展，而不是在此类基础上！！
+ *        (意思是将源代码拷贝出来修改，而不是针对此类修改)
+ *        2.如果要扩展，请务必实现上述列出来的扩展点！！
  *
- * 此类仅供参考：实际使用 {@link ConfigFactoryProxy} 动态扩展
+ * 此类是静态扩展，动态扩展请参考： {@link ConfigFactoryProxy}
  *
  * @author zlliu
  * @date 2020/7/25 11:18
@@ -50,8 +54,9 @@ public class DefaultConfigExt extends AbstractConfigExt implements RepositoryCha
   private final ConfigRepository m_configRepository;
   private final RateLimiter m_warnLogRateLimiter;
 
-  //  +配置回调
-  private final AtomicReference<PropertiesCallBack> propertiesCallBack;
+  //  ++配置回调
+  private final AtomicReference<PropertiesCallBack> propertiesCallBack
+          = new AtomicReference<>();;
 
 
   private volatile ConfigSourceType m_sourceType = ConfigSourceType.NONE;
@@ -74,7 +79,6 @@ public class DefaultConfigExt extends AbstractConfigExt implements RepositoryCha
     m_configRepository = configRepository;
     m_configProperties = new AtomicReference<>();
     m_warnLogRateLimiter = RateLimiter.create(0.017); // 1 warning log output per minute
-    propertiesCallBack = new AtomicReference<>();
     initialize();
   }
 
@@ -93,6 +97,8 @@ public class DefaultConfigExt extends AbstractConfigExt implements RepositoryCha
       //register the change listener no matter config repository is working or not
       //so that whenever config repository is recovered, config could get changed
       m_configRepository.addChangeListener(this);
+
+      //  ++配置回调设置为空
       propertiesCallBack.set(null);
     }
   }
@@ -174,7 +180,7 @@ public class DefaultConfigExt extends AbstractConfigExt implements RepositoryCha
       return;
     }
 
-    //  +新增配置回调逻辑
+    //  ++新增配置回调逻辑
     if (propertiesCallBack.get() != null) {
       newProperties = (Properties) propertiesCallBack.get().callBack(newProperties);
     }

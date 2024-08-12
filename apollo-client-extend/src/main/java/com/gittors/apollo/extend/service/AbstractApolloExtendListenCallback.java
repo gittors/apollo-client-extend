@@ -85,11 +85,13 @@ public abstract class AbstractApolloExtendListenCallback extends AbstractApolloE
             }
             ApolloClientExtendConfig defaultConfig = ((ApolloClientExtendConfig) propertySource.getSource());
             defaultConfig.initialize();
-            ApolloExtendFactory.DataFilter dataFilter = ApolloExtendUtils.getDataFilterPredicate(environment);
-            Map<String, String> map = dataFilter.filter(propertySource, managerConfigMap.get(propertySource.getNamespace()));
+
             ApolloExtendFactory.PropertyFilterPredicate filterPredicate = getPropertySourcePredicate(changeType);
             //  设置配置部分生效
             ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getNamespace()), filterPredicate);
+
+            ApolloExtendFactory.DataFilter dataFilter = ApolloExtendUtils.getDataFilterPredicate(environment);
+            Map<String, String> map = dataFilter.filter(propertySource, managerConfigMap.get(propertySource.getNamespace()));
             //  发布更新事件
             publish(managerNamespace, map);
         } catch (Exception exception) {

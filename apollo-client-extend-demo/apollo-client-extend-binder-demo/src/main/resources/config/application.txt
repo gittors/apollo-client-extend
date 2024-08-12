@@ -2,6 +2,15 @@
 ## 这个配置可以手动添加或删除{生效或无效}，多个命名空间","号分割
 apollo.extend.namespace = application-test
 
+
+## 配置管理命名空间的监听key - 全局
+listen.key.global.map.application-test = my.map
+
+## 配置管理命名空间的监听key - 新增
+listen.key.addMap.application-test = my.map,my1.map
+
+## 配置管理命名空间的监听key - 删除
+listen.key.delMap.application-test = my.map
 ## manager configuration end ####################
 
 ## test configuration

@@ -233,9 +233,9 @@ public final class ApolloExtendUtils {
             defaultConfig.updateConfig(properties, propertySource.getSource().getSourceType());
 
             //  3.设置回调
-            //  回调的作用是每次apollo命名空间的配置动态刷新时，利用这个回调过滤掉一些配置：
-            //  由于动态失效或生效是利用更新了apollo的内存对象DefaultConfigExt的原理，真正的apollo WEB界面这个配置是存在的，所以这个回调显得很重要~
-            //  比如：设置了某些key失效了【listen.key.delMap.application2 = my.key】，apollo更新配置发布后，这些失效的key还会带过来，利用这个回调过滤掉即可
+            //  回调的作用是每次Apollo命名空间的配置动态刷新时，利用这个回调过滤掉一些配置：
+            //  由于动态失效或生效是利用更新了Apollo的内存对象DefaultConfigExt的原理，真正的Apollo WEB界面这个配置是存在的，所以这个回调显得很重要~!!
+            //  比如：设置了某些key失效了【listen.key.delMap.application2 = my.key】，Apollo更新配置发布后，这些失效的key还会带过来，利用这个回调过滤掉即可
             defaultConfig.addPropertiesCallBack(updateProperties -> {
                 Properties filterProperties = new Properties();
                 Properties property = (Properties) updateProperties;
