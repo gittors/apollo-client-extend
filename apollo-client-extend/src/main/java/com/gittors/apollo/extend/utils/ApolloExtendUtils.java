@@ -19,7 +19,6 @@ import com.gittors.apollo.extend.properties.ApolloExtendGlobalListenKeyPropertie
 import com.gittors.apollo.extend.properties.ApolloExtendListenKeyProperties;
 import com.gittors.apollo.extend.spi.ApolloConfigChangeCallBack;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
-import com.gittors.apollo.extend.support.ApolloExtendStringMapEntry;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -239,10 +238,9 @@ public final class ApolloExtendUtils {
             defaultConfig.addPropertiesCallBack(updateProperties -> {
                 Properties filterProperties = new Properties();
                 Properties property = (Properties) updateProperties;
-                property.entrySet().stream()
-                        .map(objectEntry -> new ApolloExtendStringMapEntry(String.valueOf(objectEntry.getKey()), String.valueOf(objectEntry.getValue())))
-                        .filter(stringEntry -> filterPredicate.match(stringEntry.getKey(), configEntry))
-                        .forEach(stringEntry -> filterProperties.setProperty(stringEntry.getKey(), stringEntry.getValue()));
+                property.stringPropertyNames().stream()
+                        .filter(configKey -> filterPredicate.match(configKey, configEntry))
+                        .forEach(configKey -> filterProperties.setProperty(configKey, property.getProperty(configKey, "")));
                 return filterProperties;
             });
         }
