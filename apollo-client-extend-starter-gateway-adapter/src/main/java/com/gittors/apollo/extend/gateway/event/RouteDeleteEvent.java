@@ -14,14 +14,12 @@ public class RouteDeleteEvent {
     private RouteDeleteEvent() {
     }
 
-    private static RouteDeleteEvent INSTANCE = new RouteDeleteEvent();
-
     /**
      * {Key：配置Key，Value：配置Value}
      */
     private Map<String, String> data = new HashMap<>();
 
     public static RouteDeleteEvent getInstance() {
-        return INSTANCE;
+        return new RouteDeleteEvent();
     }
 }

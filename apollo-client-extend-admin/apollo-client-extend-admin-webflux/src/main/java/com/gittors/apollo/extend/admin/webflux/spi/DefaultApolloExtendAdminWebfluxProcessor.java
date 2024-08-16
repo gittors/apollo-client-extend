@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.admin.webflux.spi;
 
 import com.ctrip.framework.apollo.core.spi.Ordered;
-import com.gittors.apollo.extend.common.event.BinderRefreshBinderEvent;
+import com.gittors.apollo.extend.common.event.BinderRefreshEvent;
 import com.gittors.apollo.extend.event.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -30,11 +30,12 @@ public class DefaultApolloExtendAdminWebfluxProcessor implements ApolloExtendAdm
      * @param config
      */
     protected void pushBinder(ApplicationContext context, Map<String, Map<String, String>> config, String source) {
-        BinderRefreshBinderEvent binderRefreshBinderEvent = BinderRefreshBinderEvent.getInstance();
-        binderRefreshBinderEvent.setData(config);
-        binderRefreshBinderEvent.setSource(source);
+        BinderRefreshEvent binderRefreshEvent = BinderRefreshEvent.getInstance();
+        binderRefreshEvent.setData(config);
+        binderRefreshEvent.setSource(source);
+
         EventPublisher eventPublisher = context.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(binderRefreshBinderEvent);
+        eventPublisher.asyncPublish(binderRefreshEvent);
     }
 
     @Override

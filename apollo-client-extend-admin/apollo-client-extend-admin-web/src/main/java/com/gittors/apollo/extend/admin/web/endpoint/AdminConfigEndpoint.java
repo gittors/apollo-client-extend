@@ -3,7 +3,7 @@ package com.gittors.apollo.extend.admin.web.endpoint;
 import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
 import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
 import com.gittors.apollo.extend.common.env.SimplePropertySource;
-import com.gittors.apollo.extend.common.event.BinderRefreshBinderEvent;
+import com.gittors.apollo.extend.common.event.BinderRefreshEvent;
 import com.gittors.apollo.extend.event.EventPublisher;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
@@ -76,11 +76,12 @@ public class AdminConfigEndpoint {
      * @param data
      */
     public void pushBinder(Map<String, Map<String, String>> data) {
-        BinderRefreshBinderEvent binderRefreshBinderEvent = BinderRefreshBinderEvent.getInstance();
-        binderRefreshBinderEvent.setData(data);
-        binderRefreshBinderEvent.setSource("AdminConfigEndpoint#update");
+        BinderRefreshEvent binderRefreshEvent = BinderRefreshEvent.getInstance();
+        binderRefreshEvent.setData(data);
+        binderRefreshEvent.setSource("AdminConfigEndpoint#update");
+
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(binderRefreshBinderEvent);
+        eventPublisher.asyncPublish(binderRefreshEvent);
     }
 
 }

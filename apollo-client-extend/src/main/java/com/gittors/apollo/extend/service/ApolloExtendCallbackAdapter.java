@@ -1,6 +1,5 @@
 package com.gittors.apollo.extend.service;
 
-import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.gittors.apollo.extend.callback.AbstractApolloExtendCallback;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.service.ServiceLookUp;

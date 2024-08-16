@@ -149,8 +149,7 @@ public final class ApolloExtendUtils {
             return true;
         }
         return configEntry.getValue().stream()
-                .filter(StringUtils::isNotBlank)
-                .anyMatch(prefix -> key.startsWith(prefix));
+                .anyMatch(prefix -> StringUtils.isNotBlank(prefix) && key.startsWith(prefix));
     }
 
     /**
@@ -345,9 +344,9 @@ public final class ApolloExtendUtils {
                 SimplePropertySource simplePropertySource = new SimplePropertySource(name, namespace, source);
                 ApolloPropertySourceContext.INSTANCE.getPropertySources().add(simplePropertySource);
                 return simplePropertySource;
-            } else if (created && !cached) {
+            } else if (created) {
                 return new SimplePropertySource(name, namespace, source);
-            } else if (!created && cached) {
+            } else if (cached) {
                 ApolloPropertySourceContext.INSTANCE.getPropertySources().add(propertySource);
                 return null;
             } else {

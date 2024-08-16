@@ -10,8 +10,8 @@ import java.util.Map;
  * @date 2020/8/20 17:25
  */
 @Data
-public class BinderRefreshBinderEvent {
-    private BinderRefreshBinderEvent() {
+public class BinderRefreshEvent {
+    private BinderRefreshEvent() {
     }
 
     /**
@@ -24,8 +24,8 @@ public class BinderRefreshBinderEvent {
      */
     private String source = "UNKNOWN";
 
-    public static BinderRefreshBinderEvent getInstance() {
-        return new BinderRefreshBinderEvent();
+    public static BinderRefreshEvent getInstance() {
+        return new BinderRefreshEvent();
     }
 
 }

@@ -3,7 +3,7 @@ package com.gittors.apollo.extend.binder.event;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapper;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapperRegistry;
 import com.gittors.apollo.extend.binder.utils.BinderObjectInjector;
-import com.gittors.apollo.extend.common.event.BinderRefreshBinderEvent;
+import com.gittors.apollo.extend.common.event.BinderRefreshEvent;
 import com.google.common.eventbus.Subscribe;
 import com.nepxion.eventbus.annotation.EventBus;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +48,7 @@ public class BinderEventSubscriber {
      * @param event 事件对象
      */
     @Subscribe
-    public void refreshBinder(BinderRefreshBinderEvent event) {
+    public void refreshBinder(BinderRefreshEvent event) {
         //  所有待刷新的配置：{key:配置key,value:配置value}
         Map<String, Map<String, String>> dataMap = event.getData();
 

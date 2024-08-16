@@ -8,6 +8,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author zlliu
@@ -23,8 +24,13 @@ public class GatewayApolloExtendCallback extends ApolloExtendCallbackAdapter {
 
     @Override
     protected void changeProcess(Map<String, Map<String, String>> data) {
+        RouteRefreshEvent refreshEvent = RouteRefreshEvent.getInstance();
+        Map<String, String> dataMap = data.values().stream().flatMap(map -> map.entrySet().stream())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        refreshEvent.setData(dataMap);
+
         //  网关的路由配置一般是多个，不关心具体的KEY，所以直接发送事件通知即可
         EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(RouteRefreshEvent.getInstance());
+        eventPublisher.asyncPublish(refreshEvent);
     }
 }
