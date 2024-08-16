@@ -184,8 +184,8 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             return;
         }
         SimpleCompositePropertySource bootstrapComposite = ApolloExtendUtils.getCompositePropertySource(environment);
+        ApolloExtendFactory.PropertyFilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(true);
         for (SimplePropertySource propertySource : addPropertySourceList) {
-            ApolloExtendFactory.PropertyFilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(true);
             //  设置配置部分生效
             ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getNamespace()), filterPredicate);
 
@@ -237,6 +237,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         if (!environment.getPropertySources().contains(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
             return;
         }
+        ApolloExtendFactory.PropertyFilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(false);
         //  1、删除 Spring环境配置
         //  2、根据监听Key，删除配置
         //  3、刷新对象、移除监听器、设置回调
@@ -250,7 +251,6 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             bootstrapComposite.remove(propertySource.getName());
             bootstrapComposite.remove(propertySourceBackupName);
 
-            ApolloExtendFactory.PropertyFilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(false);
             //  设置回调+更新对象
             ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getNamespace()), filterPredicate);
 
