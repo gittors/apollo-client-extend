@@ -77,7 +77,7 @@ public class ConfigFactoryProxy {
                 ex.printStackTrace();
             }
 
-            //  2、================  构建 DefaultConfigExt  =========================================
+            //  2、================  构建 DefaultConfigExt（扩展主要针对这个类）  =========================================
             CtClass configExtCtClass = buildDefaultConfigExt(pool, abstractConfigExtCtClass);
             try {
                 if (debugSwitch) {
@@ -99,43 +99,43 @@ public class ConfigFactoryProxy {
     }
 
     protected CtClass buildDefaultConfigExt(ClassPool pool, CtClass abstractConfigExtCtClass) throws NotFoundException, CannotCompileException {
-        //  DefaultConfigExtProxy 对象
+        //  构建 DefaultConfigExtProxy 对象
         CtClass defaultConfigExtCtClass = pool.getAndRename(DEFAULT_CONFIG, DEFAULT_CONFIG_EXT);
-        //  2.1 设置继承父类
+        //  step 1: 设置继承父类
         defaultConfigExtCtClass.setSuperclass(abstractConfigExtCtClass);
         defaultConfigExtCtClass.setInterfaces(new CtClass[]{
                 pool.get(SupportConstant.APOLLO_CHANGE_LISTENER),
                 pool.get(SupportConstant.APOLLO_CLIENT_EXTEND_CONFIG)
         });
-        //  2.2 新增属性 propertiesCallBack
+        //  step 2: 新增回调属性 propertiesCallBack
         CtField propertiesCallBack = CtField.make(PROPERTIES_CALL_BACK_FIELD, defaultConfigExtCtClass);
         defaultConfigExtCtClass.addField(propertiesCallBack);
 
-        //  2.3 设置updateConfig 方法体
+        //  step 3: 修改 updateConfig 方法修改修饰符：private ==> public
         CtMethod updateConfigMethod = defaultConfigExtCtClass.getDeclaredMethod(SupportConstant.DEFAULT_CONFIG_UPDATE_CONFIG_METHOD);
         updateConfigMethod.setModifiers(Modifier.PUBLIC);
         updateConfigMethod.setBody(UPDATE_CONFIG_METHOD);
 
-        //  2.4 设置initialize方法体
+        //  step 4: 修改 initialize 方法体,增加回调参数重置(针对step 2的参数)
         CtMethod initializeMethod = defaultConfigExtCtClass.getDeclaredMethod(SupportConstant.DEFAULT_CONFIG_INITIALIZE_METHOD);
         initializeMethod.setModifiers(Modifier.PUBLIC);
         initializeMethod.setBody(INITIALIZE_METHOD);
 
-        //  2.5 新增方法 addPropertiesCallBack
+        //  step 5: 新增方法 addPropertiesCallBack
         CtMethod addPropertiesCallBack = CtMethod.make(ADD_PROPERTIES_CALL_BACK_METHOD, defaultConfigExtCtClass);
         defaultConfigExtCtClass.addMethod(addPropertiesCallBack);
 
-        //  2.6 新增方法 setProperty
+        //  step 6: 新增方法 setProperty
         CtMethod setProperty = CtMethod.make(SET_PROPERTY_METHOD, defaultConfigExtCtClass);
         defaultConfigExtCtClass.addMethod(setProperty);
 
-        //  2.7 新增方法
+        //  step 7: 新增方法 getConfigRepository
         CtMethod getConfigRepository = CtMethod.make(GET_CONFIG_REPOSITORY_METHOD, defaultConfigExtCtClass);
         defaultConfigExtCtClass.addMethod(getConfigRepository);
 
-        //  2.8 修改方法
+        //  step 8: 修改方法 onRepositoryChange
         CtMethod onRepositoryChange = defaultConfigExtCtClass.getDeclaredMethod(SupportConstant.DEFAULT_CONFIG_ON_REPOSITORY_CHANGE_METHOD);
-        onRepositoryChange.setBody(ONREPOSITORY_CHANGE_METHOD);
+        onRepositoryChange.setBody(REPOSITORY_CHANGE_METHOD);
 
         //  将对象加载至JVM
         defaultConfigExtCtClass.toClass();
@@ -146,10 +146,11 @@ public class ConfigFactoryProxy {
     protected CtClass buildAbstractConfigExt(ClassPool pool) throws NotFoundException, CannotCompileException {
         //  复制类并重命名
         CtClass abstractConfigExtCtClass = pool.getAndRename(ABSTRACT_CONFIG, ABSTRACT_CONFIG_EXT);
-        //  1.1、新增方法 getChangeListener
+        //  step 1、新增方法 getChangeListener
         CtMethod newMethod = CtMethod.make(GET_CHANGE_LISTENER_METHOD, abstractConfigExtCtClass);
         abstractConfigExtCtClass.addMethod(newMethod);
 
+        //  step 2、开放 calcPropertyChanges 方法权限，由default ==> protected
         CtMethod calcPropertyChangesMethod = abstractConfigExtCtClass.getDeclaredMethod(SupportConstant.ABSTRACT_CONFIG_CALC_PROPERTY_CHANGES_METHOD);
         calcPropertyChangesMethod.setModifiers(Modifier.PROTECTED);
 
@@ -218,6 +219,7 @@ public class ConfigFactoryProxy {
             "    }\n" +
             "}";
 
+    //  fireConfigChange 方法体内部Runnable
     private static final String ABSTRACT_CONFIG_PROXY_RUN = "public void run(){\n" +
             "          java.lang.String listenerName = listener.getClass().getName();\n" +
             "          com.ctrip.framework.apollo.tracer.spi.Transaction transaction = com.ctrip.framework.apollo.tracer.Tracer.newTransaction(\"Apollo.ConfigChangeListener\", listenerName);\n" +
@@ -232,13 +234,13 @@ public class ConfigFactoryProxy {
             "            transaction.complete();\n" +
             "          }\n" +
             "}";
-    //  构造函数
+    //  内部线程类构造函数
     private static final String ABSTRACT_CONFIG_PROXY_CONSTRUCTOR = "{this.listener=$1;this.changeEvent=$2;}";
     //  logger属性
     private static final String LOGGER = "private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(" + ABSTRACT_CONFIG_EXT_RUNNABLE + ".class);";
     //  listener属性
     private static final String LISTENER = "private final com.ctrip.framework.apollo.ConfigChangeListener listener;";
-    //  ConfigChangeEvent 对象属性
+    //  内部线程类 ConfigChangeEvent 对象属性
     private static final String CONFIG_CHANGE_EVENT = "private final com.ctrip.framework.apollo.model.ConfigChangeEvent changeEvent;";
 
     //  ========================================= AbstractConfig 扩展END ================================================
@@ -248,7 +250,7 @@ public class ConfigFactoryProxy {
     private static final String PROPERTIES_CALL_BACK_FIELD = "private final java.util.concurrent.atomic.AtomicReference/*<com.gittors.apollo.extend.support.ext.PropertiesCallBack>*/ propertiesCallBack = new java.util.concurrent.atomic.AtomicReference/*<>*/();";
     //  updateConfig 方法
     //  $1=arg1 $2=arg2
-    private static final String UPDATE_CONFIG_METHOD = "{m_configProperties.set($1);m_sourceType = $2;}";
+    private static final String UPDATE_CONFIG_METHOD = "{synchronized(this){m_configProperties.set($1);m_sourceType = $2;}}";
     //  initialize 方法体
     private static final String INITIALIZE_METHOD = "{" +
             "try {" +
@@ -256,6 +258,7 @@ public class ConfigFactoryProxy {
             "} catch (Throwable ex) {} " +
             "finally {" +
             "   m_configRepository.addChangeListener(this);" +
+            "   // ++增加callback回调重置" +
             "   propertiesCallBack.set(null);" +
             "}" +
         "}";
@@ -271,13 +274,14 @@ public class ConfigFactoryProxy {
             "return $0.m_configRepository;}";
     //  onRepositoryChange 方法体
     //  SET Body：参数要用 Javassist语法$指定；方法体要用{}包含
+    //  参数设置：$1=arg1 $2=arg2
     //  引用外部类要包含全类名，如：java.util.Map
     //  泛型要用/**/标记，如：java.util.Map/*<String, ConfigChange>*/
-    private static final String ONREPOSITORY_CHANGE_METHOD = "{\n" +
+    private static final String REPOSITORY_CHANGE_METHOD = "{\n" +
             "    if ($2.equals(m_configProperties.get())) {\n" +
             "      return ;\n" +
             "    }\n" +
-            "    //  TODO 新增配置回调逻辑\n" +
+            "    //  ++新增配置回调逻辑\n" +
             "    if (propertiesCallBack.get() != null) {\n" +
             "      $2 = (java.util.Properties) ((com.gittors.apollo.extend.support.ext.PropertiesCallBack)propertiesCallBack.get()).callBack($2);\n" +
             "    }\n" +

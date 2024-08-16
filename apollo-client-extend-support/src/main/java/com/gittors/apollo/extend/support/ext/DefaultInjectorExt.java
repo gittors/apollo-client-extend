@@ -122,11 +122,19 @@ public class DefaultInjectorExt implements Injector {
         if (!properties.containsKey(SupportConstant.CONFIG_PROXY_SWITCH) ||
                 (!StringUtils.isBlank(properties.getProperty(SupportConstant.CONFIG_PROXY_SWITCH)) &&
                         StringUtils.equalsIgnoreCase(properties.getProperty(SupportConstant.CONFIG_PROXY_SWITCH), "true"))) {
-            if ((clazz = new ConfigFactoryProxy().build()) == null) {
+            if ((clazz = buildFactoryProxy()) == null) {
                 clazz = DefaultConfigFactoryExt.class;
             }
         }
         return clazz;
+    }
+
+    /**
+     * 构建代理对象
+     * @return
+     */
+    protected Class<? extends ConfigFactory> buildFactoryProxy() {
+        return new ConfigFactoryProxy().build();
     }
 
     @Override
