@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.binder.annotation;
 
 import com.ctrip.framework.apollo.spring.util.BeanRegistrationUtil;
-import com.gittors.apollo.extend.binder.processor.BinderPropertySourcesPostProcessor;
+import com.gittors.apollo.extend.binder.processor.AutoBinderConfigListenerPostProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
 /**
@@ -19,7 +19,7 @@ public class BinderScannerRegistrar extends AbstractBinderRegistrar {
 
     @Override
     protected void registerCustomizeBeans(BeanDefinitionRegistry registry) {
-        BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, BinderPropertySourcesPostProcessor.class.getName(),
-                BinderPropertySourcesPostProcessor.class);
+        BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, AutoBinderConfigListenerPostProcessor.class.getName(),
+                AutoBinderConfigListenerPostProcessor.class);
     }
 }

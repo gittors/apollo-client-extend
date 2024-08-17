@@ -258,7 +258,7 @@ public class ConfigFactoryProxy {
             "} catch (Throwable ex) {} " +
             "finally {" +
             "   m_configRepository.addChangeListener(this);" +
-            "   // ++增加callback回调重置" +
+            "   //  ++增加callback回调重置\n" +
             "   propertiesCallBack.set(null);" +
             "}" +
         "}";

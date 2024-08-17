@@ -64,18 +64,18 @@ public class AutoUpdateConfigListenerProcessor implements BeanFactoryPostProcess
         //  初始化回调
         ApolloExtendContext.INSTANCE.initCallbackMap(callbackMap);
 
-        //  application 命名空间添加自定义监听器
+        //  step 1: application 命名空间添加自定义监听器(由于application命名空间由Apollo添加了自动更新监听器，所以不需要重复添加)
         List<ConfigPropertySource> configPropertySources = configPropertySourceFactory.getAllConfigPropertySources();
         for (ConfigPropertySource propertySource : configPropertySources) {
             //  添加自定义监听器
             ApolloExtendUtils.addListener(propertySource.getName(), callbackMap);
         }
 
-        //  其他命名空间添加自定义监听器
-        AutoUpdateConfigChangeListener updateConfigChangeListener =
-                new AutoUpdateConfigChangeListener(environment, beanFactory);
+        //  step 2: 其他命名空间添加自定义监听器
+        AutoUpdateConfigChangeListener updateConfigChangeListener = new AutoUpdateConfigChangeListener(environment, beanFactory);
         Collection<SimplePropertySource> simplePropertySources = ApolloPropertySourceContext.INSTANCE.getPropertySources();
         for (SimplePropertySource configPropertySource : simplePropertySources) {
+            //  添加Apollo自动更新监听器
             configPropertySource.addChangeListener(updateConfigChangeListener);
             //  添加自定义监听器
             ApolloExtendUtils.addListener(configPropertySource.getNamespace(), callbackMap);

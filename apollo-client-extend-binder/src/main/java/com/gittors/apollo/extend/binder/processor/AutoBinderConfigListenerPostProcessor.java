@@ -27,13 +27,13 @@ import java.util.Set;
  * @author zlliu
  * @date 2020/8/19 21:39
  */
-public class BinderPropertySourcesPostProcessor implements BeanFactoryPostProcessor, EnvironmentAware, PriorityOrdered {
+public class AutoBinderConfigListenerPostProcessor implements BeanFactoryPostProcessor, EnvironmentAware, PriorityOrdered {
     private static final Set<BeanFactory> AUTO_BINDER_INITIALIZED_BEAN_FACTORIES = Sets.newConcurrentHashSet();
 
     private final ConfigPropertySourceFactory configPropertySourceFactory =
             SpringInjector.getInstance(ConfigPropertySourceFactory.class);
 
-    private static final String AUTO_BINDER_CONFIG_KEY = "apollo.autoBinder.injected.enabled";
+    private static final String AUTO_BINDER_CONFIG_KEY = "apollo.extend.auto.binder.enabled";
 
     private boolean autoBinderInjectedSpringProperties = true;
 
@@ -50,14 +50,15 @@ public class BinderPropertySourcesPostProcessor implements BeanFactoryPostProces
                 !AUTO_BINDER_INITIALIZED_BEAN_FACTORIES.add(beanFactory)) {
             return;
         }
-        AutoBinderConfigChangeListener binderConfigChangeListener = new AutoBinderConfigChangeListener(
-                environment, beanFactory);
+        AutoBinderConfigChangeListener binderConfigChangeListener = new AutoBinderConfigChangeListener(environment, beanFactory);
         Collection<SimplePropertySource> configPropertySources = ApolloPropertySourceContext.INSTANCE.getPropertySources();
         for (SimplePropertySource configPropertySource : configPropertySources) {
+            //  其他命名空间添加自动绑定监听器
             configPropertySource.addChangeListener(binderConfigChangeListener);
         }
         List<ConfigPropertySource> propertySources = configPropertySourceFactory.getAllConfigPropertySources();
         for (ConfigPropertySource propertySource : propertySources) {
+            //  application 命名空间添加自动绑定监听器
             propertySource.addChangeListener(binderConfigChangeListener);
         }
     }

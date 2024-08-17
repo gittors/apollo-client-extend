@@ -60,7 +60,17 @@ public class ApolloExtendApplicationContextInitializer implements
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment configurableEnvironment, SpringApplication springApplication) {
-        initializeSystemProperty(configurableEnvironment);
+        //  initializeSystemProperty
+        for (String propertyName : APOLLO_SYSTEM_PROPERTIES) {
+            if (System.getProperty(propertyName) != null) {
+                return;
+            }
+            String propertyValue = configurableEnvironment.getProperty(propertyName);
+            if (Strings.isNullOrEmpty(propertyValue)) {
+                return;
+            }
+            System.setProperty(propertyName, propertyValue);
+        }
     }
 
     private void initialize(ConfigurableEnvironment environment) {
@@ -70,23 +80,6 @@ public class ApolloExtendApplicationContextInitializer implements
         } catch (Throwable throwable) {
             log.error("#initialize error: ", throwable);
         }
-    }
-
-    void initializeSystemProperty(ConfigurableEnvironment environment) {
-        for (String propertyName : APOLLO_SYSTEM_PROPERTIES) {
-            fillSystemPropertyFromEnvironment(environment, propertyName);
-        }
-    }
-
-    private void fillSystemPropertyFromEnvironment(ConfigurableEnvironment environment, String propertyName) {
-        if (System.getProperty(propertyName) != null) {
-            return;
-        }
-        String propertyValue = environment.getProperty(propertyName);
-        if (Strings.isNullOrEmpty(propertyValue)) {
-            return;
-        }
-        System.setProperty(propertyName, propertyValue);
     }
 
     @Override

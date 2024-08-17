@@ -28,7 +28,6 @@
     </dependencyManagement>
 
     <dependencies>
-
         <!--  ============== web dependency start =================  -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -46,6 +45,12 @@
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.javassist</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
