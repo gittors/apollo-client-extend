@@ -216,7 +216,8 @@ public final class ApolloExtendUtils {
                                           ApolloExtendFactory.PropertyFilterPredicate filterPredicate) {
         //  利用ConfigRepository的 m_fileProperties 配置没问题：因为如果远端Apollo配置更新，会先更新 LocalFileConfigRepository 的 m_fileProperties
         //  参考：com.ctrip.framework.apollo.internals.LocalFileConfigRepository.onRepositoryChange
-        Properties sourceProperties = ((ApolloClientExtendConfig) propertySource.getSource()).getConfigRepository().getConfig();
+        ApolloClientExtendConfig defaultConfig = (ApolloClientExtendConfig) propertySource.getSource();
+        Properties sourceProperties = defaultConfig.getConfigRepository().getConfig();
         //  如果是FALSE全部生效，不用设置回调
         if (configEntry.getKey() && validConfigKey(sourceProperties, configEntry.getValue())) {
             Properties properties = new Properties();
@@ -226,7 +227,6 @@ public final class ApolloExtendUtils {
                     .filter(configKey -> filterPredicate.match(configKey, configEntry))
                     .forEach(configKey -> properties.setProperty(configKey, sourceProperties.getProperty(configKey, "")));
 
-            ApolloClientExtendConfig defaultConfig = (ApolloClientExtendConfig) propertySource.getSource();
             //  2.刷新对象
             defaultConfig.updateConfig(properties, propertySource.getSource().getSourceType());
 

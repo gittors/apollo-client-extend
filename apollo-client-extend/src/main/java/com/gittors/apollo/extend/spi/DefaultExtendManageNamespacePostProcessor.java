@@ -1,18 +1,14 @@
 package com.gittors.apollo.extend.spi;
 
-import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
 import com.gittors.apollo.extend.common.enums.ChangeType;
-import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.gittors.apollo.extend.common.service.Ordered;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * 【这个缺省的实现】：
@@ -32,20 +28,16 @@ import java.util.stream.Collectors;
 public class DefaultExtendManageNamespacePostProcessor implements ApolloExtendManageNamespacePostProcessor {
 
     @Override
-    public void postProcessNamespaceManager(ConfigurableEnvironment environment, List<ManageNamespaceConfigClass> configClasses) {
-        Set<String> namespaceSet = configClasses.stream()
-                .map(ManageNamespaceConfigClass::getNamespace).collect(Collectors.toSet());
+    public void postProcessNamespaceManager(ConfigurableEnvironment environment) {
+        Set<String> namespaceSet = ApolloPropertySourceContext.INSTANCE.getSourceNamespace();
         //  获得管理配置，部分配置生效等
         Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap =
                 ApolloExtendUtils.getManagerConfig(environment, namespaceSet, ChangeType.ADD);
 
-        List<SimplePropertySource> addPropertySourceList = ApolloPropertySourceContext.INSTANCE.getPropertySources().stream()
-                .filter(propertySource -> !CommonApolloConstant.NAMESPACE_APPLICATION.equals(propertySource.getNamespace()))
-                .collect(Collectors.toList());
         ApolloExtendFactory.PropertyFilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(true);
 
         //  过滤Apollo配置，使其部分生效
-        addPropertySourceList.forEach(propertySource ->
+        ApolloPropertySourceContext.INSTANCE.getPropertySources().forEach(propertySource ->
                 ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getNamespace()), filterPredicate)
         );
 

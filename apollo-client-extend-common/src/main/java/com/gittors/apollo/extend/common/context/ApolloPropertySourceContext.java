@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author zlliu
@@ -22,6 +23,11 @@ public enum ApolloPropertySourceContext {
 
     public Collection<SimplePropertySource> getPropertySources() {
         return this.propertySources;
+    }
+
+    public Set<String> getSourceNamespace() {
+        return getPropertySources().stream()
+                .map(SimplePropertySource::getNamespace).collect(Collectors.toSet());
     }
 
     public boolean contains(Predicate<PropertySource> predicate) {

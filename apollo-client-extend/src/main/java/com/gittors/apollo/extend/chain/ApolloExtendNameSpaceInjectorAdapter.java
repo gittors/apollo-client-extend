@@ -14,13 +14,11 @@ import com.gittors.apollo.extend.spi.ManageNamespaceConfigClass;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.support.ApolloExtendPostProcessorDelegate;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,8 +31,8 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
 
     protected final Map<String, ManageNamespaceConfigClass> configClassMap = Maps.newLinkedHashMap();
 
-    private final List<ApolloExtendManageNamespacePostProcessor> postProcessors =
-            ServiceLookUp.loadAllOrdered(ApolloExtendManageNamespacePostProcessor.class);
+    private final ApolloExtendManageNamespacePostProcessor postProcessor =
+            ServiceLookUp.loadPrimary(ApolloExtendManageNamespacePostProcessor.class);
 
     /**
      * 注册命名空间
@@ -58,7 +56,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
                         .addAfter(PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME, bootstrapComposite);
             }
             // invoke post processor
-            ApolloExtendPostProcessorDelegate.invokeManagerPostProcessor(environment, postProcessors, Lists.newArrayList(configClassMap.values()));
+            ApolloExtendPostProcessorDelegate.invokeManagerPostProcessor(postProcessor, environment);
         }
     }
 
@@ -108,6 +106,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
         String propertySourceName = ApolloExtendUtils.getPropertySourceName(configClass.getNamespace());
         ApolloExtendFactory.PropertySourceFactory factory =
                 ApolloExtendUtils.getPropertySourceFactory(propertySourceName, configClass.getNamespace(), config);
+        //  创建 PropertySource 并缓存
         SimplePropertySource simplePropertySource = factory.createPropertySource(true, true, null);
         configClass.setSimplePropertySource(simplePropertySource);
         return null;

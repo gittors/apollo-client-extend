@@ -32,34 +32,34 @@ public class ApolloExtendGlobalListenKeyProperties {
      * @return
      */
     public Map<String, Set<String>> merge(ApolloExtendListenKeyProperties listenKeyProperties, ChangeType changeType) {
-        Map<String, Set<String>> map = Maps.newLinkedHashMap(this.map);
+        Map<String, Set<String>> mergeMap = Maps.newLinkedHashMap(this.map);
         switch (changeType) {
             case ADD:
-                if (MapUtils.isEmpty(map)) {
+                if (MapUtils.isEmpty(mergeMap)) {
                     return Maps.newHashMap(listenKeyProperties.getAddMap());
                 } else if (MapUtils.isEmpty(listenKeyProperties.getAddMap())) {
-                    return map;
+                    return mergeMap;
                 } else {
                     listenKeyProperties.getAddMap()
-                            .forEach((key, value) -> map.merge(key, value, (v1, v2) ->
+                            .forEach((key, value) -> mergeMap.merge(key, value, (v1, v2) ->
                                     Stream.concat(v1.stream(), v2.stream()).collect(Collectors.toSet())));
                 }
                 break;
             case DELETE:
-                if (MapUtils.isEmpty(map)) {
+                if (MapUtils.isEmpty(mergeMap)) {
                     return Maps.newHashMap(listenKeyProperties.getDelMap());
                 } else if (MapUtils.isEmpty(listenKeyProperties.getDelMap())) {
-                    return map;
+                    return mergeMap;
                 } else {
                     listenKeyProperties.getDelMap()
-                            .forEach((key, value) -> map.merge(key, value, (v1, v2) ->
+                            .forEach((key, value) -> mergeMap.merge(key, value, (v1, v2) ->
                                     Stream.concat(v1.stream(), v2.stream()).collect(Collectors.toSet())));
                 }
                 break;
             default:
                 break;
         }
-        return map;
+        return mergeMap;
     }
 
 }
