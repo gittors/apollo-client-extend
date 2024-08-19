@@ -1,13 +1,14 @@
 package com.gittors.apollo.extend.binder.demo.spi;
 
-import com.gittors.apollo.extend.common.event.BinderRefreshEvent;
-import com.gittors.apollo.extend.event.EventPublisher;
+import com.gittors.apollo.extend.binder.demo.event.EventPublishDelegate;
 import com.gittors.apollo.extend.spi.ApolloExtendListenPublish;
 import org.springframework.beans.factory.BeanFactory;
 
 import java.util.Map;
 
 /**
+ * listen.key 配置更新回调
+ *
  * @author zlliu
  * @date 2022/8/23 11:18
  */
@@ -17,12 +18,7 @@ public class BinderApolloExtendListenPublish implements ApolloExtendListenPublis
 
     @Override
     public void doPublish(BeanFactory beanFactory, Map<String, Map<String, String>> data) {
-        BinderRefreshEvent binderEvent = BinderRefreshEvent.getInstance();
-        binderEvent.setData(data);
-        binderEvent.setSource("BinderApolloExtendListenPublish#doPublish");
-
-        EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(binderEvent);
+        EventPublishDelegate.publish(beanFactory, data, "BinderApolloExtendListenPublish#doPublish");
     }
 
     @Override

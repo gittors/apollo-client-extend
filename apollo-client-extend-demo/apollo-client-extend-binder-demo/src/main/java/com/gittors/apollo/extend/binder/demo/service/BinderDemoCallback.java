@@ -1,7 +1,6 @@
 package com.gittors.apollo.extend.binder.demo.service;
 
-import com.gittors.apollo.extend.common.event.BinderRefreshEvent;
-import com.gittors.apollo.extend.event.EventPublisher;
+import com.gittors.apollo.extend.binder.demo.event.EventPublishDelegate;
 import com.gittors.apollo.extend.service.ApolloExtendCallbackAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -11,6 +10,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.Map;
 
 /**
+ * apollo.extend.namespace 配置更新回调
+ *
  * @author zlliu
  * @date 2020/8/19 11:18
  */
@@ -28,12 +29,7 @@ public class BinderDemoCallback extends ApolloExtendCallbackAdapter {
             log.warn("#changeProcess configMap is empty!");
             return;
         }
-        BinderRefreshEvent binderEvent = BinderRefreshEvent.getInstance();
-        binderEvent.setData(data);
-        binderEvent.setSource("BinderDemoCallback#changeProcess");
-
-        EventPublisher eventPublisher = beanFactory.getBean(EventPublisher.class);
-        eventPublisher.asyncPublish(binderEvent);
+        EventPublishDelegate.publish(beanFactory, data, "BinderDemoCallback#changeProcess");
     }
 
 }
