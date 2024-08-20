@@ -53,7 +53,6 @@ public class ApolloConfigListenerProcessor implements BeanFactoryPostProcessor, 
                 !AUTO_BINDER_INITIALIZED_BEAN_FACTORIES.add(beanFactory)) {
             return;
         }
-
         //  step 1: application 命名空间添加自定义监听器(由于application命名空间由Apollo添加了自动更新监听器，所以不需要重复添加)
         List<ConfigPropertySource> configPropertySources = configPropertySourceFactory.getAllConfigPropertySources();
         CustomiseConfigChangeListener customiseConfigChangeListener = beanFactory.getBean(CustomiseConfigChangeListener.class);

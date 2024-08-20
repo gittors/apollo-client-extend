@@ -100,7 +100,6 @@ public class AdminNamespaceEndpoint {
     private void injectPostHandler(Set<String> namespaceSet) {
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
         SimpleCompositePropertySource compositePropertySource = ApolloExtendUtils.getCompositePropertySource(environment);
-
         if (compositePropertySource.contains(CommonApolloConstant.ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME)) {
             MapPropertySource mapPropertySource = (MapPropertySource) compositePropertySource.get(CommonApolloConstant.ADMIN_ENDPOINT_PROPERTY_SOURCES_NAME);
             Map<String, Object> source = mapPropertySource.getSource();

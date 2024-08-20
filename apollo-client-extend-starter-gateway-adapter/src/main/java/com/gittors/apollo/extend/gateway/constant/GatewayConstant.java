@@ -6,7 +6,7 @@ package com.gittors.apollo.extend.gateway.constant;
  */
 public class GatewayConstant {
     /**
-     * 动态路由配置的前缀配置项，缺省配置为： {@link DYNAMIC_ROUTE_DEFAULT_PREFIX}
+     * 动态路由配置的前缀配置项，缺省配置为： {@link GatewayConstant#DYNAMIC_ROUTE_DEFAULT_PREFIX}
      */
     public static final String DYNAMIC_ROUTE_PREFIX = "dynamic.route.prefix";
 

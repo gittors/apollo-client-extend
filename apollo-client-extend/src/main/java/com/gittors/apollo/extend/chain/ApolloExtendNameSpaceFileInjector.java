@@ -28,6 +28,7 @@ import java.util.stream.Stream;
  * @date 2020/8/29 2:00
  */
 @Slf4j
+@Deprecated
 public class ApolloExtendNameSpaceFileInjector extends ApolloExtendNameSpaceInjectorAdapter {
 
     @Override

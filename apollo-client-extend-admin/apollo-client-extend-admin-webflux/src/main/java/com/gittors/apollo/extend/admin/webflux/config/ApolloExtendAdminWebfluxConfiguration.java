@@ -54,57 +54,54 @@ public class ApolloExtendAdminWebfluxConfiguration {
         return RouterFunctions
                 //  获得访问Token
                 .route(GET("/token/get")
-                                //  1、需要满足的条件
-                                .and(request -> {
-                                    // 不满足条件则404，限制1分钟只能访问一次
-                                    return cacheManager.get(request.path()) == null;
-                                }), request -> {
-                            //  2、满足and条件则会处理请求,返回结果
-                            String token = EncryptUtils.encrypt(request.path());
-                            cacheManager.put(request.path(), "GET Token");
-                            cacheManager.put(token, "Token");
-
-                            return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN)
-                                    .body(BodyInserters.fromValue(token));
-                        }
+                    //  1、需要满足的条件
+                    .and(request -> {
+                        // 不满足条件则404，限制1分钟只能访问一次
+                        return cacheManager.get(request.path()) == null;
+                    }), request -> {
+                        //  2、满足and条件则会处理请求,返回结果
+                        String token = EncryptUtils.encrypt(request.path());
+                        cacheManager.put(request.path(), "GET Token");
+                        cacheManager.put(token, "Token");
+                        return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN)
+                                .body(BodyInserters.fromValue(token));
+                    }
                 )
                 //  新增命名空间
                 .andRoute(POST("/namespace/inject-namespace")
-                        .and(contentType(APPLICATION_JSON))
-                        .and(request -> {
-                            // 不满足条件则404，限制1分钟只能访问一次
-                            return cacheManager.get(request.path()) == null;
-                        }), request -> handler(request, ServiceHandler.HandlerEnum.HANDLER_NAMESPACEINJECT)
+                    .and(contentType(APPLICATION_JSON))
+                    .and(request -> {
+                        // 不满足条件则404，限制1分钟只能访问一次
+                        return cacheManager.get(request.path()) == null;
+                    }), request -> handler(request, ServiceHandler.HandlerEnum.HANDLER_NAMESPACEINJECT)
                 )
                 //  删除命名空间
                 .andRoute(POST("/namespace/delete-namespace")
-                        .and(contentType(APPLICATION_JSON))
-                        .and(request -> {
-                            // 不满足条件则404，限制1分钟只能访问一次
-                            return cacheManager.get(request.path()) == null;
-                        }), request -> handler(request, ServiceHandler.HandlerEnum.HANDLER_NAMESPACEDELETE)
+                    .and(contentType(APPLICATION_JSON))
+                    .and(request -> {
+                        // 不满足条件则404，限制1分钟只能访问一次
+                        return cacheManager.get(request.path()) == null;
+                    }), request -> handler(request, ServiceHandler.HandlerEnum.HANDLER_NAMESPACEDELETE)
                 )
                 ;
     }
 
     private Mono<ServerResponse> handler(ServerRequest request, ServiceHandler.HandlerEnum handlerEnum) {
         Mono<DataEntity> dataEntityMono = request.bodyToMono(DataEntity.class);
-        return
-                dataEntityMono.flatMap(dataEntity -> {
-                    //  1参数校验
-                    ApiResponse apiResponse = serviceHandler.doHandler(ServiceHandler.HandlerEnum.CHECK_PARAMETER, dataEntity);
-                    if (apiResponse != null) {
-                        return ServerResponse.status(apiResponse.getCode()).contentType(MediaType.TEXT_PLAIN)
-                                .body(BodyInserters.fromValue(apiResponse.getMsg()));
-                    }
-
-                    //  2命名空间操作
-                    serviceHandler.doHandler(handlerEnum, dataEntity);
-                    //  将请求写入缓存，一分钟只能发起一次
-                    cacheManager.put(request.path(), "Injector Namespace");
-                    return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN)
-                            .body(BodyInserters.fromValue(ApolloExtendAdminConstant.OK));
-                });
+        return dataEntityMono.flatMap(dataEntity -> {
+            //  1参数校验
+            ApiResponse apiResponse = serviceHandler.doHandler(ServiceHandler.HandlerEnum.CHECK_PARAMETER, dataEntity);
+            if (apiResponse != null) {
+                return ServerResponse.status(apiResponse.getCode()).contentType(MediaType.TEXT_PLAIN)
+                        .body(BodyInserters.fromValue(apiResponse.getMsg()));
+            }
+            //  2命名空间操作
+            serviceHandler.doHandler(handlerEnum, dataEntity);
+            //  将请求写入缓存，一分钟只能发起一次
+            cacheManager.put(request.path(), "Injector Namespace");
+            return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN)
+                    .body(BodyInserters.fromValue(ApolloExtendAdminConstant.OK));
+        });
     }
 
     @Configuration(proxyBeanMethods = false)

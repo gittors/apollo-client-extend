@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
 public class GatewayApolloExtendConfigProcessor implements ApolloExtendConfigPostProcessor<Map<String, Map<String, String>>> {
 
     @Override
-    public void postProcess(ConfigurableApplicationContext applicationContext, Map<String, Map<String, String>> data) {
+    public void postProcess(ConfigurableApplicationContext context, Map<String, Map<String, String>> data) {
         RouteRefreshEvent refreshEvent = RouteRefreshEvent.getInstance();
         Map<String, String> dataMap = data.values().stream().flatMap(map -> map.entrySet().stream())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         refreshEvent.setData(dataMap);
 
         //  网关的路由配置一般是多个，不关心具体的KEY，所以直接发送事件通知即可
-        EventPublisher eventPublisher = applicationContext.getBean(EventPublisher.class);
+        EventPublisher eventPublisher = context.getBean(EventPublisher.class);
         eventPublisher.asyncPublish(refreshEvent);
     }
 

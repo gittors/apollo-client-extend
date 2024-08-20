@@ -21,10 +21,10 @@ public class ApolloExtendNameSpaceConfigInjector extends ApolloExtendNameSpaceIn
         //  2、从启动参数 apollo.extend.namespace 配置找 - 第二优先级
         //  3、从 application.properties 的 apollo.bootstrap.namespaces 参数找 - 第三优先级
         String listenerKey = applicationContext.getEnvironment().getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE_PREFIX, CommonApolloConstant.APOLLO_EXTEND_NAMESPACE);
-        String managerNamespaces = applicationContext.getEnvironment().getProperty(listenerKey);
+        String managerConfig = applicationContext.getEnvironment().getProperty(listenerKey);
 
-        if (StringUtils.isNotBlank(managerNamespaces)) {
-            doInjector(applicationContext, ApolloExtendUtils.parseNamespace(managerNamespaces));
+        if (StringUtils.isNotBlank(managerConfig)) {
+            doInjector(applicationContext, ApolloExtendUtils.parseNamespace(managerConfig));
         }
 
         //  enter into next stream
