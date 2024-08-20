@@ -43,7 +43,7 @@ public class ApolloExtendCallbackAdapter implements ApplicationContextAware, Sim
             ServiceLookUp.loadPrimary(ApolloExtendConfigPostProcessor.class);
 
     /**
-     * 限制修改 {@link CommonApolloConstant.APOLLO_EXTEND_NAMESPACE} 配置的线程数
+     * 限制修改 {@link CommonApolloConstant#APOLLO_EXTEND_NAMESPACE} 配置的线程数
      */
     private Semaphore semaphore = new Semaphore(1);
 

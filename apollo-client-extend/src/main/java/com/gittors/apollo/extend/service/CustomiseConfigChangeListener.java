@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author zlliu
- * @date 2024/8/19 0019 17:56
+ * @date 2024/8/19 17:56
  */
 public class CustomiseConfigChangeListener implements ConfigChangeListener {
     // simple config handler

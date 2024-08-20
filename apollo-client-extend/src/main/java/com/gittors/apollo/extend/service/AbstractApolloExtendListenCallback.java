@@ -140,8 +140,8 @@ public abstract class AbstractApolloExtendListenCallback implements SimpleConfig
      * 1、新增时，必须存在"listen.key"对应命名空间
      * 2、删除时，必须不存在"listen.key"对应命名空间
      *
-     * @param managerNamespaceConfig    {@link CommonApolloConstant.APOLLO_EXTEND_NAMESPACE} 配置的命名空间
-     * @param managerNamespace  {@link CommonApolloConstant.APOLLO_EXTEND_ADD_CALLBACK_CONFIG} 配置的命名空间
+     * @param managerNamespaceConfig    {@link CommonApolloConstant#APOLLO_EXTEND_NAMESPACE} 配置的命名空间
+     * @param managerNamespace  {@link CommonApolloConstant#APOLLO_EXTEND_ADD_CALLBACK_CONFIG} 配置的命名空间
      * @return
      */
     protected boolean check(String managerNamespaceConfig, String managerNamespace) {
