@@ -28,7 +28,7 @@ import java.util.Set;
 public class DefaultExtendNamespacePostProcessor implements ApolloExtendNamespacePostProcessor {
 
     @Override
-    public void postProcessNamespaceManager(ConfigurableEnvironment environment) {
+    public void postProcess(ConfigurableEnvironment environment) {
         Set<String> namespaceSet = ApolloPropertySourceContext.INSTANCE.getSourceNamespace();
         //  获得管理配置，部分配置生效等
         Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap =

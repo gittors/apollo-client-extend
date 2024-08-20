@@ -22,20 +22,20 @@ public final class ApolloExtendPostProcessorDelegate {
      * @param postProcessors
      * @param configClasses
      */
-    public static void invokeManagerPostProcessors(List<ApolloExtendNamespacePostProcessor> postProcessors,
-                                                   ConfigurableEnvironment environment,
-                                                  List<ManageNamespaceConfigClass> configClasses) {
+    public static void invokePostProcessors(List<ApolloExtendNamespacePostProcessor> postProcessors,
+                                            ConfigurableEnvironment environment,
+                                            List<ManageNamespaceConfigClass> configClasses) {
         if (CollectionUtils.isNotEmpty(postProcessors)) {
             for (ApolloExtendNamespacePostProcessor processor : postProcessors) {
-                processor.postProcessNamespaceManager(environment);
+                processor.postProcess(environment);
             }
         }
     }
 
-    public static void invokeManagerPostProcessor(ApolloExtendNamespacePostProcessor postProcessor,
-                                                  ConfigurableEnvironment environment) {
+    public static void invokePostProcessor(ApolloExtendNamespacePostProcessor postProcessor,
+                                           ConfigurableEnvironment environment) {
         if (postProcessor != null) {
-            postProcessor.postProcessNamespaceManager(environment);
+            postProcessor.postProcess(environment);
         }
     }
 }

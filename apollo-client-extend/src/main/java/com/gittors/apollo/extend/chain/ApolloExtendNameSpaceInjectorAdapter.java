@@ -56,7 +56,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
                         .addAfter(PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME, bootstrapComposite);
             }
             // invoke post processor
-            ApolloExtendPostProcessorDelegate.invokeManagerPostProcessor(postProcessor, context.getEnvironment());
+            ApolloExtendPostProcessorDelegate.invokePostProcessor(postProcessor, context.getEnvironment());
         }
     }
 
