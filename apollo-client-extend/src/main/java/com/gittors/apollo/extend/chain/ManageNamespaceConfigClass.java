@@ -1,4 +1,4 @@
-package com.gittors.apollo.extend.spi;
+package com.gittors.apollo.extend.chain;
 
 import com.ctrip.framework.apollo.Config;
 import com.gittors.apollo.extend.common.env.SimplePropertySource;

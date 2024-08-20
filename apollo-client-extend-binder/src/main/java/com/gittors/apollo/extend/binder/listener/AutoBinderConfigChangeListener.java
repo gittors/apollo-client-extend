@@ -6,10 +6,9 @@ import com.gittors.apollo.extend.binder.registry.HolderBeanWrapper;
 import com.gittors.apollo.extend.binder.registry.HolderBeanWrapperRegistry;
 import com.gittors.apollo.extend.binder.utils.BinderObjectInjector;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
@@ -25,14 +24,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AutoBinderConfigChangeListener implements ConfigChangeListener {
 
-    private final ConfigurableEnvironment environment;
-    private final ConfigurableListableBeanFactory beanFactory;
+    private final ConfigurableApplicationContext context;
     private final HolderBeanWrapperRegistry holderBeanWrapperRegistry;
 
-    public AutoBinderConfigChangeListener(ConfigurableEnvironment environment,
-                                          ConfigurableListableBeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-        this.environment = environment;
+    public AutoBinderConfigChangeListener(ConfigurableApplicationContext context) {
+        this.context = context;
         this.holderBeanWrapperRegistry =
                 BinderObjectInjector.getInstance(HolderBeanWrapperRegistry.class);
     }
@@ -44,7 +40,7 @@ public class AutoBinderConfigChangeListener implements ConfigChangeListener {
             return;
         }
         Map<String, Collection<HolderBeanWrapper>> registry =
-                holderBeanWrapperRegistry.getRegistry(beanFactory);
+                holderBeanWrapperRegistry.getRegistry(context.getBeanFactory());
         if (registry == null || registry.isEmpty()) {
             return;
         }
@@ -57,7 +53,7 @@ public class AutoBinderConfigChangeListener implements ConfigChangeListener {
                             .collect(Collectors.toList())
             );
         }
-        Binder binder = Binder.get(environment);
+        Binder binder = Binder.get(context.getEnvironment());
         for (String binderPrefix : keySet) {
             Collection<HolderBeanWrapper> targetValues = registry.get(binderPrefix);
             for (HolderBeanWrapper holderBeanWrapper : targetValues) {

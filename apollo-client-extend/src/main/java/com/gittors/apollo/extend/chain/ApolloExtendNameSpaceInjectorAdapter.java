@@ -9,14 +9,14 @@ import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
-import com.gittors.apollo.extend.spi.ApolloExtendManageNamespacePostProcessor;
-import com.gittors.apollo.extend.spi.ManageNamespaceConfigClass;
+import com.gittors.apollo.extend.spi.ApolloExtendNamespacePostProcessor;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.support.ApolloExtendPostProcessorDelegate;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.Map;
@@ -27,36 +27,36 @@ import java.util.stream.Collectors;
  * @author zlliu
  * @date 2020/8/29 15:41
  */
-public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinkedProcessor<ConfigurableEnvironment> {
+public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinkedProcessor<ConfigurableApplicationContext> {
 
     protected final Map<String, ManageNamespaceConfigClass> configClassMap = Maps.newLinkedHashMap();
 
-    private final ApolloExtendManageNamespacePostProcessor postProcessor =
-            ServiceLookUp.loadPrimary(ApolloExtendManageNamespacePostProcessor.class);
+    private final ApolloExtendNamespacePostProcessor postProcessor =
+            ServiceLookUp.loadPrimary(ApolloExtendNamespacePostProcessor.class);
 
     /**
      * 注册命名空间
-     * @param environment
+     * @param context
      * @param namespaceSet
      */
-    protected void doInjector(ConfigurableEnvironment environment, Set<String> namespaceSet) {
+    protected void doInjector(ConfigurableApplicationContext context, Set<String> namespaceSet) {
         for (String namespace : namespaceSet) {
-            parse(environment, namespace);
+            parse(context.getEnvironment(), namespace);
         }
         if (MapUtils.isNotEmpty(this.configClassMap)) {
             SimpleCompositePropertySource bootstrapComposite = new SimpleCompositePropertySource(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
             for (ManageNamespaceConfigClass configClass : configClassMap.values()) {
                 bootstrapComposite.addPropertySource(configClass.getSimplePropertySource());
             }
-            if (environment.getPropertySources().contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
-                environment.getPropertySources()
+            if (context.getEnvironment().getPropertySources().contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
+                context.getEnvironment().getPropertySources()
                         .addAfter(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME, bootstrapComposite);
             } else {
-                environment.getPropertySources()
+                context.getEnvironment().getPropertySources()
                         .addAfter(PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME, bootstrapComposite);
             }
             // invoke post processor
-            ApolloExtendPostProcessorDelegate.invokeManagerPostProcessor(postProcessor, environment);
+            ApolloExtendPostProcessorDelegate.invokeManagerPostProcessor(postProcessor, context.getEnvironment());
         }
     }
 

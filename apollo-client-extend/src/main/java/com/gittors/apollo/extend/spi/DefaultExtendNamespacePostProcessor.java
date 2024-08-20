@@ -25,7 +25,7 @@ import java.util.Set;
  * @author zlliu
  * @date 2020/9/3 11:19
  */
-public class DefaultExtendManageNamespacePostProcessor implements ApolloExtendManageNamespacePostProcessor {
+public class DefaultExtendNamespacePostProcessor implements ApolloExtendNamespacePostProcessor {
 
     @Override
     public void postProcessNamespaceManager(ConfigurableEnvironment environment) {

@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.spi;
 
 import com.gittors.apollo.extend.common.service.Ordered;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * @author zlliu
@@ -12,5 +12,5 @@ public interface ApolloExtendListenPublish<T> extends Ordered {
      * 发布更新事件
      * @param data
      */
-    void doPublish(BeanFactory beanFactory, T data);
+    void doPublish(ConfigurableApplicationContext context, T data);
 }

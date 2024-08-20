@@ -19,7 +19,6 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertySource;
@@ -40,18 +39,11 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpaceManager {
-
-    private ConfigurableEnvironment environment;
-    private ConfigurableListableBeanFactory beanFactory;
+    private ConfigurableApplicationContext context;
 
     @Override
-    public void setApplicationContext(ConfigurableApplicationContext applicationContext) {
-        if (this.environment == null) {
-            this.environment = applicationContext.getEnvironment();
-        }
-        if (this.beanFactory == null) {
-            this.beanFactory = applicationContext.getBeanFactory();
-        }
+    public void setApplicationContext(ConfigurableApplicationContext context) {
+        this.context = context;
     }
 
     @Override
@@ -64,7 +56,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         if (CollectionUtils.isEmpty(addPropertySourceList)) {
             return Maps.newHashMap();
         }
-        ConfigurableEnvironment standardEnvironment = ApolloExtendUtils.mergeEnvironment(environment, addPropertySourceList);
+        ConfigurableEnvironment standardEnvironment = ApolloExtendUtils.mergeEnvironment(context.getEnvironment(), addPropertySourceList);
         Set<String> namespaceSet = addPropertySourceList.stream()
                 .map(SimplePropertySource::getNamespace).collect(Collectors.toSet());
 
@@ -93,7 +85,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         Set<String> namespaceSet = deletePropertySourceList.stream()
                 .map(SimplePropertySource::getNamespace).collect(Collectors.toSet());
         //  2.获得合并的配置项
-        Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(environment, namespaceSet, ChangeType.DELETE);
+        Map<String, Map.Entry<Boolean, Set<String>>> managerConfigMap = ApolloExtendUtils.getManagerConfig(context.getEnvironment(), namespaceSet, ChangeType.DELETE);
 
         //  3.过滤掉"apollo extend管理配置"之外的配置项【用户真正需要关心的配置项】
         //  筛选出需删除的配置项，用于返回
@@ -116,7 +108,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         if (CollectionUtils.isEmpty(propertySourceList) || MapUtils.isEmpty(managerConfigMap)) {
             return propertiesMap;
         }
-        ApolloExtendFactory.DataFilter dataFilter = ApolloExtendUtils.getDataFilterPredicate(environment);
+        ApolloExtendFactory.DataFilter dataFilter = ApolloExtendUtils.getDataFilterPredicate(context.getEnvironment());
         for (SimplePropertySource propertySource : propertySourceList) {
             Map<String, String> map = dataFilter.filter(propertySource, managerConfigMap.get(propertySource.getNamespace()));
             propertiesMap.put(propertySource.getNamespace(), map);
@@ -129,7 +121,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
      * @param needAddNamespaceSet
      */
     protected List<SimplePropertySource> doGetAddNamespace(Set<String> needAddNamespaceSet, List<SimplePropertySource> list) {
-        SimpleCompositePropertySource bootstrapComposite = ApolloExtendUtils.getCompositePropertySource(environment);
+        SimpleCompositePropertySource bootstrapComposite = ApolloExtendUtils.getCompositePropertySource(context.getEnvironment());
         for (String namespace : needAddNamespaceSet) {
             String propertySourceName = ApolloExtendUtils.getPropertySourceName(namespace);
 
@@ -183,7 +175,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             log.warn("#refreshAddEnvironmentPostHandler addPropertySourceList OR managerConfigMap is empty!");
             return;
         }
-        SimpleCompositePropertySource bootstrapComposite = ApolloExtendUtils.getCompositePropertySource(environment);
+        SimpleCompositePropertySource bootstrapComposite = ApolloExtendUtils.getCompositePropertySource(context.getEnvironment());
         ApolloExtendFactory.PropertyFilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(true);
         for (SimplePropertySource propertySource : addPropertySourceList) {
             //  设置配置部分生效
@@ -191,7 +183,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
 
             bootstrapComposite.addPropertySource(propertySource);
             //  添加监听器
-            ApolloExtendUtils.addListener(propertySource, environment, beanFactory);
+            ApolloExtendUtils.addListener(propertySource, context);
         }
     }
 
@@ -234,7 +226,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
             log.warn("#refreshDelEnvironmentPostHandler addPropertySourceList OR managerConfigMap is empty!");
             return;
         }
-        if (!environment.getPropertySources().contains(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
+        if (!context.getEnvironment().getPropertySources().contains(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
             return;
         }
         ApolloExtendFactory.PropertyFilterPredicate filterPredicate = ApolloExtendUtils.getFilterPredicate(false);
@@ -242,7 +234,7 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         //  2、根据监听Key，删除配置
         //  3、刷新对象、移除监听器、设置回调
         //  4、刷新 Spring环境配置
-        SimpleCompositePropertySource bootstrapComposite = ApolloExtendUtils.getCompositePropertySource(environment);
+        SimpleCompositePropertySource bootstrapComposite = ApolloExtendUtils.getCompositePropertySource(context.getEnvironment());
         for (SimplePropertySource propertySource : configPropertySourceList) {
             //  获得命名空间对应的spring propertySource名称
             String propertySourceBackupName = ApolloExtendStringUtils.format(propertySource.getName(), null, CommonConstant.PROPERTY_SOURCE_NAME_SUFFIX);

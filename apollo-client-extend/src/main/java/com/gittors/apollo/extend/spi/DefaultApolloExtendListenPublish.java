@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.spi;
 
 import com.gittors.apollo.extend.common.service.Ordered;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * 缺省空实现：基础API不应该集成事件相关组件
@@ -15,7 +15,7 @@ public class DefaultApolloExtendListenPublish<T> implements ApolloExtendListenPu
     private int order = Ordered.LOWEST_PRECEDENCE;
 
     @Override
-    public void doPublish(BeanFactory beanFactory, T data) {
+    public void doPublish(ConfigurableApplicationContext context, T data) {
     }
 
     @Override

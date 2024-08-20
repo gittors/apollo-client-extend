@@ -40,22 +40,22 @@ public class ApolloExtendApplicationContextInitializer implements
     private int order = DEFAULT_ORDER;
 
     @Override
-    public void initialize(ConfigurableApplicationContext applicationContext) {
-        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+    public void initialize(ConfigurableApplicationContext context) {
+        ConfigurableEnvironment environment = context.getEnvironment();
         if (!environment.getProperty(APOLLO_PLUGIN_ENABLED, Boolean.class, Boolean.TRUE)) {
-            log.debug("Apollo config is not enabled for context {}, see property: ${{}}", applicationContext, APOLLO_PLUGIN_ENABLED);
+            log.debug("Apollo config is not enabled for context {}, see property: ${{}}", context, APOLLO_PLUGIN_ENABLED);
             return;
         }
         //  之所以用Apollo Bootstrap配置，是因为不配置这个开关，则意味着不会加载远端的application配置，注册NameSpace就无从谈起了
         if (!environment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED, Boolean.class, Boolean.FALSE)) {
-            log.debug("Apollo bootstrap config is not enabled for context {}, see property: ${{}}", applicationContext, PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED);
+            log.debug("Apollo bootstrap config is not enabled for context {}, see property: ${{}}", context, PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED);
             return;
         }
         if (environment.getPropertySources().contains(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
             //  already initialized
             return;
         }
-        initialize(environment);
+        doInitialize(context);
     }
 
     @Override
@@ -73,10 +73,10 @@ public class ApolloExtendApplicationContextInitializer implements
         }
     }
 
-    private void initialize(ConfigurableEnvironment environment) {
+    private void doInitialize(ConfigurableApplicationContext context) {
         try {
             //  解析管理命名空间并注册到Spring环境
-            chainProcessor.process(environment, "namespace injector", null);
+            chainProcessor.process(context, "namespace injector", null);
         } catch (Throwable throwable) {
             log.error("#initialize error: ", throwable);
         }

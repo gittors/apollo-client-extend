@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.annotation.Order;
 
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -19,6 +20,7 @@ import java.util.concurrent.Semaphore;
  * @date 2021/5/8 13:19
  */
 @Slf4j
+@Order(3)
 public class ApolloExtendAddListenCallback extends AbstractApolloExtendListenCallback {
     public static final String BEAN_NAME = "apolloExtendAddListenCallback";
 
@@ -32,8 +34,8 @@ public class ApolloExtendAddListenCallback extends AbstractApolloExtendListenCal
     }
 
     @Override
-    protected String getConfigPrefix() {
-        return CommonApolloConstant.APOLLO_EXTEND_ADD_CALLBACK_CONFIG;
+    public boolean match(String key) {
+        return key.startsWith(CommonApolloConstant.APOLLO_EXTEND_ADD_CALLBACK_CONFIG);
     }
 
     @Override

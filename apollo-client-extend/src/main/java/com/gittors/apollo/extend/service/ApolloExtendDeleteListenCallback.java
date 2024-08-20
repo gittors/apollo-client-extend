@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.annotation.Order;
 
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -15,10 +16,14 @@ import java.util.concurrent.Semaphore;
 /**
  * 监听： {@link CommonApolloConstant#APOLLO_EXTEND_DELETE_CALLBACK_CONFIG}
  *  配置处理
+ *
+ *  注意：单独修改删除的监听KEY,不需要处理
  * @author zlliu
  * @date 2021/5/8 13:19
  */
 @Slf4j
+@Order(4)
+@Deprecated
 public class ApolloExtendDeleteListenCallback extends AbstractApolloExtendListenCallback {
     public static final String BEAN_NAME = "apolloExtendDeleteListenCallback";
 
@@ -32,8 +37,8 @@ public class ApolloExtendDeleteListenCallback extends AbstractApolloExtendListen
     }
 
     @Override
-    protected String getConfigPrefix() {
-        return CommonApolloConstant.APOLLO_EXTEND_DELETE_CALLBACK_CONFIG;
+    public boolean match(String key) {
+        return key.startsWith(CommonApolloConstant.APOLLO_EXTEND_DELETE_CALLBACK_CONFIG);
     }
 
     @Override

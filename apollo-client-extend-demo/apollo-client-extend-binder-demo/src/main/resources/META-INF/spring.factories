@@ -1,2 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.gittors.apollo.extend.binder.demo.config.BinderDemoConfiguration

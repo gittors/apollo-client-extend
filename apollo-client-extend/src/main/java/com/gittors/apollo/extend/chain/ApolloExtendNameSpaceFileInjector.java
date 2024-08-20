@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,20 +31,19 @@ import java.util.stream.Stream;
 public class ApolloExtendNameSpaceFileInjector extends ApolloExtendNameSpaceInjectorAdapter {
 
     @Override
-    public void entry(Context context, ConfigurableEnvironment environment, Map<String, Object> args) throws Throwable {
+    public void entry(Context context, ConfigurableApplicationContext applicationContext, Map<String, Object> args) throws Throwable {
         try {
             Map<String, Properties> propertiesMap = getPropertiesMap();
             if (MapUtils.isNotEmpty(propertiesMap)) {
-
                 //  注入命名空间
-                doInjector(environment, getAllNamespace(propertiesMap));
+                doInjector(applicationContext, getAllNamespace(propertiesMap));
             }
         } catch (Exception e) {
             log.error("#entry failed: ", e);
         }
 
         //  enter into next stream
-        fireEntry(context, environment, args);
+        fireEntry(context, applicationContext.getEnvironment(), args);
     }
 
     private Set<String> getAllNamespace(Map<String, Properties> propertiesMap) {

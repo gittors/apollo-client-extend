@@ -13,11 +13,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.EnvironmentAware;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Environment;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.Set;
  * @author zlliu
  * @date 2020/8/19 21:39
  */
-public class AutoBinderConfigListenerPostProcessor implements BeanFactoryPostProcessor, EnvironmentAware, PriorityOrdered {
+public class AutoBinderConfigListenerPostProcessor implements BeanFactoryPostProcessor, ApplicationContextAware, PriorityOrdered {
     private static final Set<BeanFactory> AUTO_BINDER_INITIALIZED_BEAN_FACTORIES = Sets.newConcurrentHashSet();
 
     private final ConfigPropertySourceFactory configPropertySourceFactory =
@@ -37,7 +37,7 @@ public class AutoBinderConfigListenerPostProcessor implements BeanFactoryPostPro
 
     private boolean autoBinderInjectedSpringProperties = true;
 
-    private ConfigurableEnvironment environment;
+    private ConfigurableApplicationContext context;
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -50,7 +50,7 @@ public class AutoBinderConfigListenerPostProcessor implements BeanFactoryPostPro
                 !AUTO_BINDER_INITIALIZED_BEAN_FACTORIES.add(beanFactory)) {
             return;
         }
-        AutoBinderConfigChangeListener binderConfigChangeListener = new AutoBinderConfigChangeListener(environment, beanFactory);
+        AutoBinderConfigChangeListener binderConfigChangeListener = new AutoBinderConfigChangeListener(context);
         Collection<SimplePropertySource> configPropertySources = ApolloPropertySourceContext.INSTANCE.getPropertySources();
         for (SimplePropertySource configPropertySource : configPropertySources) {
             //  其他命名空间添加自动绑定监听器
@@ -76,9 +76,8 @@ public class AutoBinderConfigListenerPostProcessor implements BeanFactoryPostPro
     }
 
     @Override
-    public void setEnvironment(Environment environment) {
-        //it is safe enough to cast as all known environment is derived from ConfigurableEnvironment
-        this.environment = (ConfigurableEnvironment) environment;
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = (ConfigurableApplicationContext) applicationContext;
     }
 
     @Override

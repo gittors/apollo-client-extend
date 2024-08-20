@@ -43,11 +43,6 @@ public class CommonApolloConstant {
     public static final String DEFAULT_SEPARATOR = ",";
 
     /**
-     * ApolloExtendCallback 缺省实现
-     */
-    public static final String DEFAULT_APOLLO_EXTEND_CALLBACK_ADAPTER = "defaultApolloExtendCallbackAdapter";
-
-    /**
      * application 命名空间
      */
     public static final String NAMESPACE_APPLICATION = "application";

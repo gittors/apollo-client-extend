@@ -3,8 +3,7 @@ package com.gittors.apollo.extend.binder.internals;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.gittors.apollo.extend.binder.listener.AutoBinderConfigChangeListener;
 import com.gittors.apollo.extend.common.spi.ApolloExtendListenerInjector;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.List;
 
@@ -16,9 +15,8 @@ public class BinderApolloExtendListenerInjector implements ApolloExtendListenerI
 
     @Override
     public void injector(List<ConfigChangeListener> list, Object... objects) {
-        ConfigurableEnvironment environment = (ConfigurableEnvironment) objects[0];
-        ConfigurableListableBeanFactory beanFactory = (ConfigurableListableBeanFactory) objects[1];
+        ConfigurableApplicationContext context = (ConfigurableApplicationContext) objects[0];
 
-        list.add(new AutoBinderConfigChangeListener(environment, beanFactory));
+        list.add(new AutoBinderConfigChangeListener(context));
     }
 }

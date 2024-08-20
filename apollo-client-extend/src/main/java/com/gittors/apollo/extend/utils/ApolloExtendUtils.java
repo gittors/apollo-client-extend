@@ -2,22 +2,19 @@ package com.gittors.apollo.extend.utils;
 
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
-import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.ctrip.framework.apollo.spring.property.AutoUpdateConfigChangeListener;
-import com.gittors.apollo.extend.callback.ApolloExtendCallback;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
 import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.gittors.apollo.extend.common.service.ServiceLookUp;
 import com.gittors.apollo.extend.common.spi.ApolloExtendListenerInjector;
-import com.gittors.apollo.extend.context.ApolloExtendContext;
 import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
 import com.gittors.apollo.extend.properties.ApolloExtendGlobalListenKeyProperties;
 import com.gittors.apollo.extend.properties.ApolloExtendListenKeyProperties;
-import com.gittors.apollo.extend.spi.ApolloConfigChangeCallBack;
+import com.gittors.apollo.extend.service.CustomiseConfigChangeListener;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
 import com.google.common.base.Splitter;
@@ -27,10 +24,10 @@ import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.StandardEnvironment;
@@ -52,38 +49,11 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public final class ApolloExtendUtils {
-    private static final ApolloConfigChangeCallBack apolloConfigChangeCallBack =
-            ServiceLookUp.loadPrimary(ApolloConfigChangeCallBack.class);
 
     private static final Splitter NAMESPACE_SPLITTER = Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR)
             .omitEmptyStrings().trimResults();
 
     private ApolloExtendUtils() {
-    }
-
-    public static void addListener(String namespaces) {
-        addListener(namespaces, ApolloExtendContext.INSTANCE.getCallbackMap());
-    }
-
-    /**
-     * 增加Apollo监听器
-     * @param namespace
-     * @param callbackMap
-     */
-    public static void addListener(String namespace, Map<String, ApolloExtendCallback> callbackMap) {
-        Config config = ConfigService.getConfig(namespace);
-        if (config != null) {
-            config.addChangeListener(getChangeListener(callbackMap));
-        }
-    }
-
-    public static ConfigChangeListener getChangeListener(Map<String, ApolloExtendCallback> callbackMap) {
-        return changeEvent -> {
-            log.info("ApolloConfig onchange... namespace: {}", changeEvent.getNamespace());
-            if (apolloConfigChangeCallBack != null) {
-                apolloConfigChangeCallBack.callBack(callbackMap, changeEvent);
-            }
-        };
     }
 
     /**
@@ -92,22 +62,20 @@ public final class ApolloExtendUtils {
      * 2.自定义监听器
      * 3.自动绑定监听器等
      * @param configPropertySource
-     * @param environment
-     * @param beanFactory
+     * @param context
      */
-    public static void addListener(SimplePropertySource configPropertySource,
-                                   ConfigurableEnvironment environment, ConfigurableListableBeanFactory beanFactory) {
+    public static void addListener(SimplePropertySource configPropertySource, ConfigurableApplicationContext context) {
         if (configPropertySource != null) {
-            configPropertySource.addChangeListener(new AutoUpdateConfigChangeListener(environment, beanFactory));
-            configPropertySource.addChangeListener(getChangeListener(ApolloExtendContext.INSTANCE.getCallbackMap()));
+            configPropertySource.addChangeListener(new AutoUpdateConfigChangeListener(context.getEnvironment(), context.getBeanFactory()));
+            CustomiseConfigChangeListener configChangeListener = context.getBean(CustomiseConfigChangeListener.class);
+            configPropertySource.addChangeListener(configChangeListener);
 
             List<ConfigChangeListener> changeListenerList = Lists.newLinkedList();
             Iterator<ApolloExtendListenerInjector> loadAll = ServiceLookUp.loadAll(ApolloExtendListenerInjector.class);
             for (Iterator<ApolloExtendListenerInjector> iterator = loadAll; iterator.hasNext();) {
                 ApolloExtendListenerInjector listenerInjector = iterator.next();
-                listenerInjector.injector(changeListenerList, environment, beanFactory);
+                listenerInjector.injector(changeListenerList, context);
             }
-
             for (ConfigChangeListener changeListener : changeListenerList) {
                 configPropertySource.addChangeListener(changeListener);
             }
