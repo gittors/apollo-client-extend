@@ -21,11 +21,13 @@ import org.springframework.context.annotation.Configuration;
 public class ApolloExtendConfiguration {
 
     @Bean
+    @ConditionalOnMissingBean(CustomiseConfigChangeListener.class)
     public CustomiseConfigChangeListener managerConfigChangeListener(ConfigurableApplicationContext context) {
         return new CustomiseConfigChangeListener(context);
     }
 
     @Bean
+    @ConditionalOnMissingBean(ApolloConfigListenerProcessor.class)
     public ApolloConfigListenerProcessor updateConfigListenerProcessor() {
         return new ApolloConfigListenerProcessor();
     }
