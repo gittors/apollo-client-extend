@@ -24,12 +24,10 @@ public class CustomiseConfigChangeListener implements ConfigChangeListener {
     public CustomiseConfigChangeListener(ConfigurableApplicationContext context) {
         List<SimpleConfigListenerHandler> simpleHandlers = Arrays.stream(context.getBeanNamesForType(SimpleConfigListenerHandler.class))
                 .map(beanName -> context.getBean(beanName, SimpleConfigListenerHandler.class))
-                .sorted(AnnotationAwareOrderComparator.INSTANCE)
-                .collect(Collectors.toList());
+                .sorted(AnnotationAwareOrderComparator.INSTANCE).collect(Collectors.toList());
         List<CompositeConfigListenerHandler> compositeHandlers = Arrays.stream(context.getBeanNamesForType(CompositeConfigListenerHandler.class))
                 .map(beanName -> context.getBean(beanName, CompositeConfigListenerHandler.class))
-                .sorted(AnnotationAwareOrderComparator.INSTANCE)
-                .collect(Collectors.toList());
+                .sorted(AnnotationAwareOrderComparator.INSTANCE).collect(Collectors.toList());
         this.simpleHandlers = Collections.unmodifiableList(simpleHandlers);
         this.compositeHandlers = Collections.unmodifiableList(compositeHandlers);
     }
@@ -45,7 +43,7 @@ public class CustomiseConfigChangeListener implements ConfigChangeListener {
                 }
             }
         }
-        //  step 2: 多对一的回调(比如服务网关)
+        //  step 2: 多对一的回调(比如服务网关,多个配置只需要回调一次的情况)
         for (CompositeConfigListenerHandler handler : compositeHandlers) {
             if (handler.match(changeEvent.changedKeys())) {
                 handler.handle(changeEvent);
