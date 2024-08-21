@@ -3,7 +3,6 @@ package com.gittors.apollo.extend.chain.spi;
 import com.gittors.apollo.extend.chain.chain.ChainProvider;
 import com.gittors.apollo.extend.chain.chain.Processor;
 import com.gittors.apollo.extend.chain.context.Context;
-import com.gittors.apollo.extend.common.service.Ordered;
 
 import java.util.Map;
 
@@ -11,7 +10,7 @@ import java.util.Map;
  * @author zlliu
  * @date 2020/8/15 13:11
  */
-public interface ChainProcessor<I, O> extends Ordered {
+public interface ChainProcessor<I, O> {
     /**
      * 链式处理
      * @param request   请求参数

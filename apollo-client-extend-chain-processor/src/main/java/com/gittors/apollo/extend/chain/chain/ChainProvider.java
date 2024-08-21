@@ -3,7 +3,6 @@ package com.gittors.apollo.extend.chain.chain;
 import com.gittors.apollo.extend.chain.spi.ChainBuilder;
 import com.gittors.apollo.extend.chain.spi.DefaultChainBuilder;
 import com.gittors.apollo.extend.chain.utils.AssertUtils;
-import com.gittors.apollo.extend.common.service.Ordered;
 import com.gittors.apollo.extend.common.service.ServiceLookUp;
 
 import java.util.Map;
@@ -29,7 +28,7 @@ public final class ChainProvider {
         return chainBuilder.build();
     }
 
-    public static <T extends Ordered> T loadFirstInstanceOrDefault(Class<T> clazz, Class<? extends T> defaultClass) {
+    public static <T> T loadFirstInstanceOrDefault(Class<T> clazz, Class<? extends T> defaultClass) {
         AssertUtils.notNull(clazz, "SPI class cannot be null");
         AssertUtils.notNull(defaultClass, "default SPI class cannot be null");
         try {

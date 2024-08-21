@@ -43,11 +43,11 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "/namespace")
 @Api(tags = { "命名空间接口" })
 public class AdminNamespaceEndpoint {
-    private final ApolloExtendNameSpaceManager extendNameSpaceManager =
-            ServiceLookUp.loadPrimary(ApolloExtendNameSpaceManager.class);
-
     private static final Splitter NAMESPACE_SPLITTER =
             Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR).omitEmptyStrings().trimResults();
+
+    private final ApolloExtendNameSpaceManager nameSpaceManager =
+            ServiceLookUp.loadPrimary(ApolloExtendNameSpaceManager.class);
 
     private final ApolloExtendAdminProcessor<BeanFactory> apolloExtendAdminProcessor =
             ServiceLookUp.loadPrimary(ApolloExtendAdminProcessor.class);
@@ -63,12 +63,12 @@ public class AdminNamespaceEndpoint {
                                                  @RequestParam("token") String token,
                                              @ApiParam(value = "命名空间", required = true)
                                               @RequestParam("namespace") String namespace) {
-        extendNameSpaceManager.setApplicationContext(applicationContext);
+        nameSpaceManager.setApplicationContext(applicationContext);
 
         List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(namespace);
         Set<String> newNamespaceSet = new HashSet<>(namespaceList);
 
-        Map<String, Map<String, String>> configMap = extendNameSpaceManager.getAddNamespaceConfig(newNamespaceSet);
+        Map<String, Map<String, String>> configMap = nameSpaceManager.getAddNamespaceConfig(newNamespaceSet);
 
         apolloExtendAdminProcessor.process(applicationContext, configMap, "AdminNamespaceEndpoint#injectNamespace");
         //  添加命名空间，需要注入到配置
@@ -84,12 +84,12 @@ public class AdminNamespaceEndpoint {
                                                  @RequestParam("token") String token,
                                              @ApiParam(value = "命名空间", required = true)
                                               @RequestParam("namespace") String namespace) {
-        extendNameSpaceManager.setApplicationContext(applicationContext);
+        nameSpaceManager.setApplicationContext(applicationContext);
 
         List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(namespace);
         Set<String> namespaceSet = new HashSet<>(namespaceList);
 
-        Map<String, Map<String, String>> configMap = extendNameSpaceManager.getDeleteNamespaceConfig(namespaceSet);
+        Map<String, Map<String, String>> configMap = nameSpaceManager.getDeleteNamespaceConfig(namespaceSet);
 
         apolloExtendAdminProcessor.process(applicationContext, configMap, "AdminNamespaceEndpoint#deleteNamespace");
         //  删除命名空间，则Spring环境里面的配置也应该删除，否则listen.key.delMap的监听KEY处理逻辑会被拦截

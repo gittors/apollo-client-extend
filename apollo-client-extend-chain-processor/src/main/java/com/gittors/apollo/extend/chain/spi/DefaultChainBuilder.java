@@ -4,7 +4,6 @@ import com.gittors.apollo.extend.chain.chain.AbstractLinkedProcessor;
 import com.gittors.apollo.extend.chain.chain.DefaultProcessorChain;
 import com.gittors.apollo.extend.chain.chain.ProcessorChain;
 import com.gittors.apollo.extend.chain.context.Context;
-import com.gittors.apollo.extend.common.service.Ordered;
 
 import java.util.Map;
 
@@ -33,11 +32,5 @@ public class DefaultChainBuilder implements ChainBuilder {
             fireEntry(context, param, args);
         }
 
-    }
-
-    @Override
-    public int getOrder() {
-        //  最低优先级
-        return Ordered.LOWEST_PRECEDENCE;
     }
 }

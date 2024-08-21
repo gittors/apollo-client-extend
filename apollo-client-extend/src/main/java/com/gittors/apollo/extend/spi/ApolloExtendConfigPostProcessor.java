@@ -1,13 +1,12 @@
 package com.gittors.apollo.extend.spi;
 
-import com.gittors.apollo.extend.common.service.Ordered;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * @author zlliu
  * @date 2024/8/20 0020 9:46
  */
-public interface ApolloExtendConfigPostProcessor<T> extends Ordered {
+public interface ApolloExtendConfigPostProcessor<T> {
 
     /**
      * 配置有变更，客户端的处理

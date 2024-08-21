@@ -2,9 +2,9 @@ package com.gittors.apollo.extend.spi;
 
 import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
 import com.gittors.apollo.extend.common.enums.ChangeType;
-import com.gittors.apollo.extend.common.service.Ordered;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.utils.ApolloExtendUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.Map;
@@ -25,6 +25,7 @@ import java.util.Set;
  * @author zlliu
  * @date 2020/9/3 11:19
  */
+@Order
 public class DefaultExtendNamespacePostProcessor implements ApolloExtendNamespacePostProcessor {
 
     @Override
@@ -41,10 +42,5 @@ public class DefaultExtendNamespacePostProcessor implements ApolloExtendNamespac
                 ApolloExtendUtils.configValidHandler(propertySource, managerConfigMap.get(propertySource.getNamespace()), filterPredicate)
         );
 
-    }
-
-    @Override
-    public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
     }
 }

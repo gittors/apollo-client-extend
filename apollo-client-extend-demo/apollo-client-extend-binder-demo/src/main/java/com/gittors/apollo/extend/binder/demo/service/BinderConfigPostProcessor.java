@@ -5,6 +5,7 @@ import com.gittors.apollo.extend.spi.ApolloExtendConfigPostProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.annotation.Order;
 
 import java.util.Map;
 
@@ -15,8 +16,8 @@ import java.util.Map;
  * @date 2020/8/19 11:18
  */
 @Slf4j
+@Order(0)
 public class BinderConfigPostProcessor implements ApolloExtendConfigPostProcessor<Map<String, Map<String, String>>> {
-
     @Override
     public void postProcess(ConfigurableApplicationContext applicationContext, Map<String, Map<String, String>> data) {
         if (MapUtils.isEmpty(data)) {
@@ -24,11 +25,6 @@ public class BinderConfigPostProcessor implements ApolloExtendConfigPostProcesso
             return;
         }
         EventPublishDelegate.publish(applicationContext, data, "BinderDemoCallback#changeProcess");
-    }
-
-    @Override
-    public int getOrder() {
-        return 0;
     }
 
 }

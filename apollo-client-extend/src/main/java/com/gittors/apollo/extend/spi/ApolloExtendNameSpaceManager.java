@@ -1,7 +1,6 @@
 package com.gittors.apollo.extend.spi;
 
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
-import com.gittors.apollo.extend.common.service.Ordered;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.Map;
@@ -14,7 +13,7 @@ import java.util.Set;
  * @author zlliu
  * @date 2020/8/26 10:33
  */
-public interface ApolloExtendNameSpaceManager extends Ordered {
+public interface ApolloExtendNameSpaceManager {
 
     /**
      * 设置环境

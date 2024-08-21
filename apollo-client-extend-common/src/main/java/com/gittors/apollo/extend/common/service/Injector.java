@@ -4,7 +4,7 @@ package com.gittors.apollo.extend.common.service;
  * @author zlliu
  * @date 2022/03/28 12:13
  */
-public interface Injector extends Ordered {
+public interface Injector {
 
   /**
    * 根据对象class类型返回对象实例

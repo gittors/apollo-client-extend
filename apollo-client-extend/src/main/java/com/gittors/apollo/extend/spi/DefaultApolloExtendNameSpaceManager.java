@@ -8,7 +8,6 @@ import com.gittors.apollo.extend.common.constant.CommonConstant;
 import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
 import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.common.env.SimplePropertySource;
-import com.gittors.apollo.extend.common.service.Ordered;
 import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
@@ -20,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertySource;
 
@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
  * @date 2020/8/26 10:38
  */
 @Slf4j
+@Order
 public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpaceManager {
     private ConfigurableApplicationContext context;
 
@@ -252,8 +253,4 @@ public class DefaultApolloExtendNameSpaceManager implements ApolloExtendNameSpac
         }
     }
 
-    @Override
-    public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
-    }
 }

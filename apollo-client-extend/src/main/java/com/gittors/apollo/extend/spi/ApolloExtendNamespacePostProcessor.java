@@ -1,6 +1,5 @@
 package com.gittors.apollo.extend.spi;
 
-import com.gittors.apollo.extend.common.service.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
@@ -9,7 +8,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
  * @author zlliu
  * @date 2020/9/3 10:52
  */
-public interface ApolloExtendNamespacePostProcessor extends Ordered {
+public interface ApolloExtendNamespacePostProcessor {
 
     /**
      * 管理命名空间后置处理器

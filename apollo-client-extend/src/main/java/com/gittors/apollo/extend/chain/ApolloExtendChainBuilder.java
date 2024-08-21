@@ -3,12 +3,13 @@ package com.gittors.apollo.extend.chain;
 import com.gittors.apollo.extend.chain.chain.DefaultProcessorChain;
 import com.gittors.apollo.extend.chain.chain.ProcessorChain;
 import com.gittors.apollo.extend.chain.spi.ChainBuilder;
-import com.gittors.apollo.extend.common.service.Ordered;
+import org.springframework.core.annotation.Order;
 
 /**
  * @author zlliu
  * @date 2020/8/29 1:56
  */
+@Order
 public class ApolloExtendChainBuilder implements ChainBuilder {
     @Override
     public ProcessorChain build() {
@@ -22,8 +23,4 @@ public class ApolloExtendChainBuilder implements ChainBuilder {
         return chain;
     }
 
-    @Override
-    public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
-    }
 }
