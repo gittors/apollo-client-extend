@@ -21,11 +21,9 @@ import java.util.Map;
  */
 public class BinderHolderBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware, PriorityOrdered {
 
-    public static final String BEAN_NAME = "binderHolderBeanPostProcessor";
-
     private BeanFactory beanFactory;
 
-    private final HolderBeanWrapperRegistry holderBeanWrapperRegistry =
+    private final HolderBeanWrapperRegistry beanWrapperRegistry =
             BinderObjectInjector.getInstance(HolderBeanWrapperRegistry.class);
 
     @Override
@@ -39,9 +37,9 @@ public class BinderHolderBeanPostProcessor implements BeanPostProcessor, BeanFac
                 //  判断类的属性是否满足条件
                 boolean match = field.getType() == entry.getValue();
                 if (match) {
-                    HolderBeanWrapper holderBeanWrapper =
+                    HolderBeanWrapper beanWrapper =
                             new HolderBeanWrapper(entry.getKey(), null, bean, beanName, field);
-                    holderBeanWrapperRegistry.register(beanFactory, entry.getKey(), holderBeanWrapper);
+                    beanWrapperRegistry.register(beanFactory, entry.getKey(), beanWrapper);
                 }
             }
         }

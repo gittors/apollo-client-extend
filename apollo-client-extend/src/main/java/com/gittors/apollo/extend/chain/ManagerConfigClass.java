@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 @Getter
 @Setter
-public class ManageNamespaceConfigClass {
+public class ManagerConfigClass {
 
     private String namespace;
     /**
@@ -28,27 +28,20 @@ public class ManageNamespaceConfigClass {
 
     private SimplePropertySource simplePropertySource;
 
-    public ManageNamespaceConfigClass() {
-    }
-
-    public ManageNamespaceConfigClass(String namespace, Config config) {
+    public ManagerConfigClass(String namespace, Config config) {
         this.namespace = namespace;
         this.config = config;
     }
 
-    public ManageNamespaceConfigClass(Config config, String propertySourceName) {
-        this.config = config;
-    }
-
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        ManageNamespaceConfigClass that = (ManageNamespaceConfigClass) o;
+        ManagerConfigClass that = (ManagerConfigClass) obj;
         return Objects.equals(namespace, that.namespace);
     }
 

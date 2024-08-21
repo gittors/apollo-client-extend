@@ -38,8 +38,8 @@ public class ApolloExtendConfiguration {
         return new ApolloExtendCallbackAdapter();
     }
 
-    @Bean(ApolloExtendAddListenCallback.BEAN_NAME)
-    @ConditionalOnMissingBean(name = ApolloExtendAddListenCallback.BEAN_NAME)
+    @Bean
+    @ConditionalOnMissingBean(ApolloExtendAddListenCallback.class)
     @ConditionalOnProperty(
             name = CommonSwitchConstant.APOLLO_EXTEND_ADD_LISTEN_CALL,
             matchIfMissing = true,
@@ -49,8 +49,8 @@ public class ApolloExtendConfiguration {
         return new ApolloExtendAddListenCallback(context);
     }
 
-    @Bean(ApolloExtendDeleteListenCallback.BEAN_NAME)
-    @ConditionalOnMissingBean(name = ApolloExtendDeleteListenCallback.BEAN_NAME)
+    @Bean
+    @ConditionalOnMissingBean(ApolloExtendDeleteListenCallback.class)
     @ConditionalOnProperty(
             name = CommonSwitchConstant.APOLLO_EXTEND_DELETE_LISTEN_CALL,
             havingValue = "true"
@@ -59,8 +59,8 @@ public class ApolloExtendConfiguration {
         return new ApolloExtendDeleteListenCallback(context);
     }
 
-    @Bean(ApolloExtendGlobalListenCallback.BEAN_NAME)
-    @ConditionalOnMissingBean(name = ApolloExtendGlobalListenCallback.BEAN_NAME)
+    @Bean
+    @ConditionalOnMissingBean(ApolloExtendGlobalListenCallback.class)
     @ConditionalOnProperty(
             name = CommonSwitchConstant.APOLLO_EXTEND_GLOBAL_LISTEN_CALL,
             havingValue = "true"

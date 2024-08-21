@@ -12,16 +12,16 @@ import org.springframework.context.annotation.Configuration;
  * @date 2020/8/20 13:53
  */
 @Configuration(proxyBeanMethods = false)
-public class BinderConfiguration {
+public class BinderAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean(name = BinderHolderBeanPostProcessor.BEAN_NAME)
+    @ConditionalOnMissingBean(BinderHolderBeanPostProcessor.class)
     public BinderHolderBeanPostProcessor binderHolderBeanPostProcessor() {
         return new BinderHolderBeanPostProcessor();
     }
 
     @Bean
-    @ConditionalOnMissingBean(name = BinderEventSubscriber.BEAN_NAME)
+    @ConditionalOnMissingBean(BinderEventSubscriber.class)
     public BinderEventSubscriber binderEventSubscriber(ConfigurableApplicationContext context) {
         return new BinderEventSubscriber(context);
     }

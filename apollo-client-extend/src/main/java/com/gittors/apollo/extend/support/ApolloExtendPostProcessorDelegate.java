@@ -1,7 +1,7 @@
 package com.gittors.apollo.extend.support;
 
 import com.gittors.apollo.extend.spi.ApolloExtendNamespacePostProcessor;
-import com.gittors.apollo.extend.chain.ManageNamespaceConfigClass;
+import com.gittors.apollo.extend.chain.ManagerConfigClass;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 
@@ -24,7 +24,7 @@ public final class ApolloExtendPostProcessorDelegate {
      */
     public static void invokePostProcessors(List<ApolloExtendNamespacePostProcessor> postProcessors,
                                             ConfigurableEnvironment environment,
-                                            List<ManageNamespaceConfigClass> configClasses) {
+                                            List<ManagerConfigClass> configClasses) {
         if (CollectionUtils.isNotEmpty(postProcessors)) {
             for (ApolloExtendNamespacePostProcessor processor : postProcessors) {
                 processor.postProcess(environment);

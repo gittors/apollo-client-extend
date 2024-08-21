@@ -22,8 +22,6 @@ import java.util.concurrent.Semaphore;
 @Slf4j
 @Order(3)
 public class ApolloExtendAddListenCallback extends AbstractApolloExtendListenCallback {
-    public static final String BEAN_NAME = "apolloExtendAddListenCallback";
-
     /**
      * 限制同一时间只能一个线程修改 {@link CommonApolloConstant#APOLLO_EXTEND_ADD_CALLBACK_CONFIG} 配置
      */

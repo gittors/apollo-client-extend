@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.gittors.apollo.extend.binder.config.BinderConfiguration
+  com.gittors.apollo.extend.binder.config.BinderAutoConfiguration

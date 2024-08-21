@@ -25,12 +25,11 @@ import java.util.stream.Collectors;
 public class AutoBinderConfigChangeListener implements ConfigChangeListener {
 
     private final ConfigurableApplicationContext context;
-    private final HolderBeanWrapperRegistry holderBeanWrapperRegistry;
+    private final HolderBeanWrapperRegistry beanWrapperRegistry;
 
     public AutoBinderConfigChangeListener(ConfigurableApplicationContext context) {
         this.context = context;
-        this.holderBeanWrapperRegistry =
-                BinderObjectInjector.getInstance(HolderBeanWrapperRegistry.class);
+        this.beanWrapperRegistry = BinderObjectInjector.getInstance(HolderBeanWrapperRegistry.class);
     }
 
     @Override
@@ -40,7 +39,7 @@ public class AutoBinderConfigChangeListener implements ConfigChangeListener {
             return;
         }
         Map<String, Collection<HolderBeanWrapper>> registry =
-                holderBeanWrapperRegistry.getRegistry(context.getBeanFactory());
+                beanWrapperRegistry.getRegistry(context.getBeanFactory());
         if (registry == null || registry.isEmpty()) {
             return;
         }

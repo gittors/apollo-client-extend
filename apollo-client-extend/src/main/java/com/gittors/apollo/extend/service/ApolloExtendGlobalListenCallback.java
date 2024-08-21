@@ -23,8 +23,6 @@ import java.util.concurrent.Semaphore;
 @Order(2)
 @Deprecated
 public class ApolloExtendGlobalListenCallback extends AbstractApolloExtendListenCallback {
-    public static final String BEAN_NAME = "apolloExtendGlobalListenCallback";
-
     /**
      * 限制同一时间只能一个线程修改 {@link CommonApolloConstant#APOLLO_EXTEND_GLOBAL_LISTEN_KEY_SUFFIX} 配置
      */

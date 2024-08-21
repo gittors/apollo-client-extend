@@ -25,8 +25,6 @@ import java.util.concurrent.Semaphore;
 @Order(4)
 @Deprecated
 public class ApolloExtendDeleteListenCallback extends AbstractApolloExtendListenCallback {
-    public static final String BEAN_NAME = "apolloExtendDeleteListenCallback";
-
     /**
      * 限制同一时间只能一个线程修改 {@link CommonApolloConstant#APOLLO_EXTEND_DELETE_CALLBACK_CONFIG} 配置
      */

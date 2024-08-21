@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  */
 public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinkedProcessor<ConfigurableApplicationContext> {
 
-    protected final Map<String, ManageNamespaceConfigClass> configClassMap = Maps.newLinkedHashMap();
+    protected final Map<String, ManagerConfigClass> configClassMap = Maps.newLinkedHashMap();
 
     private final ApolloExtendNamespacePostProcessor postProcessor =
             ServiceLookUp.loadPrimary(ApolloExtendNamespacePostProcessor.class);
@@ -45,7 +45,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
         }
         if (MapUtils.isNotEmpty(this.configClassMap)) {
             SimpleCompositePropertySource bootstrapComposite = new SimpleCompositePropertySource(CommonApolloConstant.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
-            for (ManageNamespaceConfigClass configClass : configClassMap.values()) {
+            for (ManagerConfigClass configClass : configClassMap.values()) {
                 bootstrapComposite.addPropertySource(configClass.getSimplePropertySource());
             }
             if (context.getEnvironment().getPropertySources().contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
@@ -67,7 +67,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
      * @param namespace     命名空间管理配置名称
      */
     protected void parse(ConfigurableEnvironment environment, String namespace) {
-        ManageNamespaceConfigClass configClass = new ManageNamespaceConfigClass(namespace, ConfigService.getConfig(namespace));
+        ManagerConfigClass configClass = new ManagerConfigClass(namespace, ConfigService.getConfig(namespace));
         configClass.setManageConfigPrefix(environment.getProperty(CommonApolloConstant.APOLLO_EXTEND_NAMESPACE_PREFIX, CommonApolloConstant.APOLLO_EXTEND_NAMESPACE));
         Object object = null;
         do {
@@ -84,7 +84,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
      * @param object
      * @return
      */
-    protected Object doParse(ConfigurableEnvironment environment, ManageNamespaceConfigClass configClass, Object object) {
+    protected Object doParse(ConfigurableEnvironment environment, ManagerConfigClass configClass, Object object) {
         Config config = configClass.getConfig();
         //  Load failed skip
         if (config.getSourceType() == null ||

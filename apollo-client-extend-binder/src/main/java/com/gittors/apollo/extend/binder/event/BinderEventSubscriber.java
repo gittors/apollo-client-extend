@@ -9,11 +9,9 @@ import com.nepxion.eventbus.annotation.EventBus;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -29,18 +27,12 @@ import java.util.stream.Collectors;
 @EventBus
 public class BinderEventSubscriber {
 
-    public static final String BEAN_NAME = "binderEventSubscriber";
-
     private final HolderBeanWrapperRegistry holderBeanWrapperRegistry;
-
-    private final ConfigurableEnvironment environment;
-    private final ConfigurableListableBeanFactory beanFactory;
+    private final ConfigurableApplicationContext context;
 
     public BinderEventSubscriber(ConfigurableApplicationContext context) {
-        this.holderBeanWrapperRegistry =
-                BinderObjectInjector.getInstance(HolderBeanWrapperRegistry.class);
-        this.environment = context.getEnvironment();
-        this.beanFactory = context.getBeanFactory();
+        this.holderBeanWrapperRegistry = BinderObjectInjector.getInstance(HolderBeanWrapperRegistry.class);
+        this.context = context;
     }
 
     /**
@@ -53,7 +45,7 @@ public class BinderEventSubscriber {
         Map<String, Map<String, String>> dataMap = event.getData();
 
         //  根据bean工厂获得注册工厂
-        Map<String, Collection<HolderBeanWrapper>> registry = holderBeanWrapperRegistry.getRegistry(beanFactory);
+        Map<String, Collection<HolderBeanWrapper>> registry = holderBeanWrapperRegistry.getRegistry(context.getBeanFactory());
         if (MapUtils.isEmpty(registry) || MapUtils.isEmpty(dataMap)) {
             log.warn("#refreshBinder skip refreshBinder,source: [{}] registry OR dataMap is empty!", event.getSource());
             return;
@@ -75,7 +67,7 @@ public class BinderEventSubscriber {
             log.warn("#refreshBinder skip refreshBinder,source: [{}] keyPrefixSet is empty!", event.getSource());
             return;
         }
-        Binder binder = Binder.get(environment);
+        Binder binder = Binder.get(context.getEnvironment());
         for (String binderPrefix : keyPrefixSet) {
             //  根据配置key前缀，获得bean绑定对象wrapper
             Collection<HolderBeanWrapper> targetValues = registry.get(binderPrefix);
