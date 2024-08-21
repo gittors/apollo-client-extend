@@ -1,4 +1,4 @@
-package com.gittors.apollo.extend.binder.demo.service;
+package com.gittors.apollo.extend.binder.demo.spi;
 
 import com.gittors.apollo.extend.binder.demo.event.EventPublishDelegate;
 import com.gittors.apollo.extend.spi.ApolloExtendConfigPostProcessor;

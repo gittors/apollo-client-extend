@@ -1,1 +1,1 @@
-com.gittors.apollo.extend.binder.demo.service.BinderConfigPostProcessor
+com.gittors.apollo.extend.binder.demo.spi.BinderConfigPostProcessor

@@ -1,15 +1,19 @@
 ## manager configuration start ####################
-## 这个配置可以手动添加或删除{生效或无效}，多个命名空间","号分割
+## 这个配置可以手动添加或删除{生效或无效}命名空间，多个命名空间以","号分割
+## 命名空间添加/删除的含义是：在Spring上下文环境删除,并刷新相关依赖的Bean对象
 apollo.extend.namespace = application-test
 
 
 ## 配置管理命名空间的监听key - 全局
+## 这个配置项配合上面的 apollo.extend.namespace 配置项联动生效,含义是当新增/删除命名空间时,这个配置项和addMap/delMap的配置项合并生效
 listen.key.global.map.application-test = my.map
 
 ## 配置管理命名空间的监听key - 新增
+## 这个配置项配合上面的 apollo.extend.namespace 配置项联动生效,含义是当新增命名空间 application-test 时, 其配置项 my.map或my1.map开头的配置生效
 listen.key.addMap.application-test = my.map,my1.map
 
 ## 配置管理命名空间的监听key - 删除
+## 这个配置项配合上面的 apollo.extend.namespace 配置项联动生效,含义是当删除命名空间 application-test 时, 其配置项 my.map开头的配置失效
 listen.key.delMap.application-test = my.map
 ## manager configuration end ####################
 
