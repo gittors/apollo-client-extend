@@ -12,7 +12,7 @@ import java.util.ServiceLoader;
  * @author zlliu
  * @date 2020/8/14 22:50
  */
-public class ServiceLookUp {
+public class CommonServiceLoader {
 
     public static <T> T loadFirst(Class<T> clazz) {
         Iterator<T> iterator = loadAll(clazz);

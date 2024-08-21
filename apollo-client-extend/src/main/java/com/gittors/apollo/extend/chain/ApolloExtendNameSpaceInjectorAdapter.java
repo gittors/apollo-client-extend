@@ -7,7 +7,7 @@ import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.gittors.apollo.extend.chain.chain.AbstractLinkedProcessor;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.env.SimplePropertySource;
-import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.CommonServiceLoader;
 import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
 import com.gittors.apollo.extend.spi.ApolloExtendNamespacePostProcessor;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
@@ -32,7 +32,7 @@ public abstract class ApolloExtendNameSpaceInjectorAdapter extends AbstractLinke
     protected final Map<String, ManagerConfigClass> configClassMap = Maps.newLinkedHashMap();
 
     private final ApolloExtendNamespacePostProcessor postProcessor =
-            ServiceLookUp.loadPrimary(ApolloExtendNamespacePostProcessor.class);
+            CommonServiceLoader.loadPrimary(ApolloExtendNamespacePostProcessor.class);
 
     /**
      * 注册命名空间

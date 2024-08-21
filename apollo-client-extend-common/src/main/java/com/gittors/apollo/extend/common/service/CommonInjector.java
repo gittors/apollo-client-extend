@@ -13,7 +13,7 @@ public class CommonInjector {
             synchronized (lock) {
                 if (s_injector == null) {
                     try {
-                        s_injector = ServiceLookUp.loadPrimary(Injector.class);
+                        s_injector = CommonServiceLoader.loadPrimary(Injector.class);
                     } catch (Throwable ex) {
                         throw ex;
                     }

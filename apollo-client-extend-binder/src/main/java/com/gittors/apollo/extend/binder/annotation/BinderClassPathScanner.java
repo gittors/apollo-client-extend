@@ -3,7 +3,7 @@ package com.gittors.apollo.extend.binder.annotation;
 import com.gittors.apollo.extend.binder.context.BinderContext;
 import com.gittors.apollo.extend.binder.spi.BinderAnnotationProcessor;
 import com.gittors.apollo.extend.common.constant.CommonBinderConstant;
-import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.CommonServiceLoader;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
@@ -31,7 +31,7 @@ import java.util.Map;
 public class BinderClassPathScanner extends ClassPathBeanDefinitionScanner {
 
     private final BinderAnnotationProcessor<Map<String, Class<?>>> binderAnnotationProcessor =
-            ServiceLookUp.loadPrimary(BinderAnnotationProcessor.class);
+            CommonServiceLoader.loadPrimary(BinderAnnotationProcessor.class);
 
     private ResourcePatternResolver resourcePatternResolver;
 

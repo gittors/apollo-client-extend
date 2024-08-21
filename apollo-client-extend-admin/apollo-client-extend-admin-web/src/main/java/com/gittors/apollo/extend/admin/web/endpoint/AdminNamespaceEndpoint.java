@@ -5,7 +5,7 @@ import com.gittors.apollo.extend.admin.web.spi.ApolloExtendAdminProcessor;
 import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.env.SimplePropertySource;
-import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.CommonServiceLoader;
 import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
 import com.gittors.apollo.extend.spi.ApolloExtendNameSpaceManager;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
@@ -47,10 +47,10 @@ public class AdminNamespaceEndpoint {
             Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR).omitEmptyStrings().trimResults();
 
     private final ApolloExtendNameSpaceManager nameSpaceManager =
-            ServiceLookUp.loadPrimary(ApolloExtendNameSpaceManager.class);
+            CommonServiceLoader.loadPrimary(ApolloExtendNameSpaceManager.class);
 
     private final ApolloExtendAdminProcessor<BeanFactory> apolloExtendAdminProcessor =
-            ServiceLookUp.loadPrimary(ApolloExtendAdminProcessor.class);
+            CommonServiceLoader.loadPrimary(ApolloExtendAdminProcessor.class);
 
     @Autowired
     private ConfigurableApplicationContext applicationContext;

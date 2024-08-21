@@ -5,7 +5,7 @@ import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
 import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.common.env.SimplePropertySource;
-import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.CommonServiceLoader;
 import com.gittors.apollo.extend.spi.ApolloExtendListenPublish;
 import com.gittors.apollo.extend.support.ApolloExtendFactory;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
@@ -102,7 +102,7 @@ public abstract class AbstractApolloExtendListenCallback implements SimpleConfig
     }
 
     private void publish(String namespace, Map<String, String> map) {
-        ApolloExtendListenPublish publish = ServiceLookUp.loadPrimary(ApolloExtendListenPublish.class);
+        ApolloExtendListenPublish publish = CommonServiceLoader.loadPrimary(ApolloExtendListenPublish.class);
         Map<String, Map<String, String>> data = Maps.newHashMap();
         data.put(namespace, map);
         publish.doPublish(context, data);

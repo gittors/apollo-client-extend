@@ -7,7 +7,7 @@ import com.gittors.apollo.extend.common.constant.ApolloExtendAdminConstant;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.env.SimplePropertySource;
 import com.gittors.apollo.extend.common.manager.CacheManager;
-import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.CommonServiceLoader;
 import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
 import com.gittors.apollo.extend.spi.ApolloExtendNameSpaceManager;
 import com.gittors.apollo.extend.support.ext.ApolloClientExtendConfig;
@@ -59,10 +59,10 @@ public class DefaultServiceHandler implements ServiceHandler {
     private static final String HANDLER = "HANDLER";
 
     ApolloExtendAdminWebfluxProcessor<BeanFactory> extendAdminWebfluxProcessor =
-            ServiceLookUp.loadPrimary(ApolloExtendAdminWebfluxProcessor.class);
+            CommonServiceLoader.loadPrimary(ApolloExtendAdminWebfluxProcessor.class);
 
     ApolloExtendNameSpaceManager extendNameSpaceManager =
-            ServiceLookUp.loadPrimary(ApolloExtendNameSpaceManager.class);
+            CommonServiceLoader.loadPrimary(ApolloExtendNameSpaceManager.class);
 
     @Autowired
     @Qualifier(ApolloExtendAdminConstant.EXTEND_ADMIN_WEB_FLUX_CACHE_MANAGER)

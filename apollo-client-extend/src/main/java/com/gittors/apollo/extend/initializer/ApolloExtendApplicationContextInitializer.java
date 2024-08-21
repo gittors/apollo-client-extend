@@ -4,7 +4,7 @@ import com.ctrip.framework.apollo.spring.boot.ApolloApplicationContextInitialize
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.gittors.apollo.extend.chain.spi.ChainProcessor;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
-import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.CommonServiceLoader;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -33,7 +33,7 @@ public class ApolloExtendApplicationContextInitializer implements
 
     private static final String[] APOLLO_SYSTEM_PROPERTIES = {"env"};
 
-    private static final ChainProcessor chainProcessor = ServiceLookUp.loadPrimary(ChainProcessor.class);
+    private static final ChainProcessor chainProcessor = CommonServiceLoader.loadPrimary(ChainProcessor.class);
 
     public static final int DEFAULT_ORDER = ApolloApplicationContextInitializer.DEFAULT_ORDER + 100;
 

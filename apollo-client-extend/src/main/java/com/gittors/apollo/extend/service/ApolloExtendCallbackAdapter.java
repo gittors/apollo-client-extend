@@ -3,7 +3,7 @@ package com.gittors.apollo.extend.service;
 import com.ctrip.framework.apollo.model.ConfigChange;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
-import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.CommonServiceLoader;
 import com.gittors.apollo.extend.spi.ApolloExtendConfigPostProcessor;
 import com.gittors.apollo.extend.spi.ApolloExtendNameSpaceManager;
 import com.google.common.base.Splitter;
@@ -37,10 +37,10 @@ public class ApolloExtendCallbackAdapter implements ApplicationContextAware, Sim
             Splitter.on(CommonApolloConstant.DEFAULT_SEPARATOR).omitEmptyStrings().trimResults();
 
     private final ApolloExtendNameSpaceManager extendNameSpaceManager =
-            ServiceLookUp.loadPrimary(ApolloExtendNameSpaceManager.class);
+            CommonServiceLoader.loadPrimary(ApolloExtendNameSpaceManager.class);
 
     private final ApolloExtendConfigPostProcessor configPostProcessor =
-            ServiceLookUp.loadPrimary(ApolloExtendConfigPostProcessor.class);
+            CommonServiceLoader.loadPrimary(ApolloExtendConfigPostProcessor.class);
 
     /**
      * 限制修改 {@link CommonApolloConstant#APOLLO_EXTEND_NAMESPACE} 配置的线程数

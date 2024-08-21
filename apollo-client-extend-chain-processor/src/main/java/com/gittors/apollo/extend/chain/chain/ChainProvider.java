@@ -3,7 +3,7 @@ package com.gittors.apollo.extend.chain.chain;
 import com.gittors.apollo.extend.chain.spi.ChainBuilder;
 import com.gittors.apollo.extend.chain.spi.DefaultChainBuilder;
 import com.gittors.apollo.extend.chain.utils.AssertUtils;
-import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.CommonServiceLoader;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +35,7 @@ public final class ChainProvider {
             String key = clazz.getName();
             T service = (T) SERVICE_LOADER_MAP.get(key);
             if (service == null) {
-                service = ServiceLookUp.loadPrimary(clazz);
+                service = CommonServiceLoader.loadPrimary(clazz);
                 SERVICE_LOADER_MAP.put(key, service);
             }
             if (service != null) {

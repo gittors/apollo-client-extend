@@ -9,7 +9,7 @@ import com.gittors.apollo.extend.common.constant.CommonApolloConstant;
 import com.gittors.apollo.extend.common.context.ApolloPropertySourceContext;
 import com.gittors.apollo.extend.common.enums.ChangeType;
 import com.gittors.apollo.extend.common.env.SimplePropertySource;
-import com.gittors.apollo.extend.common.service.ServiceLookUp;
+import com.gittors.apollo.extend.common.service.CommonServiceLoader;
 import com.gittors.apollo.extend.common.spi.ApolloExtendListenerInjector;
 import com.gittors.apollo.extend.env.SimpleCompositePropertySource;
 import com.gittors.apollo.extend.properties.ApolloExtendGlobalListenKeyProperties;
@@ -71,7 +71,7 @@ public final class ApolloExtendUtils {
             configPropertySource.addChangeListener(configChangeListener);
 
             List<ConfigChangeListener> changeListenerList = Lists.newLinkedList();
-            Iterator<ApolloExtendListenerInjector> loadAll = ServiceLookUp.loadAll(ApolloExtendListenerInjector.class);
+            Iterator<ApolloExtendListenerInjector> loadAll = CommonServiceLoader.loadAll(ApolloExtendListenerInjector.class);
             for (Iterator<ApolloExtendListenerInjector> iterator = loadAll; iterator.hasNext();) {
                 ApolloExtendListenerInjector listenerInjector = iterator.next();
                 listenerInjector.injector(changeListenerList, context);
