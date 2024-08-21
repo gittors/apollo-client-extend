@@ -1,9 +1,9 @@
 package com.gittors.apollo.extend.common.service;
 
 import com.google.common.collect.Lists;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -42,7 +42,7 @@ public class ServiceLookUp {
      * @param <T>
      * @return
      */
-    public static <T extends Ordered> List<T> loadAllOrdered(Class<T> clazz) {
+    public static <T> List<T> loadAllOrdered(Class<T> clazz) {
         Iterator<T> iterator = loadAll(clazz);
         if (!iterator.hasNext()) {
             throw new IllegalStateException(String.format(
@@ -51,7 +51,9 @@ public class ServiceLookUp {
         }
         List<T> candidates = Lists.newArrayList(iterator);
         // 数值越小优先级越高
-        Collections.sort(candidates, Comparator.comparingInt(Ordered::getOrder));
+        // 接口需实现：org.springframework.core.Ordered 或 标注 org.springframework.core.annotation.Order
+        // 未实现接口和标注@Order注解的，默认为int最大值： org.springframework.core.OrderComparator.getOrder(java.lang.Object)
+        Collections.sort(candidates, AnnotationAwareOrderComparator.INSTANCE);
         return candidates;
     }
 
@@ -62,7 +64,7 @@ public class ServiceLookUp {
      * @param <T>
      * @return
      */
-    public static <T extends Ordered> T loadPrimary(Class<T> clazz) {
+    public static <T> T loadPrimary(Class<T> clazz) {
         List<T> candidates = loadAllOrdered(clazz);
         return candidates.get(0);
     }
