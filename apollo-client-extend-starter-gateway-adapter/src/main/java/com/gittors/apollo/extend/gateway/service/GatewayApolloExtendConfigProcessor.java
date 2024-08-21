@@ -5,6 +5,7 @@ import com.gittors.apollo.extend.gateway.event.RouteRefreshEvent;
 import com.gittors.apollo.extend.spi.ApolloExtendConfigPostProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.annotation.Order;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
  * @date 2020/8/19 11:18
  */
 @Slf4j
+@Order(0)
 public class GatewayApolloExtendConfigProcessor implements ApolloExtendConfigPostProcessor<Map<String, Map<String, String>>> {
 
     @Override
@@ -28,8 +30,4 @@ public class GatewayApolloExtendConfigProcessor implements ApolloExtendConfigPos
         eventPublisher.asyncPublish(refreshEvent);
     }
 
-    @Override
-    public int getOrder() {
-        return 0;
-    }
 }

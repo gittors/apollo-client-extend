@@ -1,12 +1,10 @@
 package com.gittors.apollo.extend.admin.webflux.spi;
 
-import com.gittors.apollo.extend.common.service.Ordered;
-
 /**
  * @author zlliu
  * @date 2020/8/30 17:41
  */
-public interface ApolloExtendAdminWebfluxProcessor<T> extends Ordered {
+public interface ApolloExtendAdminWebfluxProcessor<T> {
 
     /**
      * Webflux 处理
