@@ -83,7 +83,6 @@ apollo.bootstrap.namespaces: application,application2
 | apollo-client-extend-binder-starter | 对象绑定Starter |
 | apollo-client-extend-demo | 示例Demo |
 | apollo-client-extend-starter-gateway-adapter | 网关适配 |
-| apollo-client-extend-chain-processor | 链式调用 |
 | apollo-client-extend-admin | 管理模块 |
 | apollo-client-extend-support | 基础支持模块 |
 
@@ -96,7 +95,6 @@ apollo.bootstrap.namespaces: application,application2
 * **对象绑定Starter：集成对象绑定模块**
 * **示例Demo：使用示例**
 * **网关适配：通过集成基础Starter+事件Starter，具有：新增命名空间配置后，发布网关配置事件功能**
-* **链式调用：具有简单的链式调用功能**
 * **管理模块：修改管理配置可以通过 Apollo WEB界面，也可以通过管理模块的接口**
 * **基础支持模块：Apollo Client 的扩展实现**
 

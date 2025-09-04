@@ -63,7 +63,6 @@ public class BinderClassPathScanner extends ClassPathBeanDefinitionScanner {
         if (this.annotationClass != null) {
             addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
         }
-
         // exclude package-info.java and other class
         addExcludeFilter((metadataReader, metadataReaderFactory) -> {
             String className = metadataReader.getClassMetadata().getClassName();

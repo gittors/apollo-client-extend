@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
 
     <artifactId>apollo-client-extend-admin</artifactId>
+    <version>1.5.6</version>
 
     <modules>
         <module>apollo-client-extend-admin-web</module>

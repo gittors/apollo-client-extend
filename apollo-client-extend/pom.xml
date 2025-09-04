@@ -11,9 +11,9 @@
     </parent>
 
     <artifactId>apollo-client-extend</artifactId>
+    <version>1.5.6</version>
 
     <dependencies>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>apollo-client-extend-support</artifactId>
